@@ -1,0 +1,16 @@
+// Generate more mock data
+const generateMockBusinesses = (count: number) => {
+    return Array.from({ length: count }, (_, i) => ({
+      id: i + 1,
+      name: `Restaurant ${i + 1}`,
+      address: `${i + 123} Food Street, Toronto, ON`,
+      description: `A wonderful ${cuisineTypes[i % cuisineTypes.length]} restaurant with amazing food and atmosphere.`,
+      rating: (Math.random() * 2 + 3).toFixed(1), // Random rating between 3.0 and 5.0
+      image: "/placeholder.svg",
+      cuisine: cuisineTypes[i % cuisineTypes.length],
+      priceRange: Math.floor(Math.random() * 3) + 1, // 1-3 price range
+      dietary: [dietaryPreferences[Math.floor(Math.random() * dietaryPreferences.length)]],
+    }))
+  }
+  
+  const mockBusinesses = generateMockBusinesses(50)
