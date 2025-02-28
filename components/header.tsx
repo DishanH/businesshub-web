@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Bell, User } from "lucide-react"
+import { Bell, User, Baby } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -30,6 +30,14 @@ export default function Header() {
           <Link href="/" className="text-2xl font-bold">
             Local Business Hub
           </Link>
+          <nav className="hidden md:flex items-center space-x-4">
+            <Button variant="ghost" asChild>
+              <Link href="/nanny-services" className="flex items-center">
+                <Baby className="h-4 w-4 mr-2" />
+                Nanny Services
+              </Link>
+            </Button>
+          </nav>
         </div>
         <div className="flex items-center space-x-4">
           <ThemeToggle />
