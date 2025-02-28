@@ -21,8 +21,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CategoryBadge } from "@/components/category-badge"
 import { useRouter } from "next/navigation"
 
+interface Business {
+  id: string
+  name: string
+  address: string
+  description: string
+  rating: number
+  image: string
+}
+
+interface LocationData {
+  [key: string]: Business[]
+}
+
 // Mock data for demonstration
-const businessesByLocation = {
+const businessesByLocation: LocationData = {
   toronto: [
     {
       id: "1",
@@ -232,7 +245,7 @@ function getActiveCategories() {
 
 export default function Home() {
   const router = useRouter()
-  const [location, setLocation] = useState("toronto")
+  const [location, setLocation] = useState<"toronto" | "vancouver">("toronto")
   const [businesses, setBusinesses] = useState(businessesByLocation[location])
   const [topSellers, setTopSellers] = useState(topSellersByLocation[location])
   const [searchQuery, setSearchQuery] = useState("")
@@ -241,6 +254,13 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+  const [likedBusinesses, setLikedBusinesses] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('likedBusinesses')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
 
   useEffect(() => {
     setLoading(true)
@@ -297,6 +317,16 @@ export default function Home() {
     router.push(`/posts?search=${encodeURIComponent(value)}`)
   }
 
+  const handleLike = (id: string) => {
+    setLikedBusinesses(prev => {
+      const newLikes = prev.includes(id) 
+        ? prev.filter(businessId => businessId !== id)
+        : [...prev, id]
+      localStorage.setItem('likedBusinesses', JSON.stringify(newLikes))
+      return newLikes
+    })
+  }
+
   return (
     <div className="space-y-12">
       <div className="sticky top-0 z-10 bg-background shadow-md">
@@ -351,7 +381,10 @@ export default function Home() {
               )}
             </div>
             <div className="flex items-center space-x-4 ml-4">
-              <Select value={location} onValueChange={setLocation}>
+              <Select 
+                value={location} 
+                onValueChange={(value: "toronto" | "vancouver") => setLocation(value)}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select location" />
                 </SelectTrigger>
@@ -461,7 +494,12 @@ export default function Home() {
               : businesses
                   .slice(0, 8)
                   .map((business) => (
-                    <BusinessCard key={business.id} business={business} className="h-full flex flex-col" />
+                    <BusinessCard 
+                      key={business.id} 
+                      business={business}
+                      onLike={handleLike}
+                      isLiked={likedBusinesses.includes(business.id)}
+                    />
                   ))}
           </div>
         </section>
@@ -487,7 +525,12 @@ export default function Home() {
               : newlyAddedBusinesses
                   .slice(0, 8)
                   .map((business) => (
-                    <BusinessCard key={business.id} business={business} className="h-full flex flex-col" />
+                    <BusinessCard 
+                      key={business.id} 
+                      business={business}
+                      onLike={handleLike}
+                      isLiked={likedBusinesses.includes(business.id)}
+                    />
                   ))}
           </div>
         </section>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Bell, User, Baby } from "lucide-react"
+import { Bell, User, Baby, BookmarkCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -41,6 +41,11 @@ export default function Header() {
         </div>
         <div className="flex items-center space-x-4">
           <ThemeToggle />
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/saved-posts">
+              <BookmarkCheck className="h-5 w-5" />
+            </Link>
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">

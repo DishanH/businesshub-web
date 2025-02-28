@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Heart, History } from "lucide-react"
+import { Heart, History, Search } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Pagination,
@@ -19,6 +19,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import BusinessCard from "@/components/business-card"
 
 // Mock data - replace with actual data fetching
@@ -108,15 +110,86 @@ const RECENT_POSTS = [
   },
 ]
 
+// Extract unique categories from posts
+const extractCategories = (posts: typeof LIKED_POSTS) => {
+  const categories = new Set<string>()
+  posts.forEach(post => {
+    // Extract categories based on common keywords in title and description
+    const text = `${post.name} ${post.description}`.toLowerCase()
+    if (text.includes('coffee') || text.includes('cafe')) categories.add('Cafes')
+    if (text.includes('restaurant') || text.includes('food')) categories.add('Restaurants')
+    if (text.includes('shop') || text.includes('boutique')) categories.add('Shopping')
+    if (text.includes('fitness') || text.includes('workout')) categories.add('Fitness')
+    if (text.includes('tech') || text.includes('technology')) categories.add('Tech')
+    if (text.includes('event') || text.includes('festival')) categories.add('Events')
+    if (text.includes('market') || text.includes('artisan')) categories.add('Local Markets')
+  })
+  return Array.from(categories)
+}
+
 export default function SavedPostsPage() {
-  const [likedPosts] = useState(LIKED_POSTS)
-  const [recentPosts] = useState(RECENT_POSTS)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
-  const totalPages = 3 // Mock total pages
+  const [likedBusinesses, setLikedBusinesses] = useState<string[]>(() => {
+    // Initialize from localStorage if available
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('likedBusinesses')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+  const postsPerPage = 6
+
+  const categories = Array.from(new Set([
+    ...extractCategories(LIKED_POSTS),
+    ...extractCategories(RECENT_POSTS)
+  ])).sort()
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    )
+    setCurrentPage(1) // Reset to first page when filter changes
+  }
+
+  const filterPosts = (posts: typeof LIKED_POSTS) => {
+    return posts.filter(post => {
+      const matchesSearch = searchQuery === "" || 
+        post.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.description.toLowerCase().includes(searchQuery.toLowerCase())
+      
+      const matchesCategories = selectedCategories.length === 0 || 
+        selectedCategories.some(cat => {
+          const text = `${post.name} ${post.description}`.toLowerCase()
+          return text.includes(cat.toLowerCase())
+        })
+
+      return matchesSearch && matchesCategories
+    })
+  }
+
+  const paginatePosts = (posts: typeof LIKED_POSTS) => {
+    const startIndex = (currentPage - 1) * postsPerPage
+    return posts.slice(startIndex, startIndex + postsPerPage)
+  }
+
+  const handleLike = (id: string) => {
+    setLikedBusinesses(prev => {
+      const newLikes = prev.includes(id) 
+        ? prev.filter(businessId => businessId !== id)
+        : [...prev, id]
+      
+      // Save to localStorage
+      localStorage.setItem('likedBusinesses', JSON.stringify(newLikes))
+      return newLikes
+    })
+  }
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Breadcrumb */}
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -126,77 +199,142 @@ export default function SavedPostsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Saved Posts</BreadcrumbPage>
+            <BreadcrumbPage>Saved Businesses</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Saved Posts</h1>
-          <p className="text-muted-foreground mt-2">
-            View and manage your liked posts and recent activity
-          </p>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Saved Businesses</h1>
+            <p className="text-muted-foreground mt-2">
+              View and manage your favorite and recently viewed businesses
+            </p>
+          </div>
+          <div className="relative w-[300px]">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search businesses..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setCurrentPage(1) // Reset to first page when searching
+              }}
+            />
+          </div>
         </div>
 
-        <Tabs defaultValue="liked" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="liked" className="flex items-center gap-2">
+        {categories.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <Badge
+                key={category}
+                variant={selectedCategories.includes(category) ? "default" : "outline"}
+                className="cursor-pointer hover:bg-primary/80"
+                onClick={() => toggleCategory(category)}
+              >
+                {category}
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <Tabs defaultValue="favorites" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="favorites" className="flex items-center gap-2">
               <Heart className="h-4 w-4" />
-              Liked Posts
+              Favorites
             </TabsTrigger>
             <TabsTrigger value="recent" className="flex items-center gap-2">
               <History className="h-4 w-4" />
-              Recent Posts
+              Recently Viewed Businesses
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="liked">
+          <TabsContent value="favorites" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {likedPosts.map((post) => (
-                <BusinessCard key={post.id} business={post} />
+              {paginatePosts(filterPosts(LIKED_POSTS)).map((post) => (
+                <BusinessCard 
+                  key={post.id} 
+                  business={post} 
+                  onLike={handleLike}
+                  isLiked={likedBusinesses.includes(post.id)}
+                />
               ))}
             </div>
+            {filterPosts(LIKED_POSTS).length > postsPerPage && (
+              <Pagination className="mt-6">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: Math.ceil(filterPosts(LIKED_POSTS).length / postsPerPage) }).map((_, i) => (
+                    <PaginationItem key={i + 1}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(i + 1)}
+                        isActive={currentPage === i + 1}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(prev => Math.min(Math.ceil(filterPosts(LIKED_POSTS).length / postsPerPage), prev + 1))}
+                      className={currentPage === Math.ceil(filterPosts(LIKED_POSTS).length / postsPerPage) ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </TabsContent>
 
-          <TabsContent value="recent">
+          <TabsContent value="recent" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {recentPosts.map((post) => (
-                <BusinessCard key={post.id} business={post} />
+              {paginatePosts(filterPosts(RECENT_POSTS)).map((post) => (
+                <BusinessCard 
+                  key={post.id} 
+                  business={post} 
+                  onLike={handleLike}
+                  isLiked={likedBusinesses.includes(post.id)}
+                />
               ))}
             </div>
+            {filterPosts(RECENT_POSTS).length > postsPerPage && (
+              <Pagination className="mt-6">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: Math.ceil(filterPosts(RECENT_POSTS).length / postsPerPage) }).map((_, i) => (
+                    <PaginationItem key={i + 1}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(i + 1)}
+                        isActive={currentPage === i + 1}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(prev => Math.min(Math.ceil(filterPosts(RECENT_POSTS).length / postsPerPage), prev + 1))}
+                      className={currentPage === Math.ceil(filterPosts(RECENT_POSTS).length / postsPerPage) ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </TabsContent>
         </Tabs>
-
-        <Pagination className="mt-8">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                href="#" 
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-              />
-            </PaginationItem>
-            {[...Array(totalPages)].map((_, i) => (
-              <PaginationItem key={i + 1}>
-                <PaginationLink
-                  href="#"
-                  onClick={() => setCurrentPage(i + 1)}
-                  isActive={currentPage === i + 1}
-                >
-                  {i + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext 
-                href="#" 
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
       </div>
     </div>
   )
