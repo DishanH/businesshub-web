@@ -27,7 +27,7 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 220 70% 2%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -49,34 +49,34 @@
   }
 
   .rainbow {
-    --background: 220 70% 95%;
-    --foreground: 220 70% 20%;
-    --card: 220 70% 98%;
-    --card-foreground: 220 70% 20%;
-    --popover: 220 70% 98%;
-    --popover-foreground: 220 70% 20%;
-    --primary: 220 100% 50%;
-    --primary-foreground: 220 100% 98%;
-    --secondary: 280 100% 60%;
-    --secondary-foreground: 280 100% 20%;
-    --muted: 220 70% 90%;
-    --muted-foreground: 220 70% 40%;
-    --accent: 40 100% 50%;
-    --accent-foreground: 40 100% 20%;
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 0 100% 98%;
-    --border: 220 70% 80%;
-    --input: 220 70% 80%;
-    --ring: 220 100% 50%;
+    --background: 225 30% 10%;
+    --foreground: 180 100% 90%;
+    --card: 225 25% 15%;
+    --card-foreground: 180 100% 90%;
+    --popover: 225 25% 15%;
+    --popover-foreground: 180 100% 90%;
+    --primary: 315 100% 60%;
+    --primary-foreground: 225 30% 10%;
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 225 30% 10%;
+    --muted: 225 20% 20%;
+    --muted-foreground: 180 70% 70%;
+    --accent: 135 100% 50%;
+    --accent-foreground: 225 30% 10%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 225 30% 10%;
+    --border: 225 50% 30%;
+    --input: 225 50% 30%;
+    --ring: 315 100% 60%;
 
-    /* Rainbow gradient accents */
-    --rainbow-red: 0 100% 50%;
-    --rainbow-orange: 30 100% 50%;
-    --rainbow-yellow: 60 100% 50%;
-    --rainbow-green: 120 100% 50%;
-    --rainbow-blue: 220 100% 50%;
-    --rainbow-indigo: 260 100% 50%;
-    --rainbow-violet: 280 100% 50%;
+    /* Neon accent colors */
+    --neon-pink: 315 100% 60%;
+    --neon-cyan: 180 100% 50%;
+    --neon-green: 135 100% 50%;
+    --neon-yellow: 60 100% 50%;
+    --neon-purple: 270 100% 60%;
+    --neon-blue: 210 100% 60%;
+    --neon-red: 0 100% 60%;
   }
 }
 
