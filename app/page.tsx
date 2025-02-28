@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { CarouselComponent } from "@/components/carousel"
 import BusinessCard from "@/components/business-card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, PlusCircle, Shield } from "lucide-react"
+import { Search, Shield, Plus } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -393,10 +393,14 @@ export default function Home() {
                   <SelectItem value="vancouver">Vancouver</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" className="bg-yellow-400 text-black hover:bg-yellow-500" asChild>
+              <Button 
+                variant="default" 
+                className="flex items-center gap-2 px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-500/90 via-purple-500 to-pink-500/90 hover:from-indigo-600/90 hover:via-purple-600 hover:to-pink-600/90 transition-all duration-300 transform hover:scale-105 hover:shadow-lg group" 
+                asChild
+              >
                 <Link href="/add-business">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add a Business
+                  <Plus className="h-4 w-4 group-hover:animate-pulse" />
+                  <span className="relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 group-hover:after:w-full">Add Business</span>
                 </Link>
               </Button>
               <Button variant="outline" className="bg-primary text-primary-foreground hover:bg-primary/90" asChild>

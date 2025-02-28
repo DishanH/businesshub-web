@@ -72,7 +72,7 @@ export default function BusinessCard({ business, className, onLike, isLiked }: B
       </CardContent>
       <CardFooter className="p-4 pt-0 mt-auto">
         <Link 
-          href={`/business/${business.id}`} 
+          href={`/posts/${business.id}`} 
           className="w-full text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center justify-between group"
         >
           View Details

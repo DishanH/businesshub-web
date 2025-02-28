@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Star, MapPin, Clock, Heart, Search, Filter, X, LayoutGrid, List, ChevronLeft, ChevronRight, BookmarkCheck } from "lucide-react"
+import { Star, MapPin, Clock, Heart, Search, Filter, X, LayoutGrid, List, ChevronLeft, ChevronRight, BookmarkCheck, Sparkles } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -224,21 +224,43 @@ export default function NannyServicesPage() {
               Find experienced and caring nannies in your area
             </p>
           </div>
-          <Link href="/nanny-services/favorites">
-            <Button variant="outline" className="hidden md:flex items-center gap-2">
-              <BookmarkCheck className="h-5 w-5" />
-              <span>Liked Nannies</span>
-              {likedNannies.length > 0 && (
-                <Badge variant="secondary" className="ml-1">
-                  {likedNannies.length}
-                </Badge>
-              )}
+          <div className="hidden md:flex items-center gap-4">
+            <Button 
+              variant="default" 
+              className="flex items-center gap-2 px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-500/90 via-purple-500 to-pink-500/90 hover:from-indigo-600/90 hover:via-purple-600 hover:to-pink-600/90" 
+              asChild
+            >
+              <Link href="/nanny-services/create-profile">
+                <Sparkles className="h-4 w-4 group-hover:animate-pulse" />
+                <span className="relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 group-hover:after:w-full">Get Started</span>
+              </Link>
             </Button>
-          </Link>
+            <Link href="/nanny-services/favorites">
+              <Button variant="outline" className="flex items-center gap-2">
+                <BookmarkCheck className="h-5 w-5" />
+                <span>Liked Nannies</span>
+                {likedNannies.length > 0 && (
+                  <Badge variant="secondary" className="ml-1">
+                    {likedNannies.length}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        {/* Mobile Favorites Link */}
-        <div className="md:hidden">
+        {/* Mobile Buttons */}
+        <div className="md:hidden flex flex-col gap-4">
+          <Button 
+            variant="default" 
+            className="w-full flex items-center justify-center gap-2 px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-500/90 via-purple-500 to-pink-500/90 hover:from-indigo-600/90 hover:via-purple-600 hover:to-pink-600/90 transition-all duration-300 transform hover:scale-105 hover:shadow-lg group" 
+            asChild
+          >
+            <Link href="/nanny-services/create-profile">
+              <Sparkles className="h-4 w-4 group-hover:animate-pulse" />
+              <span className="relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 group-hover:after:w-full">Get Started</span>
+            </Link>
+          </Button>
           <Link href="/nanny-services/favorites" className="w-full">
             <Button variant="outline" className="w-full flex items-center justify-center gap-2">
               <BookmarkCheck className="h-5 w-5" />
