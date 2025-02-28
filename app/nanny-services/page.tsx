@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Star, MapPin, Clock, Heart, Search, Filter, X, LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react"
+import { Star, MapPin, Clock, Heart, Search, Filter, X, LayoutGrid, List, ChevronLeft, ChevronRight, BookmarkCheck } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -155,10 +155,24 @@ export default function NannyServicesPage() {
     currentPage * ITEMS_PER_PAGE
   )
 
+  useEffect(() => {
+    // Load liked nannies from localStorage on initial render
+    const savedLikes = localStorage.getItem('likedNannies')
+    if (savedLikes) {
+      setLikedNannies(JSON.parse(savedLikes))
+    }
+  }, [])
+
   const toggleLike = (id: string) => {
-    setLikedNannies(prev => 
-      prev.includes(id) ? prev.filter(nId => nId !== id) : [...prev, id]
-    )
+    setLikedNannies(prev => {
+      const newLikes = prev.includes(id) 
+        ? prev.filter(nId => nId !== id) 
+        : [...prev, id]
+      
+      // Save to localStorage whenever likes change
+      localStorage.setItem('likedNannies', JSON.stringify(newLikes))
+      return newLikes
+    })
   }
 
   const toggleSpecialty = (specialty: string) => {
@@ -203,11 +217,39 @@ export default function NannyServicesPage() {
       </Breadcrumb>
 
       <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Nanny Services</h1>
-          <p className="text-muted-foreground mt-2">
-            Find experienced and caring nannies in your area
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Nanny Services</h1>
+            <p className="text-muted-foreground mt-2">
+              Find experienced and caring nannies in your area
+            </p>
+          </div>
+          <Link href="/nanny-services/favorites">
+            <Button variant="outline" className="hidden md:flex items-center gap-2">
+              <BookmarkCheck className="h-5 w-5" />
+              <span>Liked Nannies</span>
+              {likedNannies.length > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {likedNannies.length}
+                </Badge>
+              )}
+            </Button>
+          </Link>
+        </div>
+
+        {/* Mobile Favorites Link */}
+        <div className="md:hidden">
+          <Link href="/nanny-services/favorites" className="w-full">
+            <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+              <BookmarkCheck className="h-5 w-5" />
+              <span>Liked Nannies</span>
+              {likedNannies.length > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {likedNannies.length}
+                </Badge>
+              )}
+            </Button>
+          </Link>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 items-start">
