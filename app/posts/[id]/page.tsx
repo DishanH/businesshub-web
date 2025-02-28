@@ -19,6 +19,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 // Mock data for demonstration
 const businesses = {
@@ -87,7 +95,7 @@ const businesses = {
   // ... other businesses
 }
 
-export default function BusinessProfilePage({ params }: { params: { id: string } }) {
+export default function PostDetailsPage({ params }: { params: { id: string } }) {
   const [activeTab, setActiveTab] = useState("menu")
   const business = businesses[params.id as keyof typeof businesses]
 
@@ -97,6 +105,24 @@ export default function BusinessProfilePage({ params }: { params: { id: string }
 
   return (
     <div className="space-y-8">
+      <div className="container mx-auto px-4 py-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/posts">Posts</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{business.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
       {/* Top Banner Section */}
       <div className="relative h-[300px] md:h-[400px] overflow-hidden">
         <Image src="/placeholder.svg" alt={business.name} fill className="object-cover" />
@@ -250,145 +276,13 @@ export default function BusinessProfilePage({ params }: { params: { id: string }
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="line-clamp-3">{review.content}</p>
-                  <Button variant="link" className="mt-2 p-0">
-                    Read More <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
+                  <p className="text-muted-foreground">{review.content}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
         </section>
-
-        {/* Messaging Feature Section */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Contact Us</h2>
-          <Card>
-            <CardContent className="p-6">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="w-full">
-                    <MessageCircle className="mr-2 h-4 w-4" /> Send a Message
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Send a Message</DialogTitle>
-                    <DialogDescription>
-                      Get in touch with us. We'll get back to you as soon as possible.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form className="space-y-4">
-                    <Input placeholder="Your Name" />
-                    <Input type="email" placeholder="Your Email" />
-                    <Textarea placeholder="Your Message" />
-                    <Button type="submit" className="w-full">
-                      Send Message
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Footer Section */}
-        <footer className="border-t pt-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-primary hover:underline">
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-primary hover:underline">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-primary hover:underline">
-                    Services
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-primary hover:underline">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
-              <div className="flex space-x-4">
-                <a href="#" className="text-primary hover:text-primary/80">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-facebook"
-                  >
-                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                  </svg>
-                </a>
-                <a href="#" className="text-primary hover:text-primary/80">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-twitter"
-                  >
-                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" />
-                  </svg>
-                </a>
-                <a href="#" className="text-primary hover:text-primary/80">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-instagram"
-                  >
-                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
-              <form className="flex">
-                <Input type="email" placeholder="Your email" className="mr-2" />
-                <Button type="submit">Subscribe</Button>
-              </form>
-            </div>
-          </div>
-          <div className="mt-8 text-center text-sm text-muted-foreground">
-            © 2024 {business.name}. All rights reserved.
-          </div>
-        </footer>
       </div>
     </div>
   )
-}
-
+} 

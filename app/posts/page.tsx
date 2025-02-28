@@ -9,9 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { CategoryBadge } from "@/components/category-badge"
 import BusinessCard from "@/components/business-card"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, X } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 
 import { getActiveCategories, getBusinessesByCategory } from "@/lib/data"
 import type { Category, Business, Attribute } from "@/lib/types"
@@ -235,38 +237,61 @@ export default function PostsPage() {
 
       {/* Main Content */}
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Input
-            type="search"
-            placeholder="Search posts..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full"
-          />
-          <Button onClick={() => setSearchQuery("")}>Clear</Button>
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Posts</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+
+            <div className="relative w-72">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                type="search"
+                placeholder="Search businesses..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 bg-background border-muted-foreground/20 focus-visible:ring-primary/20"
+              />
+            </div>
+          </div>
         </div>
-        {/* Posts Badges */}
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <CategoryBadge
-              key={category.id}
-              name={category.name}
-              count={category.subcategories.length}
-              className={
-                selectedCategory?.id === category.id
-                  ? "bg-primary"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }
-              href={`/posts?category=${category.slug}`}
-              onClick={() => handleCategoryChange(category)}
-            />
-          ))}
+
+        <div className="flex flex-col items-center space-y-6">
+          {/* Category Badges */}
+          <div className="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto">
+            {categories.map((category) => (
+              <CategoryBadge
+                key={category.id}
+                name={category.name}
+                count={category.subcategories.length}
+                className={
+                  selectedCategory?.id === category.id
+                    ? "bg-primary"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }
+                href={`/posts?category=${category.slug}`}
+                onClick={() => handleCategoryChange(category)}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Results Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginatedBusinesses.map((business) => (
-            <BusinessCard key={business.id} business={business} />
+            <BusinessCard 
+              key={business.id} 
+              business={business}
+              href={`/posts/${business.id}`}
+            />
           ))}
         </div>
 

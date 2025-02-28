@@ -476,9 +476,27 @@ export default function Home() {
         <section className="mt-12">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">Featured Businesses in {location}</h2>
-            <Button variant="outline" asChild>
-              <Link href="/posts?sort=rating">View More</Link>
-            </Button>
+            <Link 
+              href="/posts?sort=rating" 
+              className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2 group"
+            >
+              <span className="font-medium">More</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transform transition-transform group-hover:translate-x-1"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {loading
@@ -507,9 +525,27 @@ export default function Home() {
         <section className="mt-12">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">Newly Added Businesses</h2>
-            <Button variant="outline" asChild>
-              <Link href="/posts?sort=date">View More</Link>
-            </Button>
+            <Link 
+              href="/posts?sort=date" 
+              className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2 group"
+            >
+              <span className="font-medium">More</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transform transition-transform group-hover:translate-x-1"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {loading
