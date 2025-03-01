@@ -201,31 +201,6 @@ export default function CreateProfilePage() {
     }
   }
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (currentStep < steps.length - 1) {
-      const isValid = await validateCurrentStep()
-      if (isValid) {
-        setCurrentStep(currentStep + 1)
-      } else {
-        // Trigger validation for current step fields
-        if (currentStep === 0) {
-          await form.trigger(["firstName", "lastName", "email", "phone", "address"])
-        } else if (currentStep === 1) {
-          await form.trigger(["experience", "education", "languages"])
-        } else if (currentStep === 2) {
-          await form.trigger(["specialties", "availability", "ageGroups", "hourlyRate"])
-        } else if (currentStep === 3) {
-          await form.trigger(["bio"])
-        }
-      }
-    } else {
-      // Handle final submission
-      console.log(values)
-      // TODO: Submit to API
-      router.push("/nanny-services")
-    }
-  }
-
   return (
     <div className="container mx-auto px-4 py-6 max-w-3xl">
       <Breadcrumb className="mb-6">
@@ -287,7 +262,7 @@ export default function CreateProfilePage() {
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form className="space-y-6">
               {currentStep === 0 && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -640,7 +615,36 @@ export default function CreateProfilePage() {
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Previous
                 </Button>
-                <Button type="submit">
+                <Button 
+                  type="button"
+                  onClick={async () => {
+                    if (currentStep < steps.length - 1) {
+                      const isValid = await validateCurrentStep()
+                      if (isValid) {
+                        setCurrentStep(currentStep + 1)
+                      } else {
+                        // Trigger validation for current step fields
+                        const currentFields = steps[currentStep].fields
+                        await form.trigger(currentFields as Array<keyof z.infer<typeof formSchema>>)
+                      }
+                    } else {
+                      // Handle final submission
+                      const isValid = await validateCurrentStep()
+                      if (isValid) {
+                        try {
+                          // Validate entire form before final submission
+                          await form.trigger()
+                          const values = form.getValues()
+                          console.log("Form submitted:", values)
+                          // TODO: Submit to API
+                          router.push("/nanny-services")
+                        } catch (error) {
+                          console.error("Form validation failed:", error)
+                        }
+                      }
+                    }
+                  }}
+                >
                   {currentStep < steps.length - 1 ? (
                     <>
                       Next
