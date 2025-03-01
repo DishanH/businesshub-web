@@ -395,7 +395,7 @@ export default function Home() {
               </Select>
               <Button 
                 variant="default" 
-                className="flex items-center gap-2 px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-500/90 via-purple-500 to-pink-500/90 hover:from-indigo-600/90 hover:via-purple-600 hover:to-pink-600/90 transition-all duration-300 transform hover:scale-105 hover:shadow-lg group" 
+                className="flex items-center gap-2 px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-500/90 via-purple-500 to-pink-500/90 hover:from-indigo-600/90 hover:via-purple-600 hover:to-pink-600/90" 
                 asChild
               >
                 <Link href="/add-business">

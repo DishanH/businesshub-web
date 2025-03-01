@@ -71,7 +71,17 @@ const formSchema = z.object({
   // Personal Information
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  email: z.string()
+    .min(1, "Email is required")
+    .email("Invalid email address")
+    .refine(
+      (email) => {
+        // Basic format validation
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+        return emailRegex.test(email)
+      },
+      { message: "Please enter a valid email address" }
+    ),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   address: z.string().min(5, "Address must be at least 5 characters"),
   photo: z.string().optional(),
@@ -160,9 +170,54 @@ export default function CreateProfilePage() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  // Function to validate current step fields
+  const validateCurrentStep = async () => {
+    const currentFields = steps[currentStep].fields
+    const currentValues = form.getValues()
+    
+    // Create a subset of the schema for current step
+    const currentSchema = z.object(
+      Object.fromEntries(
+        currentFields.map(field => [
+          field,
+          formSchema.shape[field as keyof typeof formSchema.shape]
+        ])
+      )
+    )
+
+    try {
+      // Validate only the current step's fields
+      await currentSchema.parseAsync(
+        Object.fromEntries(
+          currentFields.map(field => [field, currentValues[field as keyof typeof currentValues]])
+        )
+      )
+      return true
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
+        console.error('Validation error:', error.errors)
+      }
+      return false
+    }
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1)
+      const isValid = await validateCurrentStep()
+      if (isValid) {
+        setCurrentStep(currentStep + 1)
+      } else {
+        // Trigger validation for current step fields
+        if (currentStep === 0) {
+          await form.trigger(["firstName", "lastName", "email", "phone", "address"])
+        } else if (currentStep === 1) {
+          await form.trigger(["experience", "education", "languages"])
+        } else if (currentStep === 2) {
+          await form.trigger(["specialties", "availability", "ageGroups", "hourlyRate"])
+        } else if (currentStep === 3) {
+          await form.trigger(["bio"])
+        }
+      }
     } else {
       // Handle final submission
       console.log(values)
