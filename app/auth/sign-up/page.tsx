@@ -1,36 +1,49 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import SignUpForm from './SignUpForm'
+"use client";
 
-export default async function SignUp() {
-  const supabase = createServerComponentClient({ cookies })
-  const { data: { user } } = await supabase.auth.getUser()
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { AuthDialog } from "@/components/AuthDialog";
 
-  // If user is already signed in, redirect to home
-  if (user) {
-    redirect('/')
-  }
+export default function SignUpPage() {
+  const router = useRouter();
+  const supabase = createClientComponentClient();
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push("/");
+      }
+    };
+    
+    checkUser();
+  }, [router, supabase.auth]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <a
-              href="/auth/sign-in"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              sign in to your account
-            </a>
-          </p>
+    <div className="flex min-h-screen flex-col items-center justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
+          Create an account
+        </h2>
+        <p className="mt-2 text-center text-sm text-muted-foreground">
+          Join our community today
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-card px-4 py-8 shadow sm:rounded-lg sm:px-10">
+          <AuthDialog 
+            defaultTab="sign-up" 
+            open={open} 
+            onOpenChange={(value) => {
+              setOpen(value);
+              if (!value) router.push("/");
+            }} 
+          />
         </div>
-        <SignUpForm />
       </div>
     </div>
-  )
+  );
 } 

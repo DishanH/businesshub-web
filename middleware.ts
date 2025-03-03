@@ -1,29 +1,39 @@
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+// Define protected routes that require authentication
+const protectedRoutes = [
+  '/nanny-services',
+  '/add-business',
+  '/account',
+  '/business/dashboard',
+  '/business/ads',
+  '/business/pages',
+  '/saved-posts',
+  '/notifications'
+]
 
 export async function middleware(request: NextRequest) {
   const res = NextResponse.next()
-
-  // Create a Supabase client configured to use cookies
   const supabase = createMiddlewareClient({ req: request, res })
+  const { data: { session } } = await supabase.auth.getSession()
 
-  // Refresh session if expired - required for Server Components
-  await supabase.auth.getSession()
+  // Check if the current path matches any protected route
+  const isProtectedRoute = protectedRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  )
 
   // If accessing auth pages with a session, redirect to home
-  if (request.nextUrl.pathname.startsWith('/auth')) {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      return NextResponse.redirect(new URL('/', request.url))
-    }
+  if (request.nextUrl.pathname.startsWith('/auth') && session) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   // If accessing protected routes without a session, redirect to sign in
-  if (!request.nextUrl.pathname.startsWith('/auth')) {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.redirect(new URL('/auth/sign-in', request.url))
-    }
+  if (isProtectedRoute && !session) {
+    const redirectUrl = new URL('/auth/sign-in', request.url)
+    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
+    return NextResponse.redirect(redirectUrl)
   }
 
   return res
@@ -31,14 +41,12 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     * - api routes
-     */
-    '/((?!_next/static|_next/image|favicon.ico|public/|api/).*)',
+    '/nanny-services/:path*',
+    '/add-business/:path*',
+    '/account/:path*',
+    '/business/:path*',
+    '/saved-posts/:path*',
+    '/notifications/:path*',
+    '/auth/:path*'
   ],
 } 
