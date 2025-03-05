@@ -94,7 +94,7 @@ export default function CategoriesPage() {
             <TableRow key={category.id}>
               <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
               <TableCell>{category.name}</TableCell>
-              <TableCell>{category.description}</TableCell>
+              <TableCell>{category.description.length > 35 ? category.description.slice(0, 35) + "..." : category.description}</TableCell>
               <TableCell>
                 <span
                   className={`inline-block w-2 h-2 rounded-full mr-2 ${
