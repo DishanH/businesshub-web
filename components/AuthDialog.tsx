@@ -126,6 +126,7 @@ export function AuthDialog({
         options: {
           data: {
             name: values.name,
+            role: 'user'
           },
           emailRedirectTo: `${location.origin}/auth/callback`,
         },
@@ -133,7 +134,7 @@ export function AuthDialog({
 
       if (error) throw error;
 
-      alert("Check your email for the confirmation link!");
+      router.push("/auth/verify-email");
       if (onOpenChange) onOpenChange(false);
     } catch (error) {
       if (error instanceof AuthError) {

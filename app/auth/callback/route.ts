@@ -28,6 +28,15 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      // Get the user to check if they're newly verified
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user && user.email_confirmed_at) {
+        // If the user has just verified their email, show a success message
+        return NextResponse.redirect(new URL('/?verified=true', request.url))
+      }
+      
+      // Otherwise, just redirect to the home page
       return NextResponse.redirect(new URL('/', request.url))
     }
   }

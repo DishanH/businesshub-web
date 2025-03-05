@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Layers, Users, FileText } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Layers, Users, FileText, UserIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function AdminDashboard() {
   return (
@@ -40,6 +41,25 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </Link>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              User Roles
+            </CardTitle>
+            <UserIcon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Roles</div>
+            <p className="text-xs text-muted-foreground">
+              Manage user roles and permissions
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button asChild className="w-full">
+              <Link href="/admin/roles">Manage Roles</Link>
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   )

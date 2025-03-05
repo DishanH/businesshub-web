@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Bell, Baby, Heart, LogOut, LogIn } from "lucide-react"
+import { Bell, Baby, Heart, LogOut, LogIn, Shield } from "lucide-react"
 import { createBrowserClient } from "@supabase/ssr"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ import type { User } from '@supabase/supabase-js'
 export default function Header() {
   const [notificationCount, setNotificationCount] = useState(0)
   const [user, setUser] = useState<User | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const router = useRouter()
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,6 +33,12 @@ export default function Header() {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+      
+      if (user) {
+        // Check if user is admin
+        const userRole = user.user_metadata?.role || 'user'
+        setIsAdmin(userRole === 'admin')
+      }
     }
 
     getUser()
@@ -39,6 +46,13 @@ export default function Header() {
     // Subscribe to auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      
+      if (session?.user) {
+        const userRole = session.user.user_metadata?.role || 'user'
+        setIsAdmin(userRole === 'admin')
+      } else {
+        setIsAdmin(false)
+      }
     })
 
     return () => {
@@ -140,6 +154,14 @@ export default function Header() {
                   <DropdownMenuItem>
                     <Link href="/contact">Contact Us</Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem>
+                      <Link href="/admin" className="flex items-center">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />

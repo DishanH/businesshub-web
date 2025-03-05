@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { CarouselComponent } from "@/components/carousel"
 import BusinessCard from "@/components/business-card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, Shield, Plus } from "lucide-react"
+import { Search, Plus } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,8 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CategoryBadge } from "@/components/category-badge"
 import { useRouter } from "next/navigation"
+import { VerificationSuccess } from "@/components/VerificationSuccess"
+import { AdminButton } from "@/components/AdminButton"
 
 interface Business {
   id: string
@@ -328,259 +330,258 @@ export default function Home() {
   }
 
   return (
-    <div className="space-y-12">
-      <div className="sticky top-0 z-10 bg-background shadow-md">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="relative w-full max-w-lg" ref={searchRef}>
-              <Input
-                type="search"
-                placeholder="Search businesses..."
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    router.push(`/posts?search=${encodeURIComponent(searchQuery)}`)
-                  }
-                }}
-                className="w-full pr-10"
-                onFocus={() => setShowSuggestions(true)}
-              />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              {showSuggestions && (searchQuery || recentSearches.length > 0) && (
-                <div className="absolute w-full mt-1 bg-background border rounded-md shadow-lg z-10">
-                  {searchQuery && suggestedCategories.length > 0 && (
-                    <div className="p-2">
-                      <h3 className="text-sm font-semibold mb-1">Categories</h3>
-                      {suggestedCategories.map((category) => (
-                        <div
-                          key={category}
-                          className="cursor-pointer p-1 hover:bg-gray-100"
-                          onClick={() => handleSelectSuggestion(category)}
-                        >
-                          {category}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {recentSearches.length > 0 && (
-                    <div className="p-2">
-                      <h3 className="text-sm font-semibold mb-1">Recent Searches</h3>
-                      {recentSearches.map((search, index) => (
-                        <div
-                          key={index}
-                          className="cursor-pointer p-1 hover:bg-gray-100"
-                          onClick={() => handleSelectSuggestion(search)}
-                        >
-                          {search}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+    <div className="container mx-auto px-4 py-8">
+      <VerificationSuccess />
+      
+      <div className="space-y-12">
+        <div className="sticky top-0 z-10 bg-background shadow-md">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="relative w-full max-w-lg" ref={searchRef}>
+                <Input
+                  type="search"
+                  placeholder="Search businesses..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      router.push(`/posts?search=${encodeURIComponent(searchQuery)}`)
+                    }
+                  }}
+                  className="w-full pr-10"
+                  onFocus={() => setShowSuggestions(true)}
+                />
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                {showSuggestions && (searchQuery || recentSearches.length > 0) && (
+                  <div className="absolute w-full mt-1 bg-background border rounded-md shadow-lg z-10">
+                    {searchQuery && suggestedCategories.length > 0 && (
+                      <div className="p-2">
+                        <h3 className="text-sm font-semibold mb-1">Categories</h3>
+                        {suggestedCategories.map((category) => (
+                          <div
+                            key={category}
+                            className="cursor-pointer p-1 hover:bg-gray-100"
+                            onClick={() => handleSelectSuggestion(category)}
+                          >
+                            {category}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {recentSearches.length > 0 && (
+                      <div className="p-2">
+                        <h3 className="text-sm font-semibold mb-1">Recent Searches</h3>
+                        {recentSearches.map((search, index) => (
+                          <div
+                            key={index}
+                            className="cursor-pointer p-1 hover:bg-gray-100"
+                            onClick={() => handleSelectSuggestion(search)}
+                          >
+                            {search}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center space-x-4 ml-4">
+                <Select 
+                  value={location} 
+                  onValueChange={(value: "toronto" | "vancouver") => setLocation(value)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="toronto">Toronto</SelectItem>
+                    <SelectItem value="vancouver">Vancouver</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button 
+                  variant="default" 
+                  className="flex items-center gap-2 px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-500/90 via-purple-500 to-pink-500/90 hover:from-indigo-600/90 hover:via-purple-600 hover:to-pink-600/90" 
+                  asChild
+                >
+                  <Link href="/add-business">
+                    <Plus className="h-4 w-4 group-hover:animate-pulse" />
+                    <span className="relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 group-hover:after:w-full">Add Business</span>
+                  </Link>
+                </Button>
+                <AdminButton />
+              </div>
             </div>
-            <div className="flex items-center space-x-4 ml-4">
-              <Select 
-                value={location} 
-                onValueChange={(value: "toronto" | "vancouver") => setLocation(value)}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="toronto">Toronto</SelectItem>
-                  <SelectItem value="vancouver">Vancouver</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button 
-                variant="default" 
-                className="flex items-center gap-2 px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-500/90 via-purple-500 to-pink-500/90 hover:from-indigo-600/90 hover:via-purple-600 hover:to-pink-600/90" 
-                asChild
-              >
-                <Link href="/add-business">
-                  <Plus className="h-4 w-4 group-hover:animate-pulse" />
-                  <span className="relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 group-hover:after:w-full">Add Business</span>
-                </Link>
-              </Button>
-              <Button variant="outline" className="bg-primary text-primary-foreground hover:bg-primary/90" asChild>
-                <Link href="/admin">
-                  <Shield className="mr-2 h-4 w-4" />
-                  Admin
-                </Link>
-              </Button>
-            </div>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{location}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Home</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{location}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4">
-        <section className="flex flex-col md:flex-row gap-8 items-center">
-          <div className="md:w-1/2 space-y-4">
-            <h1 className="text-4xl font-bold">Discover Local Businesses</h1>
-            <p className="text-lg">
-              Connect with the best local businesses in {location}. From artisanal bakeries to expert plumbers, find the
-              services you need from trusted professionals in your community.
-            </p>
-          </div>
-          <div className="md:w-1/2">
-            <CarouselComponent />
-          </div>
-        </section>
-
-        <section className="text-center my-12">
-          <h2 className="text-2xl font-semibold mb-6">Top Rated Sellers in {location}</h2>
-          <div className="flex flex-nowrap justify-center gap-8 overflow-x-auto pb-4">
-            {topSellers.map((seller) => (
-              <div key={seller.id} className="flex flex-col items-center flex-shrink-0">
-                <Avatar className="w-16 h-16">
-                  <AvatarImage src={seller.image} alt={seller.name} />
-                  <AvatarFallback>
-                    {seller.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="mt-2 font-semibold">{seller.name}</span>
-                <span className="text-sm text-muted-foreground">{seller.shopName}</span>
-              </div>
-            ))}
-          </div>
-          <section className="my-6 flex flex-col items-center border-y border-border">
-            <div className="p-6">
-              <div className="">
-                <div className="flex flex-wrap justify-center gap-2">
-                  {categories.map((category) => (
-                    <CategoryBadge
-                      key={category.id}
-                      name={category.name}
-                      count={category.subcategories.length}
-                      className="bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                      href={`/posts?category=${category.slug}`}
-                    />
-                  ))}
-                </div>
-              </div>
+        <div className="container mx-auto px-4">
+          <section className="flex flex-col md:flex-row gap-8 items-center">
+            <div className="md:w-1/2 space-y-4">
+              <h1 className="text-4xl font-bold">Discover Local Businesses</h1>
+              <p className="text-lg">
+                Connect with the best local businesses in {location}. From artisanal bakeries to expert plumbers, find the
+                services you need from trusted professionals in your community.
+              </p>
+            </div>
+            <div className="md:w-1/2">
+              <CarouselComponent />
             </div>
           </section>
-        </section>
 
-        <section className="mt-12">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Featured Businesses in {location}</h2>
-            <Link 
-              href="/posts?sort=rating" 
-              className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2 group"
-            >
-              <span className="font-medium">More</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="transform transition-transform group-hover:translate-x-1"
-              >
-                <path d="M5 12h14" />
-                <path d="m12 5 7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {loading
-              ? Array.from({ length: 8 }).map((_, index) => (
-                  <div key={`skeleton-${index}`} className="space-y-4">
-                    <Skeleton className="h-48 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
+          <section className="text-center my-12">
+            <h2 className="text-2xl font-semibold mb-6">Top Rated Sellers in {location}</h2>
+            <div className="flex flex-nowrap justify-center gap-8 overflow-x-auto pb-4">
+              {topSellers.map((seller) => (
+                <div key={seller.id} className="flex flex-col items-center flex-shrink-0">
+                  <Avatar className="w-16 h-16">
+                    <AvatarImage src={seller.image} alt={seller.name} />
+                    <AvatarFallback>
+                      {seller.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="mt-2 font-semibold">{seller.name}</span>
+                  <span className="text-sm text-muted-foreground">{seller.shopName}</span>
+                </div>
+              ))}
+            </div>
+            <section className="my-6 flex flex-col items-center border-y border-border">
+              <div className="p-6">
+                <div className="">
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {categories.map((category) => (
+                      <CategoryBadge
+                        key={category.id}
+                        name={category.name}
+                        count={category.subcategories.length}
+                        className="bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                        href={`/posts?category=${category.slug}`}
+                      />
+                    ))}
                   </div>
-                ))
-              : businesses
-                  .slice(0, 8)
-                  .map((business) => (
-                    <BusinessCard 
-                      key={business.id} 
-                      business={business}
-                      onLike={handleLike}
-                      isLiked={likedBusinesses.includes(business.id)}
-                    />
-                  ))}
-          </div>
-        </section>
+                </div>
+              </div>
+            </section>
+          </section>
 
-        <section className="mt-12">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Newly Added Businesses</h2>
-            <Link 
-              href="/posts?sort=date" 
-              className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2 group"
-            >
-              <span className="font-medium">More</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="transform transition-transform group-hover:translate-x-1"
+          <section className="mt-12">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">Featured Businesses in {location}</h2>
+              <Link 
+                href="/posts?sort=rating" 
+                className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2 group"
               >
-                <path d="M5 12h14" />
-                <path d="m12 5 7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {loading
-              ? Array.from({ length: 8 }).map((_, index) => (
-                  <div key={`skeleton-${index}`} className="space-y-4">
-                    <Skeleton className="h-48 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                ))
-              : newlyAddedBusinesses
-                  .slice(0, 8)
-                  .map((business) => (
-                    <BusinessCard 
-                      key={business.id} 
-                      business={business}
-                      onLike={handleLike}
-                      isLiked={likedBusinesses.includes(business.id)}
-                    />
-                  ))}
-          </div>
-        </section>
+                <span className="font-medium">More</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transform transition-transform group-hover:translate-x-1"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {loading
+                ? Array.from({ length: 8 }).map((_, index) => (
+                    <div key={`skeleton-${index}`} className="space-y-4">
+                      <Skeleton className="h-48 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  ))
+                : businesses
+                    .slice(0, 8)
+                    .map((business) => (
+                      <BusinessCard 
+                        key={business.id} 
+                        business={business}
+                        onLike={handleLike}
+                        isLiked={likedBusinesses.includes(business.id)}
+                      />
+                    ))}
+            </div>
+          </section>
+
+          <section className="mt-12">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">Newly Added Businesses</h2>
+              <Link 
+                href="/posts?sort=date" 
+                className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2 group"
+              >
+                <span className="font-medium">More</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transform transition-transform group-hover:translate-x-1"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {loading
+                ? Array.from({ length: 8 }).map((_, index) => (
+                    <div key={`skeleton-${index}`} className="space-y-4">
+                      <Skeleton className="h-48 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  ))
+                : newlyAddedBusinesses
+                    .slice(0, 8)
+                    .map((business) => (
+                      <BusinessCard 
+                        key={business.id} 
+                        business={business}
+                        onLike={handleLike}
+                        isLiked={likedBusinesses.includes(business.id)}
+                      />
+                    ))}
+            </div>
+          </section>
+        </div>
+
+        <footer className="text-center text-sm text-muted-foreground">
+          <p>© 2024 Local Business Hub. All rights reserved.</p>
+          <p>123 Business Street, {location === "toronto" ? "Toronto, ON M5V 2H1" : "Vancouver, BC V6B 1A1"}</p>
+          <p>Email: info@localbusinesshub.com | Phone: (123) 456-7890</p>
+        </footer>
       </div>
-
-      <footer className="text-center text-sm text-muted-foreground">
-        <p>© 2024 Local Business Hub. All rights reserved.</p>
-        <p>123 Business Street, {location === "toronto" ? "Toronto, ON M5V 2H1" : "Vancouver, BC V6B 1A1"}</p>
-        <p>Email: info@localbusinesshub.com | Phone: (123) 456-7890</p>
-      </footer>
     </div>
   )
 }

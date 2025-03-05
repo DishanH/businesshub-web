@@ -14,24 +14,16 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
-import { banUser, unbanUser } from "./actions"
-
-type UserProfile = {
-  user_id: string
-  full_name: string
-}
+import Link from "next/link"
+import { updateUserRole } from "../actions"
 
 type UserWithProfile = {
   id: string
@@ -41,22 +33,33 @@ type UserWithProfile = {
     role?: string
   }
   created_at: string
-  banned: boolean
-  profile?: UserProfile
+  profile?: {
+    user_id: string
+    full_name: string
+    role: string
+    is_active: boolean
+  }
 }
 
-export default function UsersPage() {
+type Role = {
+  id: string
+  name: string
+  description: string
+  permissions: string[]
+}
+
+export default function RolesPage() {
   const [users, setUsers] = useState<UserWithProfile[]>([])
+  const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedUser, setSelectedUser] = useState<UserWithProfile | null>(null)
-  const [isUpdating, setIsUpdating] = useState(false)
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null)
   const itemsPerPage = 10
   const supabase = createClient()
 
-  // Fetch users on component mount
+  // Fetch users and roles on component mount
   useEffect(() => {
-    async function fetchUsers() {
+    async function fetchData() {
       try {
         const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser()
         if (authError || !currentUser) {
@@ -68,6 +71,31 @@ export default function UsersPage() {
           return
         }
 
+        // Get admin status
+        const { data: adminProfile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('user_id', currentUser.id)
+          .single()
+        
+        if (profileError || adminProfile.role !== 'admin') {
+          toast({
+            title: "Access Denied",
+            description: "You don't have permission to access this page.",
+            variant: "destructive",
+          })
+          return
+        }
+
+        // Fetch roles
+        const { data: rolesData, error: rolesError } = await supabase
+          .from('roles')
+          .select('*')
+          .order('name')
+
+        if (rolesError) throw rolesError
+        setRoles(rolesData || [])
+
         // First get all users
         const { data: authUsers, error: usersError } = await supabase.auth.admin.listUsers()
         if (usersError) throw usersError
@@ -75,7 +103,7 @@ export default function UsersPage() {
         // Then get their profiles
         const { data: profiles, error: profilesError } = await supabase
           .from('user_profiles')
-          .select('user_id, full_name')
+          .select('user_id, full_name, role, is_active')
 
         if (profilesError) throw profilesError
 
@@ -84,27 +112,20 @@ export default function UsersPage() {
           .filter((user): user is AuthUser & { email: string } => 
             typeof user.email === 'string' && user.email.length > 0
           )
-          .map(user => {
-            // Check if user is banned by examining user properties
-            // Supabase might return banned status in different ways
-            const isBanned = false; // Default to not banned
-            
-            return {
-              id: user.id,
-              email: user.email,
-              user_metadata: user.user_metadata || { name: undefined },
-              created_at: user.created_at,
-              banned: isBanned,
-              profile: profiles?.find(p => p.user_id === user.id) as UserProfile | undefined
-            };
-          })
+          .map(user => ({
+            id: user.id,
+            email: user.email,
+            user_metadata: user.user_metadata || { name: undefined },
+            created_at: user.created_at,
+            profile: profiles?.find(p => p.user_id === user.id)
+          }))
 
         setUsers(combinedUsers)
       } catch (error) {
-        console.error('Error fetching users:', error)
+        console.error('Error fetching data:', error)
         toast({
           title: "Error",
-          description: "Failed to load users. Please try again.",
+          description: "Failed to load data. Please try again.",
           variant: "destructive",
         })
       } finally {
@@ -112,48 +133,41 @@ export default function UsersPage() {
       }
     }
 
-    fetchUsers()
+    fetchData()
   }, [supabase])
 
-  const handleToggleBan = async (user: UserWithProfile) => {
-    setSelectedUser(user)
-  }
-
-  const confirmToggleBan = async () => {
-    if (!selectedUser) return
-
-    setIsUpdating(true)
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    setUpdatingUserId(userId)
     try {
-      // Use the server action to ban or unban user
-      const result = selectedUser.banned 
-        ? await unbanUser(selectedUser.id)
-        : await banUser(selectedUser.id)
+      const result = await updateUserRole(userId, newRole as 'user' | 'business' | 'admin')
 
       if (!result.success) {
         throw new Error(result.error)
       }
 
       // Update local state
-      setUsers(users.map((u) => 
-        u.id === selectedUser.id 
-          ? { ...u, banned: !u.banned }
-          : u
+      setUsers(users.map(user => 
+        user.id === userId 
+          ? { 
+              ...user, 
+              user_metadata: { ...user.user_metadata, role: newRole }
+            } 
+          : user
       ))
 
       toast({
         title: "Success",
-        description: `User has been ${selectedUser.banned ? 'unbanned' : 'banned'} successfully.`,
+        description: `User role updated to ${newRole}`,
       })
     } catch (error) {
-      console.error('Error updating user:', error)
+      console.error('Error updating role:', error)
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update user status. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to update user role. Please try again.",
         variant: "destructive",
       })
     } finally {
-      setIsUpdating(false)
-      setSelectedUser(null)
+      setUpdatingUserId(null)
     }
   }
 
@@ -177,15 +191,19 @@ export default function UsersPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Users</BreadcrumbPage>
+            <BreadcrumbPage>User Roles</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Users</h1>
-        <p className="text-muted-foreground">Total users: {users.length}</p>
+        <h1 className="text-3xl font-bold">User Roles</h1>
+        <Button asChild>
+          <Link href="/admin/roles/settings">Manage Role Definitions</Link>
+        </Button>
       </div>
+
+      <p className="text-muted-foreground">Total users: {users.length}</p>
 
       <Table>
         <TableHeader>
@@ -193,7 +211,7 @@ export default function UsersPage() {
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Role</TableHead>
+            <TableHead>Current Role</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -204,54 +222,38 @@ export default function UsersPage() {
               <TableCell>{user.email}</TableCell>
               <TableCell>
                 <span className={`px-2 py-1 rounded-full text-xs ${
-                  !user.banned 
+                  user.profile?.is_active 
                     ? 'bg-green-100 text-green-700' 
                     : 'bg-red-100 text-red-700'
                 }`}>
-                  {!user.banned ? "Active" : "Banned"}
+                  {user.profile?.is_active ? "Active" : "Inactive"}
                 </span>
               </TableCell>
               <TableCell>
                 {user.user_metadata?.role || 'user'}
               </TableCell>
               <TableCell>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button 
-                      variant={!user.banned ? "destructive" : "default"}
-                      onClick={() => handleToggleBan(user)}
-                    >
-                      {!user.banned ? "Ban" : "Unban"}
-                    </Button>
-                  </AlertDialogTrigger>
-                  {selectedUser?.id === user.id && (
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          {!user.banned ? "Ban" : "Unban"} User
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to {!user.banned ? "ban" : "unban"} this user?
-                          {!user.banned && (
-                            " This will prevent them from logging into their account."
-                          )}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setSelectedUser(null)}>
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={confirmToggleBan}
-                          disabled={isUpdating}
-                        >
-                          {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          {!user.banned ? "Ban" : "Unban"}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
+                <div className="flex items-center gap-2">
+                  <Select
+                    defaultValue={user.user_metadata?.role || 'user'}
+                    onValueChange={(value) => handleRoleChange(user.id, value)}
+                    disabled={updatingUserId === user.id}
+                  >
+                    <SelectTrigger className="w-[130px]">
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roles.map(role => (
+                        <SelectItem key={role.id} value={role.name}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {updatingUserId === user.id && (
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   )}
-                </AlertDialog>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -281,5 +283,4 @@ export default function UsersPage() {
       </div>
     </div>
   )
-}
-
+} 
