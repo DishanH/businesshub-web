@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Bell, Baby, Heart, LogOut } from "lucide-react"
+import { Bell, Baby, Heart, LogOut, LogIn } from "lucide-react"
 import { createBrowserClient } from "@supabase/ssr"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -149,8 +149,14 @@ export default function Header() {
               </DropdownMenu>
             </>
           ) : (
-            <Button variant="default" onClick={() => router.push('/auth/sign-in')}>
-              Sign In
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="flex items-center gap-1.5 text-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors"
+              onClick={() => router.push('/auth/sign-in')}
+            >
+              <LogIn className="h-4 w-4" />
+              Sign in
             </Button>
           )}
         </div>

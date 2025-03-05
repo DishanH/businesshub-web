@@ -1,0 +1,18 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="url(#gradient)" />
+  <path d="M0 400L200 350L400 450L600 380L800 420L800 600L0 600L0 400Z" fill="#818CF8" fill-opacity="0.3" />
+  <path d="M0 450L200 500L400 420L600 480L800 450L800 600L0 600L0 450Z" fill="#818CF8" fill-opacity="0.2" />
+  <g opacity="0.5">
+    <circle cx="150" cy="150" r="50" fill="white" fill-opacity="0.2" />
+    <circle cx="650" cy="250" r="80" fill="white" fill-opacity="0.2" />
+    <circle cx="400" cy="100" r="30" fill="white" fill-opacity="0.2" />
+    <circle cx="250" cy="300" r="40" fill="white" fill-opacity="0.2" />
+    <circle cx="550" cy="150" r="60" fill="white" fill-opacity="0.2" />
+  </g>
+  <defs>
+    <linearGradient id="gradient" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C7D2FE" />
+      <stop offset="1" stop-color="#93C5FD" />
+    </linearGradient>
+  </defs>
+</svg> 
