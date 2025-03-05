@@ -14,3 +14,51 @@ const generateMockBusinesses = (count: number) => {
   }
   
   const mockBusinesses = generateMockBusinesses(50)
+
+
+
+  // supabase storage Row Level Security(RLS)
+  -- Create a new storage bucket named 'profiles'
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('profiles', 'profiles', false);
+
+-- Create policy to allow authenticated users to upload their own profile images
+CREATE POLICY "Allow authenticated users to upload their own profile images"
+ON storage.objects
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'profiles' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Create policy to allow users to view their own profile images
+CREATE POLICY "Allow users to view their own profile images"
+ON storage.objects
+FOR SELECT
+TO authenticated
+USING (
+  bucket_id = 'profiles' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Create policy to allow users to update their own profile images
+CREATE POLICY "Allow users to update their own profile images"
+ON storage.objects
+FOR UPDATE
+TO authenticated
+USING (
+  bucket_id = 'profiles' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Create policy to allow users to delete their own profile images
+CREATE POLICY "Allow users to delete their own profile images"
+ON storage.objects
+FOR DELETE
+TO authenticated
+USING (
+  bucket_id = 'profiles' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+

@@ -1,15 +1,15 @@
 'use client'
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { AuthError } from '@supabase/supabase-js'
 import { useState } from 'react'
+import { createClient } from '@/utils/supabase/client'
 
 export default function SignUpForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
