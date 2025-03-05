@@ -247,7 +247,7 @@ export function AuthDialog({
               </TabsList>
               
               <div className="flex-1 overflow-y-auto">
-                <TabsContent value="sign-in" className="space-y-2 mt-0 h-full">
+                <TabsContent value="sign-in" className="space-y-2 mt-0 h-full px-1">
                   <Form {...signInForm}>
                     <form onSubmit={signInForm.handleSubmit(handleEmailSignIn)} className="space-y-4">
                       <FormField
@@ -306,7 +306,7 @@ export function AuthDialog({
                 
                 <TabsContent value="sign-up" className="space-y-4 mt-0 h-full">
                   <Form {...signUpForm}>
-                    <form onSubmit={signUpForm.handleSubmit(handleEmailSignUp)} className="space-y-4">
+                    <form onSubmit={signUpForm.handleSubmit(handleEmailSignUp)} className="space-y-4 px-1">
                       <FormField
                         control={signUpForm.control}
                         name="name"
