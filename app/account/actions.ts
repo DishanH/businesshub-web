@@ -30,6 +30,18 @@ export async function updateProfile(formData: ProfileFormData) {
     if (userError || !user) {
       throw new Error('Authentication required')
     }
+
+    // Update user metadata with avatar URL and name
+    const { error: updateUserError } = await supabase.auth.updateUser({
+      data: {
+        avatar_url: validatedData.avatarUrl,
+        name: validatedData.fullName,
+      }
+    })
+
+    if (updateUserError) {
+      throw new Error(`Error updating user metadata: ${updateUserError.message}`)
+    }
     
     // Check if profile exists
     const { data: existingProfile, error: profileError } = await supabase
@@ -52,7 +64,6 @@ export async function updateProfile(formData: ProfileFormData) {
           full_name: validatedData.fullName,
           phone_number: validatedData.phoneNumber,
           address: validatedData.address,
-          avatar_url: validatedData.avatarUrl,
           updated_at: new Date().toISOString(),
         })
         .eq("user_id", user.id)
@@ -65,7 +76,6 @@ export async function updateProfile(formData: ProfileFormData) {
           full_name: validatedData.fullName,
           phone_number: validatedData.phoneNumber,
           address: validatedData.address,
-          avatar_url: validatedData.avatarUrl,
         })
     }
     

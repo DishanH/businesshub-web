@@ -105,9 +105,9 @@ export default function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
                     <Avatar>
-                      <AvatarImage src="/placeholder.svg" alt={user.user_metadata.name || user.email || ''} />
+                      <AvatarImage src={user.user_metadata?.avatar_url || "/placeholder.svg"} alt={user.user_metadata?.name || user.email || ''} />
                       <AvatarFallback>
-                        {(user.user_metadata.name?.[0] || user.email?.[0] || '?').toUpperCase()}
+                        {(user.user_metadata?.name?.[0] || user.email?.[0] || '?').toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>

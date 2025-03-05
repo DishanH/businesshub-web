@@ -72,6 +72,11 @@ export default function ProfilePage() {
         
         setUser(user)
         
+        // Set avatar preview from user metadata
+        if (user.user_metadata?.avatar_url) {
+          setAvatarPreview(user.user_metadata.avatar_url)
+        }
+        
         // Fetch user profile data
         const { data: profile, error } = await supabase
           .from("user_profiles")
@@ -91,15 +96,11 @@ export default function ProfilePage() {
         if (profile) {
           // Set form values from profile data
           form.reset({
-            fullName: profile.full_name || "",
+            fullName: profile.full_name || user.user_metadata?.name || "",
             phoneNumber: profile.phone_number || "",
             address: profile.address || "",
-            avatarUrl: profile.avatar_url || "",
+            avatarUrl: user.user_metadata?.avatar_url || "",
           })
-          
-          if (profile.avatar_url) {
-            setAvatarPreview(profile.avatar_url)
-          }
         } else {
           // Set form values from user metadata if available
           form.reset({
@@ -108,10 +109,6 @@ export default function ProfilePage() {
             address: "",
             avatarUrl: user.user_metadata?.avatar_url || "",
           })
-          
-          if (user.user_metadata?.avatar_url) {
-            setAvatarPreview(user.user_metadata.avatar_url)
-          }
         }
       } catch (error) {
         console.error("Error:", error)
