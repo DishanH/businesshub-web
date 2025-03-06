@@ -24,6 +24,7 @@ interface BusinessCardProps {
   className?: string;
   onLike?: (id: string) => void;
   isLiked?: boolean;
+  href?: string;
 }
 
 export default function BusinessCard({
@@ -31,6 +32,7 @@ export default function BusinessCard({
   className,
   onLike,
   isLiked,
+  href,
 }: BusinessCardProps) {
   return (
     <Card className={`overflow-hidden flex flex-col h-full ${className}`}>
@@ -61,18 +63,20 @@ export default function BusinessCard({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">{business.name}</h3>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="h-9 w-9 rounded-full"
-              onClick={() => onLike?.(business.id)}
-            >
-              <Heart
-                className={`h-5 w-5 ${
-                  isLiked ? "fill-red-500 text-red-500" : ""
-                }`}
-              />
-            </Button>
+            {onLike && (
+              <Button
+                variant="secondary"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={() => onLike(business.id)}
+              >
+                <Heart
+                  className={`h-5 w-5 ${
+                    isLiked ? "fill-red-500 text-red-500" : ""
+                  }`}
+                />
+              </Button>
+            )}
           </div>
           <p className="text-sm text-muted-foreground">{business.address}</p>
           <div className="flex items-center">
@@ -102,7 +106,7 @@ export default function BusinessCard({
       </CardContent>
       <CardFooter className="p-4 pt-0 mt-auto">
         <Link
-          href={`/posts/${business.id}`}
+          href={href || `/business/${business.id}`}
           className="w-full text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center justify-between group"
         >
           View Details
