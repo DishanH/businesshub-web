@@ -44,8 +44,8 @@ export function HomepageSearch({ popularSearches = [] }: HomepageSearchProps) {
       
       {popularSearches.length > 0 && (
         <div className="mt-4">
-          <p className="text-sm text-muted-foreground mb-2">Popular searches:</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="text-sm text-muted-foreground mb-2 text-center">Popular searches:</p>
+          <div className="flex flex-wrap gap-2 justify-center">
             {popularSearches.map((term) => (
               <Badge 
                 key={term} 

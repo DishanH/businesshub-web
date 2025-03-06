@@ -5,13 +5,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Plus, MapPin } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getActiveCategories } from "@/app/actions/categories"
-import { getFeaturedBusinesses } from "@/app/actions/businesses"
+import { getFeaturedBusinesses, getNewlyAddedBusinesses } from "@/app/actions/businesses"
 import { HomepageSearch } from "@/components/homepage-search"
 import { CategorySection } from "@/components/category-section"
 import BusinessCard from "@/components/business-card"
-import { CarouselComponent } from "@/components/carousel"
 import { LocationSelector } from "@/components/location-selector"
 import { SlidingBanner } from "@/components/sliding-banner"
+import { ViewAllButton } from "@/components/view-all-button"
 
 // Popular searches for the search component
 const popularSearches = [
@@ -28,7 +28,7 @@ const popularSearches = [
 // Loading component for categories
 function CategoriesLoading() {
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
+    <div className="flex flex-wrap gap-2 mb-6 justify-center">
       {Array.from({ length: 8 }).map((_, i) => (
         <Skeleton key={i} className="h-8 w-24 rounded-full" />
       ))}
@@ -41,7 +41,36 @@ function BusinessesLoading() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <Skeleton key={i} className="h-64 w-full rounded-lg" />
+        <div key={i} className="flex flex-col space-y-3">
+          <Skeleton className="h-48 w-full rounded-lg" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+          <div className="flex space-x-2">
+            <Skeleton className="h-3 w-10" />
+            <Skeleton className="h-3 w-10" />
+            <Skeleton className="h-3 w-10" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Loading component for more businesses (8 items)
+function MoreBusinessesLoading() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="flex flex-col space-y-3">
+          <Skeleton className="h-48 w-full rounded-lg" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+          <div className="flex space-x-2">
+            <Skeleton className="h-3 w-10" />
+            <Skeleton className="h-3 w-10" />
+            <Skeleton className="h-3 w-10" />
+          </div>
+        </div>
       ))}
     </div>
   )
@@ -63,11 +92,47 @@ async function FeaturedBusinessesSection() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Featured Businesses</h2>
-        <Link href="/posts" className="text-primary hover:underline">
-          View All
-        </Link>
+        <ViewAllButton href="/businesses" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {result.data.map((business) => (
+          <BusinessCard
+            key={business.id}
+            business={{
+              id: business.id,
+              name: business.name,
+              description: business.description,
+              address: `${business.address}, ${business.city}, ${business.state} ${business.zip}`,
+              rating: business.rating,
+              image: business.image || "/placeholder.svg",
+            }}
+            href={`/business/${business.id}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Newly added businesses section with server component
+async function NewlyAddedBusinessesSection() {
+  const result = await getNewlyAddedBusinesses(8)
+  
+  if (!result.success || !result.data || result.data.length === 0) {
+    return (
+      <div className="text-center p-4 bg-muted rounded-lg">
+        <p>No new businesses available</p>
+      </div>
+    )
+  }
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Newly Added</h2>
+        <ViewAllButton href="/businesses/new" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {result.data.map((business) => (
           <BusinessCard
             key={business.id}
@@ -116,7 +181,7 @@ export default function Home() {
         </div>
       </div>
       
-      <div className="container mx-auto py-8 px-4 space-y-8">
+      <div className="container mx-auto py-8 px-4 space-y-12">
         {/* Hero section with sliding banner */}
         <section className="space-y-4">
           <SlidingBanner />
@@ -133,13 +198,6 @@ export default function Home() {
           </div>
         </section>
         
-        {/* Categories section */}
-        <section className="space-y-4">
-          <Suspense fallback={<CategoriesLoading />}>
-            <CategoriesSection />
-          </Suspense>
-        </section>
-        
         {/* Featured businesses section */}
         <section className="space-y-4">
           <Suspense fallback={<BusinessesLoading />}>
@@ -147,10 +205,22 @@ export default function Home() {
           </Suspense>
         </section>
         
-        {/* Carousel section */}
+        {/* Newly added businesses section */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Trending This Week</h2>
-          <CarouselComponent />
+          <Suspense fallback={<MoreBusinessesLoading />}>
+            <NewlyAddedBusinessesSection />
+          </Suspense>
+        </section>
+        
+        {/* Categories section - moved down and made less prominent */}
+        <section className="space-y-4 bg-muted/30 py-8 px-6 rounded-lg">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">Browse Categories</h2>
+            <ViewAllButton href="/categories" />
+          </div>
+          <Suspense fallback={<CategoriesLoading />}>
+            <CategoriesSection />
+          </Suspense>
         </section>
         
         {/* Testimonials section */}

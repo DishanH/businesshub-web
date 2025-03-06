@@ -21,4 +21,25 @@ export async function createClient() {
       }
     }
   )
+}
+
+// Create a client without cookies for use with unstable_cache
+export function createClientWithoutCookies() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(_name: string) {
+          return undefined
+        },
+        set(_name: string, _value: string, _options: CookieOptions) {
+          // Do nothing
+        },
+        remove(_name: string) {
+          // Do nothing
+        }
+      }
+    }
+  )
 } 

@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/utils/supabase/server"
+import { createClient, createClientWithoutCookies } from "@/utils/supabase/server"
 import { unstable_cache } from "next/cache"
 import { revalidatePath } from "next/cache"
 
@@ -32,6 +32,64 @@ export type Category = {
   updated_at: string
   subcategories: Subcategory[]
   attributes: Attribute[]
+}
+
+// Function to fetch active categories without caching
+async function fetchActiveCategories() {
+  try {
+    // Use the client without cookies for this function
+    const supabase = createClientWithoutCookies()
+    
+    const { data, error } = await supabase
+      .from("categories")
+      .select(`
+        id, 
+        name, 
+        description, 
+        slug, 
+        icon, 
+        active, 
+        created_at, 
+        updated_at,
+        subcategories:category_subcategories(id, name, description, active),
+        attributes:category_attributes(
+          id, 
+          name, 
+          type, 
+          options, 
+          required, 
+          description
+        )
+      `)
+      .eq('active', true)
+      .order('name')
+    
+    if (error) {
+      console.error("Error fetching active categories:", error)
+      return { success: false, error: error.message, data: [] }
+    }
+
+    return { success: true, data: data as Category[] }
+  } catch (error) {
+    console.error("Unexpected error fetching active categories:", error)
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "An unexpected error occurred",
+      data: []
+    }
+  }
+}
+
+// Cache the fetch function
+const getCachedActiveCategories = unstable_cache(
+  fetchActiveCategories,
+  ["active-categories"],
+  { revalidate: 60 * 5 } // Cache for 5 minutes
+)
+
+// Public function to get active categories
+export async function getActiveCategories() {
+  return getCachedActiveCategories()
 }
 
 /**
@@ -81,57 +139,6 @@ export const getCategories = unstable_cache(
     }
   },
   ["all-categories"],
-  { revalidate: 60 * 5 } // Cache for 5 minutes
-)
-
-/**
- * Fetch only active categories with caching
- */
-export const getActiveCategories = unstable_cache(
-  async () => {
-    try {
-      const supabase = await createClient()
-      
-      const { data, error } = await supabase
-        .from("categories")
-        .select(`
-          id, 
-          name, 
-          description, 
-          slug, 
-          icon, 
-          active, 
-          created_at, 
-          updated_at,
-          subcategories:category_subcategories(id, name, description, active),
-          attributes:category_attributes(
-            id, 
-            name, 
-            type, 
-            options, 
-            required, 
-            description
-          )
-        `)
-        .eq('active', true)
-        .order('name')
-      
-      if (error) {
-        console.error("Error fetching active categories:", error)
-        return { success: false, error: error.message, data: [] }
-      }
-      
-      return { success: true, data: data as Category[] }
-    } catch (error) {
-      console.error("Unexpected error fetching active categories:", error)
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : "An unexpected error occurred",
-        data: []
-      }
-    }
-  },
-  ["active-categories"],
   { revalidate: 60 * 5 } // Cache for 5 minutes
 )
 

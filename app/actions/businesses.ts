@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/utils/supabase/server"
+import { createClient, createClientWithoutCookies } from "@/utils/supabase/server"
 import { unstable_cache } from "next/cache"
 import { revalidatePath } from "next/cache"
 
@@ -34,68 +34,75 @@ export type Business = {
   attributes?: BusinessAttribute[]
 }
 
-/**
- * Fetch featured businesses with caching
- */
-export const getFeaturedBusinesses = unstable_cache(
-  async (limit: number = 4) => {
-    try {
-      const supabase = await createClient()
-      
-      const { data, error } = await supabase
-        .from("businesses")
-        .select(`
-          id, 
-          name, 
-          description, 
-          address, 
-          city, 
-          state, 
-          zip, 
-          phone, 
-          email, 
-          website, 
-          category_id, 
-          subcategory_id, 
-          price_range, 
-          rating, 
-          image, 
-          active, 
-          created_at, 
-          updated_at,
-          business_attributes(*)
-        `)
-        .eq('active', true)
-        .order('rating', { ascending: false })
-        .limit(limit)
-      
-      if (error) {
-        console.error(`Error fetching featured businesses:`, error)
-        return { success: false, error: error.message, data: [] }
-      }
-      
-      // Transform the data to include attributes as a nested property
-      const transformedData = data.map(business => {
-        const { business_attributes, ...rest } = business
-        return {
-          ...rest,
-          attributes: business_attributes || []
-        }
-      })
-      
-      return { success: true, data: transformedData as Business[] }
-    } catch (error) {
-      console.error(`Unexpected error fetching featured businesses:`, error)
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : "An unexpected error occurred",
-        data: []
-      }
+// Function to fetch featured businesses without caching
+async function fetchFeaturedBusinesses(limit: number = 4) {
+  try {
+    // Use the client without cookies for this function
+    const supabase = createClientWithoutCookies()
+    
+    const { data, error } = await supabase
+      .from("businesses")
+      .select(`
+        id, 
+        name, 
+        description, 
+        address, 
+        city, 
+        state, 
+        zip, 
+        phone, 
+        email, 
+        website, 
+        category_id, 
+        subcategory_id, 
+        price_range, 
+        rating, 
+        image, 
+        active, 
+        created_at, 
+        updated_at,
+        business_attributes(*)
+      `)
+      .eq('active', true)
+      .order('rating', { ascending: false })
+      .limit(limit)
+    
+    if (error) {
+      console.error(`Error fetching featured businesses:`, error)
+      return { success: false, error: error.message, data: [] }
     }
-  },
+    
+    // Transform the data to include attributes as a nested property
+    const transformedData = data.map(business => {
+      const { business_attributes, ...rest } = business
+      return {
+        ...rest,
+        attributes: business_attributes || []
+      }
+    })
+    
+    return { success: true, data: transformedData as Business[] }
+  } catch (error) {
+    console.error(`Unexpected error fetching featured businesses:`, error)
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "An unexpected error occurred",
+      data: []
+    }
+  }
+}
+
+// Cache the fetch function
+const getCachedFeaturedBusinesses = unstable_cache(
+  fetchFeaturedBusinesses,
   ["featured-businesses"],
   { revalidate: 60 * 5 } // Cache for 5 minutes
 )
+
+// Public function to get featured businesses
+export async function getFeaturedBusinesses(limit: number = 4) {
+  return getCachedFeaturedBusinesses(limit)
+}
 
 /**
  * Fetch businesses by category with caching
@@ -293,4 +300,74 @@ export async function revalidateBusinesses() {
   revalidatePath("/")
   revalidatePath("/posts")
   revalidatePath("/business")
+}
+
+// Function to fetch newly added businesses without caching
+async function fetchNewlyAddedBusinesses(limit: number = 8) {
+  try {
+    // Use the client without cookies for this function
+    const supabase = createClientWithoutCookies()
+    
+    const { data, error } = await supabase
+      .from("businesses")
+      .select(`
+        id, 
+        name, 
+        description, 
+        address, 
+        city, 
+        state, 
+        zip, 
+        phone, 
+        email, 
+        website, 
+        category_id, 
+        subcategory_id, 
+        price_range, 
+        rating, 
+        image, 
+        active, 
+        created_at, 
+        updated_at,
+        business_attributes(*)
+      `)
+      .eq('active', true)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    
+    if (error) {
+      console.error(`Error fetching newly added businesses:`, error)
+      return { success: false, error: error.message, data: [] }
+    }
+    
+    // Transform the data to include attributes as a nested property
+    const transformedData = data.map(business => {
+      const { business_attributes, ...rest } = business
+      return {
+        ...rest,
+        attributes: business_attributes || []
+      }
+    })
+    
+    return { success: true, data: transformedData as Business[] }
+  } catch (error) {
+    console.error(`Unexpected error fetching newly added businesses:`, error)
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "An unexpected error occurred",
+      data: []
+    }
+  }
+}
+
+// Cache the fetch function
+const getCachedNewlyAddedBusinesses = unstable_cache(
+  fetchNewlyAddedBusinesses,
+  ["newly-added-businesses"],
+  { revalidate: 60 * 5 } // Cache for 5 minutes
+)
+
+// Public function to get newly added businesses
+export async function getNewlyAddedBusinesses(limit: number = 8) {
+  return getCachedNewlyAddedBusinesses(limit)
 } 
