@@ -7,12 +7,36 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import type { Category } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Trash2 } from "lucide-react"
 
+// Define the form values type
+type Attribute = {
+  id?: string;
+  name: string;
+  type: "text" | "number" | "boolean" | "select" | "multiselect";
+  options?: string[];
+  required: boolean;
+  description?: string;
+};
+
+type FormValues = {
+  name: string;
+  description: string;
+  slug: string;
+  icon?: string;
+  subcategories: Array<{
+    id?: string;
+    name: string;
+    description?: string;
+    active: boolean;
+  }>;
+  attributes: Attribute[];
+  active: boolean;
+};
+
 interface AttributesFormProps {
-  form: UseFormReturn<Category>
+  form: UseFormReturn<FormValues>
 }
 
 export function AttributesForm({ form }: AttributesFormProps) {
