@@ -10,33 +10,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Trash2 } from "lucide-react"
 
-// Define the form values type
-type Attribute = {
-  id?: string;
-  name: string;
-  type: "text" | "number" | "boolean" | "select" | "multiselect";
-  options?: string[];
-  required: boolean;
-  description?: string;
-};
-
-type FormValues = {
-  name: string;
-  description: string;
-  slug: string;
-  icon?: string;
-  subcategories: Array<{
-    id?: string;
-    name: string;
-    description?: string;
-    active: boolean;
-  }>;
-  attributes: Attribute[];
-  active: boolean;
-};
-
 interface AttributesFormProps {
-  form: UseFormReturn<FormValues>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>
 }
 
 export function AttributesForm({ form }: AttributesFormProps) {

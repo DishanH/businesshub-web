@@ -23,7 +23,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-// Validation schemas
+// Define the schema first
 const subcategorySchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Name is required"),
@@ -54,9 +54,9 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function EditCategoryPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const [activeSection, setActiveSection] = useState<"basic" | "subcategories" | "attributes">("basic")
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [activeSection, setActiveSection] = useState("basic")
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -64,6 +64,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
       name: "",
       description: "",
       slug: "",
+      icon: "",
       subcategories: [],
       attributes: [],
       active: true,
@@ -71,49 +72,45 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
   })
 
   useEffect(() => {
-    const fetchCategory = async () => {
+    async function loadCategory() {
       try {
         setIsLoading(true)
-        const { success, data, error } = await fetchCategoryById(params.id)
+        const response = await fetchCategoryById(params.id)
         
-        if (success && data) {
-          // Transform the data to match our form schema
-          form.reset({
-            name: data.name,
-            description: data.description,
-            slug: data.slug,
-            icon: data.icon,
-            subcategories: data.subcategories.map((sub: any) => ({
-              id: sub.id,
-              name: sub.name,
-              description: sub.description,
-              active: sub.active
-            })) || [],
-            attributes: data.attributes.map((attr: any) => ({
-              id: attr.id,
-              name: attr.name,
-              type: attr.type as "text" | "number" | "boolean" | "select" | "multiselect",
-              options: attr.options,
-              required: attr.required,
-              description: attr.description
-            })) || [],
-            active: data.active,
-          })
-        } else {
-          toast.error(`Failed to load category: ${error}`)
+        if (!response.success) {
+          toast.error(`Failed to load category: ${response.error || 'Unknown error'}`)
           router.push("/admin/categories")
+          return
         }
+        
+        if (!response.data) {
+          toast.error('Category not found')
+          router.push("/admin/categories")
+          return
+        }
+        
+        const data = response.data
+        
+        form.reset({
+          name: data.name || "",
+          description: data.description || "",
+          slug: data.slug || "",
+          icon: data.icon || "",
+          subcategories: Array.isArray(data.subcategories) ? data.subcategories : [],
+          attributes: Array.isArray(data.attributes) ? data.attributes : [],
+          active: Boolean(data.active),
+        })
       } catch (error) {
-        toast.error("An unexpected error occurred")
-        console.error(error)
+        console.error('Error loading category:', error)
+        toast.error("An unexpected error occurred while loading the category")
         router.push("/admin/categories")
       } finally {
         setIsLoading(false)
       }
     }
     
-    fetchCategory()
-  }, [params.id, form, router])
+    loadCategory()
+  }, [params.id, router, form])
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -152,12 +149,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Edit Category</h1>
-        </div>
-        
-        <div className="w-full h-96 flex items-center justify-center">
+        <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
       </div>
@@ -222,7 +214,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {activeSection === "basic" && (
                 <div className="space-y-4">
                   <FormField
@@ -238,6 +230,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
                       </FormItem>
                     )}
                   />
+                  
                   <FormField
                     control={form.control}
                     name="description"
@@ -247,11 +240,35 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
                         <FormControl>
                           <Textarea {...field} />
                         </FormControl>
-                        <FormDescription>Provide a detailed description of the category.</FormDescription>
+                        <FormDescription>Brief description of the category.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  
+                  <FormField
+                    control={form.control}
+                    name="active"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Active</FormLabel>
+                          <FormDescription>
+                            Activate or deactivate this category
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="accent-primary h-5 w-5"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
                   <FormField
                     control={form.control}
                     name="slug"

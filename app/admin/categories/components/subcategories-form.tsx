@@ -9,33 +9,9 @@ import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Trash2 } from "lucide-react"
 
-// Define the form values type
-type Subcategory = {
-  id?: string;
-  name: string;
-  description?: string;
-  active: boolean;
-};
-
-type FormValues = {
-  name: string;
-  description: string;
-  slug: string;
-  icon?: string;
-  subcategories: Subcategory[];
-  attributes: Array<{
-    id?: string;
-    name: string;
-    type: string;
-    options?: string[];
-    required: boolean;
-    description?: string;
-  }>;
-  active: boolean;
-};
-
 interface SubcategoriesFormProps {
-  form: UseFormReturn<FormValues>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>
 }
 
 export function SubcategoriesForm({ form }: SubcategoriesFormProps) {
