@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/utils/supabase/client"
+import { createBrowserClient } from "@supabase/ssr"
+import { createRole, updateRolePermissions, deleteRole, fetchRoles } from "@/app/admin/actions"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,7 +19,6 @@ import {
 } from "@/components/ui/breadcrumb"
 import { toast } from "@/components/ui/use-toast"
 import { Loader2, Plus, Trash2 } from "lucide-react"
-import { createRole, updateRolePermissions, deleteRole } from "../../actions"
 
 type RoleDefinition = {
   id: string
@@ -37,59 +38,61 @@ const availablePermissions = [
   { id: "admin_access", label: "Admin Access" },
 ]
 
-export default function RoleSettingsPage() {
+export default function RolesSettingsPage() {
   const [roles, setRoles] = useState<RoleDefinition[]>([])
   const [loading, setLoading] = useState(true)
   const [newRoleName, setNewRoleName] = useState("")
   const [newRoleDescription, setNewRoleDescription] = useState("")
   const [isCreating, setIsCreating] = useState(false)
   const [updatingRoleId, setUpdatingRoleId] = useState<string | null>(null)
-  const supabase = createClient()
+  const router = useRouter()
 
-  // Fetch roles on component mount
   useEffect(() => {
-    async function fetchRoles() {
+    const fetchData = async () => {
+      setLoading(true)
       try {
-        const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser()
-        if (authError || !currentUser) {
+        const supabase = createBrowserClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+
+        // Check if user is authenticated
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError || !user) {
           toast({
-            title: "Error",
-            description: "You must be logged in to view this page.",
+            title: "Authentication Required",
+            description: "Please sign in to access this page.",
             variant: "destructive",
           })
+          router.push('/auth/sign-in')
           return
         }
 
-        // Get admin status
-        const { data: adminProfile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('role')
-          .eq('user_id', currentUser.id)
-          .single()
-        
-        if (profileError || adminProfile.role !== 'admin') {
+        // Check if user is admin
+        const userRole = user.user_metadata?.role || 'user'
+        if (userRole !== 'admin') {
           toast({
             title: "Access Denied",
             description: "You don't have permission to access this page.",
             variant: "destructive",
           })
+          router.push('/')
           return
         }
 
-        // Fetch roles
-        const { data: rolesData, error: rolesError } = await supabase
-          .from('roles')
-          .select('*')
-          .order('name')
-
-        if (rolesError) throw rolesError
-
+        // Fetch roles using server action
+        const { success, roles: rolesData, error: rolesError } = await fetchRoles()
+        
+        if (!success) {
+          throw new Error(rolesError || 'Failed to fetch roles')
+        }
+        
         setRoles(rolesData || [])
       } catch (error) {
         console.error('Error fetching roles:', error)
         toast({
           title: "Error",
-          description: "Failed to load roles. Please try again.",
+          description: "Failed to load roles data.",
           variant: "destructive",
         })
       } finally {
@@ -97,8 +100,8 @@ export default function RoleSettingsPage() {
       }
     }
 
-    fetchRoles()
-  }, [supabase])
+    fetchData()
+  }, [toast, router])
 
   const handleCreateRole = async () => {
     if (!newRoleName.trim()) {

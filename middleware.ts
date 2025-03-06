@@ -80,15 +80,17 @@ export async function middleware(request: NextRequest) {
   // If authenticated, check role-based access
   if (user) {
     try {
-      // Get role from user metadata
+      // Get role directly from user metadata
       const userRole = user.user_metadata?.role || 'user'
-
+      
       // Check role-based access
       if (isAdminRoute && userRole !== 'admin') {
+        // Redirect non-admin users trying to access admin routes
         return NextResponse.redirect(new URL('/', request.url))
       }
 
       if (isBusinessRoute && !['admin', 'business'].includes(userRole)) {
+        // Redirect non-business users trying to access business routes
         return NextResponse.redirect(new URL('/', request.url))
       }
     } catch (error) {

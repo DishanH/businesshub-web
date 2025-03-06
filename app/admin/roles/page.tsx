@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/utils/supabase/client"
-import { User as AuthUser } from '@supabase/supabase-js'
+import { createBrowserClient } from "@supabase/ssr"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
@@ -23,7 +22,8 @@ import {
 import { toast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
 import Link from "next/link"
-import { updateUserRole } from "../actions"
+import { updateUserRole, fetchRoles, fetchUsersWithRoles } from "@/app/admin/actions"
+import { useRouter } from "next/navigation"
 
 type UserWithProfile = {
   id: string
@@ -33,12 +33,7 @@ type UserWithProfile = {
     role?: string
   }
   created_at: string
-  profile?: {
-    user_id: string
-    full_name: string
-    role: string
-    is_active: boolean
-  }
+  role: string
 }
 
 type Role = {
@@ -55,72 +50,69 @@ export default function RolesPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null)
   const itemsPerPage = 10
-  const supabase = createClient()
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const router = useRouter()
 
   // Fetch users and roles on component mount
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
+      setLoading(true)
       try {
-        const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser()
-        if (authError || !currentUser) {
+        // Check if user is authenticated
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError || !user) {
           toast({
-            title: "Error",
-            description: "You must be logged in to view this page.",
+            title: "Authentication Required",
+            description: "Please sign in to access this page.",
             variant: "destructive",
           })
+          router.push('/auth/sign-in')
           return
         }
 
-        // Get admin status
-        const { data: adminProfile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('role')
-          .eq('user_id', currentUser.id)
-          .single()
-        
-        if (profileError || adminProfile.role !== 'admin') {
+        // Check if user is admin
+        const userRole = user.user_metadata?.role || 'user'
+        if (userRole !== 'admin') {
           toast({
             title: "Access Denied",
             description: "You don't have permission to access this page.",
             variant: "destructive",
           })
+          router.push('/')
           return
         }
 
-        // Fetch roles
-        const { data: rolesData, error: rolesError } = await supabase
-          .from('roles')
-          .select('*')
-          .order('name')
 
-        if (rolesError) throw rolesError
+        // Fetch roles using server action
+        const { success, roles: rolesData, error: rolesError } = await fetchRoles()
+        
+        if (!success) {
+          throw new Error(rolesError || 'Failed to fetch roles')
+        }
+        
         setRoles(rolesData || [])
-
-        // First get all users
-        const { data: authUsers, error: usersError } = await supabase.auth.admin.listUsers()
-        if (usersError) throw usersError
-
-        // Then get their profiles
-        const { data: profiles, error: profilesError } = await supabase
-          .from('user_profiles')
-          .select('user_id, full_name, role, is_active')
-
-        if (profilesError) throw profilesError
-
-        // Combine users with their profiles
-        const combinedUsers = authUsers.users
-          .filter((user): user is AuthUser & { email: string } => 
-            typeof user.email === 'string' && user.email.length > 0
-          )
+        // Fetch users with roles using server action
+        const { success: usersSuccess, users: usersData, error: usersError } = await fetchUsersWithRoles()
+        
+        if (!usersSuccess) {
+          throw new Error(usersError || 'Failed to fetch users')
+        }
+        
+        // Filter out users without email and ensure type compatibility
+        const validUsers = (usersData as UserWithProfile[] || [])
+          .filter(user => typeof user.email === 'string' && user.email.length > 0)
           .map(user => ({
             id: user.id,
-            email: user.email,
-            user_metadata: user.user_metadata || { name: undefined },
+            email: user.email as string,
+            user_metadata: user.user_metadata || {},
             created_at: user.created_at,
-            profile: profiles?.find(p => p.user_id === user.id)
-          }))
-
-        setUsers(combinedUsers)
+            role: user.role
+          })) as UserWithProfile[]
+        
+        setUsers(validUsers)
       } catch (error) {
         console.error('Error fetching data:', error)
         toast({
@@ -134,7 +126,7 @@ export default function RolesPage() {
     }
 
     fetchData()
-  }, [supabase])
+  }, [supabase, router])
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     setUpdatingUserId(userId)
@@ -210,40 +202,38 @@ export default function RolesPage() {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Status</TableHead>
             <TableHead>Current Role</TableHead>
+            <TableHead>Created At</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {paginatedUsers.map((user) => (
             <TableRow key={user.id}>
-              <TableCell>{user.profile?.full_name || user.user_metadata?.name || 'N/A'}</TableCell>
-              <TableCell>{user.email}</TableCell>
               <TableCell>
-                <span className={`px-2 py-1 rounded-full text-xs ${
-                  user.profile?.is_active 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'bg-red-100 text-red-700'
-                }`}>
-                  {user.profile?.is_active ? "Active" : "Inactive"}
-                </span>
+                {user.user_metadata?.name || 'No name'}
               </TableCell>
               <TableCell>
-                {user.user_metadata?.role || 'user'}
+                {user.email}
+              </TableCell>
+              <TableCell>
+                {user.role}
+              </TableCell>
+              <TableCell>
+                {new Date(user.created_at).toLocaleDateString()}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Select
-                    defaultValue={user.user_metadata?.role || 'user'}
+                    value={user.role}
                     onValueChange={(value) => handleRoleChange(user.id, value)}
                     disabled={updatingUserId === user.id}
                   >
-                    <SelectTrigger className="w-[130px]">
+                    <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {roles.map(role => (
+                      {roles.map((role) => (
                         <SelectItem key={role.id} value={role.name}>
                           {role.name}
                         </SelectItem>

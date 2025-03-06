@@ -22,7 +22,7 @@ export function AdminButton() {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
-          // Get role from user metadata
+          // Get role directly from user metadata
           const userRole = user.user_metadata?.role || 'user';
           setIsAdmin(userRole === 'admin');
         } else {
