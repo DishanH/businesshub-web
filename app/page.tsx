@@ -2,16 +2,16 @@ import { Suspense } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Plus, MapPin } from "lucide-react"
+import { Plus } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getActiveCategories } from "@/app/actions/categories"
 import { getFeaturedBusinesses, getNewlyAddedBusinesses } from "@/app/actions/businesses"
 import { HomepageSearch } from "@/components/homepage-search"
 import { CategorySection } from "@/components/category-section"
 import BusinessCard from "@/components/business-card"
-import { LocationSelector } from "@/components/location-selector"
 import { SlidingBanner } from "@/components/sliding-banner"
 import { ViewAllButton } from "@/components/view-all-button"
+import { cookies } from "next/headers"
 
 // Popular searches for the search component
 const popularSearches = [
@@ -76,14 +76,21 @@ function MoreBusinessesLoading() {
   )
 }
 
+// Get the selected location from cookies
+async function getSelectedLocation() {
+  const cookieStore = await cookies()
+  return cookieStore.get("selectedLocation")?.value || "toronto"
+}
+
 // Featured businesses section with server component
 async function FeaturedBusinessesSection() {
-  const result = await getFeaturedBusinesses(4)
+  const locationId = await getSelectedLocation()
+  const result = await getFeaturedBusinesses(4, locationId)
   
   if (!result.success || !result.data || result.data.length === 0) {
     return (
       <div className="text-center p-4 bg-muted rounded-lg">
-        <p>No featured businesses available</p>
+        <p>No featured businesses available in this location</p>
       </div>
     )
   }
@@ -116,12 +123,13 @@ async function FeaturedBusinessesSection() {
 
 // Newly added businesses section with server component
 async function NewlyAddedBusinessesSection() {
-  const result = await getNewlyAddedBusinesses(8)
+  const locationId = await getSelectedLocation()
+  const result = await getNewlyAddedBusinesses(8, locationId)
   
   if (!result.success || !result.data || result.data.length === 0) {
     return (
       <div className="text-center p-4 bg-muted rounded-lg">
-        <p>No new businesses available</p>
+        <p>No new businesses available in this location</p>
       </div>
     )
   }
@@ -171,16 +179,6 @@ async function CategoriesSection() {
 export default function Home() {
   return (
     <>
-      {/* Location selector header */}
-      <div className="bg-primary/5 border-b">
-        <div className="container mx-auto py-2 px-4">
-          <div className="flex items-center justify-end gap-2">
-            <MapPin className="h-4 w-4 text-primary" />
-            <LocationSelector />
-          </div>
-        </div>
-      </div>
-      
       <div className="container mx-auto py-8 px-4 space-y-12">
         {/* Hero section with sliding banner */}
         <section className="space-y-4">

@@ -17,6 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { AdminButton } from "@/components/AdminButton"
+import { LocationSelector } from "@/components/location-selector"
 import type { User } from '@supabase/supabase-js'
 
 export default function Header() {
@@ -60,10 +61,13 @@ export default function Header() {
   return (
     <header className="border-b">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
           <Link href="/" className="text-2xl font-bold">
             Local Business Hub
           </Link>
+          <div className="hidden md:block">
+            <LocationSelector />
+          </div>
           <nav className="hidden md:flex items-center space-x-4">
             <Button variant="ghost" asChild>
               <Link href="/nanny-services" className="flex items-center">
@@ -162,6 +166,10 @@ export default function Header() {
             </Button>
           )}
         </div>
+      </div>
+      {/* Mobile location selector */}
+      <div className="md:hidden border-t py-2 px-4">
+        <LocationSelector />
       </div>
     </header>
   )

@@ -35,12 +35,12 @@ export type Business = {
 }
 
 // Function to fetch featured businesses without caching
-async function fetchFeaturedBusinesses(limit: number = 4) {
+async function fetchFeaturedBusinesses(limit: number = 4, locationId?: string) {
   try {
     // Use the client without cookies for this function
     const supabase = createClientWithoutCookies()
     
-    const { data, error } = await supabase
+    let query = supabase
       .from("businesses")
       .select(`
         id, 
@@ -65,7 +65,15 @@ async function fetchFeaturedBusinesses(limit: number = 4) {
       `)
       .eq('active', true)
       .order('rating', { ascending: false })
-      .limit(limit)
+    
+    // Apply location filter if provided
+    if (locationId) {
+      // Convert locationId to city name (in a real app, you might have a mapping table)
+      const cityName = locationId.charAt(0).toUpperCase() + locationId.slice(1).replace(/-/g, ' ')
+      query = query.ilike('city', `%${cityName}%`)
+    }
+    
+    const { data, error } = await query.limit(limit)
     
     if (error) {
       console.error(`Error fetching featured businesses:`, error)
@@ -100,8 +108,8 @@ const getCachedFeaturedBusinesses = unstable_cache(
 )
 
 // Public function to get featured businesses
-export async function getFeaturedBusinesses(limit: number = 4) {
-  return getCachedFeaturedBusinesses(limit)
+export async function getFeaturedBusinesses(limit: number = 4, locationId?: string) {
+  return getCachedFeaturedBusinesses(limit, locationId)
 }
 
 /**
@@ -303,12 +311,12 @@ export async function revalidateBusinesses() {
 }
 
 // Function to fetch newly added businesses without caching
-async function fetchNewlyAddedBusinesses(limit: number = 8) {
+async function fetchNewlyAddedBusinesses(limit: number = 8, locationId?: string) {
   try {
     // Use the client without cookies for this function
     const supabase = createClientWithoutCookies()
     
-    const { data, error } = await supabase
+    let query = supabase
       .from("businesses")
       .select(`
         id, 
@@ -333,7 +341,15 @@ async function fetchNewlyAddedBusinesses(limit: number = 8) {
       `)
       .eq('active', true)
       .order('created_at', { ascending: false })
-      .limit(limit)
+    
+    // Apply location filter if provided
+    if (locationId) {
+      // Convert locationId to city name (in a real app, you might have a mapping table)
+      const cityName = locationId.charAt(0).toUpperCase() + locationId.slice(1).replace(/-/g, ' ')
+      query = query.ilike('city', `%${cityName}%`)
+    }
+    
+    const { data, error } = await query.limit(limit)
     
     if (error) {
       console.error(`Error fetching newly added businesses:`, error)
@@ -368,6 +384,6 @@ const getCachedNewlyAddedBusinesses = unstable_cache(
 )
 
 // Public function to get newly added businesses
-export async function getNewlyAddedBusinesses(limit: number = 8) {
-  return getCachedNewlyAddedBusinesses(limit)
+export async function getNewlyAddedBusinesses(limit: number = 8, locationId?: string) {
+  return getCachedNewlyAddedBusinesses(limit, locationId)
 } 
