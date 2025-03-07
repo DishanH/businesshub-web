@@ -21,7 +21,7 @@ const bannerSlides = [
     id: 1,
     title: "Discover Local Businesses",
     description: "Find the best services and shops in your neighborhood",
-    image: "https://images.unsplash.com/photo-1546768292-fb12f6c92568?w=1200&h=400&q=80&fit=crop",
+    image: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=1200&h=400&q=80&fit=crop",
     buttonText: "Explore Now",
     buttonLink: "/categories",
     bgColor: "from-blue-500 to-indigo-700"
@@ -30,7 +30,7 @@ const bannerSlides = [
     id: 2,
     title: "Support Small Business",
     description: "Help your community thrive by shopping locally",
-    image: "https://images.unsplash.com/photo-1501446529957-6226bd447c46?w=1200&h=400&q=80&fit=crop",
+    image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=1200&h=400&q=80&fit=crop",
     buttonText: "Find Nearby",
     buttonLink: "/search",
     bgColor: "from-emerald-500 to-teal-700"
@@ -39,7 +39,7 @@ const bannerSlides = [
     id: 3,
     title: "Join Our Network",
     description: "List your business and reach more customers",
-    image: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1200&h=400&q=80&fit=crop",
+    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&h=400&q=80&fit=crop",
     buttonText: "Get Started",
     buttonLink: "/add-business",
     bgColor: "from-orange-500 to-red-700"

@@ -58,7 +58,7 @@ export function AdminButton() {
   }
 
   return (
-    <Button variant="outline" className="bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+    <Button variant="outline" className="bg-gradient-to-r from-indigo-500/90 via-purple-500 to-pink-500/90 hover:from-indigo-600/90 hover:via-purple-600 hover:to-pink-600/90" asChild>
       <Link href="/admin">
         <Shield className="mr-2 h-4 w-4" />
         Admin
