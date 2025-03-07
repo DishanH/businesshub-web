@@ -29,6 +29,7 @@ export type Business = {
   rating: number
   image?: string
   active: boolean
+  additional_info?: string
   created_at: string
   updated_at: string
   attributes?: BusinessAttribute[]

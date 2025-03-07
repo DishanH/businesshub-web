@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS businesses (
     rating NUMERIC(3,1) DEFAULT 0.0 CHECK (rating BETWEEN 0.0 AND 5.0),
     image VARCHAR(255),
     active BOOLEAN DEFAULT TRUE,
+    additional_info TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
