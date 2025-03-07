@@ -9,23 +9,34 @@ import {
 } from "@/components/ui/select"
 import { MapPin } from "lucide-react"
 import { useLocation } from "@/components/location-context"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Cookies from "js-cookie"
 
 export function LocationSelector() {
   const { location, setLocation, locations } = useLocation()
+  const [selectedValue, setSelectedValue] = useState(location.id)
 
-  // Set cookie when location changes
+  // Update the selected value when location changes from context
   useEffect(() => {
-    Cookies.set("selectedLocation", location.id, { expires: 365 })
+    setSelectedValue(location.id)
   }, [location])
 
   const handleLocationChange = (value: string) => {
     const newLocation = locations.find(loc => loc.id === value)
     if (newLocation) {
+      // Update the selected value immediately for the dropdown
+      setSelectedValue(value)
+      
+      // Update the context and save to cookies
       setLocation(newLocation)
-      // Set cookie
-      Cookies.set("selectedLocation", newLocation.id, { expires: 365 })
+      
+      // Set cookie with proper options
+      Cookies.set("selectedLocation", value, { 
+        expires: 365, 
+        path: '/',
+        sameSite: 'strict'
+      })
+      
       // Refresh the page to apply the location filter
       window.location.reload()
     }
@@ -34,7 +45,7 @@ export function LocationSelector() {
   return (
     <div className="flex items-center gap-1.5">
       <MapPin className="h-4 w-4 text-primary" />
-      <Select value={location.id} onValueChange={handleLocationChange}>
+      <Select value={selectedValue} onValueChange={handleLocationChange}>
         <SelectTrigger className="w-[140px] bg-transparent border-0 hover:bg-white/10 transition-colors">
           <SelectValue placeholder="Select location" />
         </SelectTrigger>

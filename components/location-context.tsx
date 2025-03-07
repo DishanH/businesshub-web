@@ -40,6 +40,7 @@ const LocationContext = createContext<LocationContextType>({
 // Provider component
 export function LocationProvider({ children }: { children: ReactNode }) {
   const [location, setLocationState] = useState<Location>(availableLocations[0])
+  const [isInitialized, setIsInitialized] = useState(false)
   
   // Load the saved location from cookies on mount
   useEffect(() => {
@@ -50,12 +51,26 @@ export function LocationProvider({ children }: { children: ReactNode }) {
         setLocationState(savedLocation)
       }
     }
+    setIsInitialized(true)
   }, [])
   
   // Function to set location and save to cookies
   const setLocation = (newLocation: Location) => {
     setLocationState(newLocation)
-    Cookies.set("selectedLocation", newLocation.id, { expires: 365 })
+    // Only set cookie if it's a different value to avoid unnecessary writes
+    const currentLocationId = Cookies.get("selectedLocation")
+    if (currentLocationId !== newLocation.id) {
+      Cookies.set("selectedLocation", newLocation.id, { 
+        expires: 365,
+        path: '/',
+        sameSite: 'strict'
+      })
+    }
+  }
+  
+  // Don't render children until we've checked for the cookie
+  if (!isInitialized) {
+    return null
   }
   
   return (

@@ -7,6 +7,7 @@ import Header from "@/components/header"
 import { PageWrapper } from "@/components/page-wrapper"
 import { Toaster } from "@/components/ui/toaster"
 import { LocationProvider } from "@/components/location-context"
+import { Footer } from "@/components/footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -30,6 +31,7 @@ export default function RootLayout({
             <PageWrapper>
               <main className="mx-auto px-4 py-8 mt-0">{children}</main>
             </PageWrapper>
+            <Footer />
             <Toaster />
           </LocationProvider>
         </ThemeProvider>
