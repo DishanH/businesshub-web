@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Plus } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getActiveCategories } from "@/app/actions/categories"
-import { getFeaturedBusinesses, getNewlyAddedBusinesses } from "@/app/actions/businesses"
+import { getFeaturedBusinesses, getNewlyAddedBusinesses } from "@/app/businesses/actions/core"
 import { HomepageSearch } from "@/components/homepage-search"
 import { CategorySection } from "@/components/category-section"
 import BusinessCard from "@/components/business-card"
@@ -252,7 +252,7 @@ export default function Home() {
             Join our platform and connect with customers in your area. It&apos;s free to get started!
           </p>
           <Button asChild variant="secondary" size="lg" className="bg-gradient-to-r from-indigo-500/90 via-purple-500 to-pink-500/90 hover:from-indigo-600/90 hover:via-purple-600 hover:to-pink-600/90">
-            <Link href="/add-business">
+            <Link href="/businesses/create">
               <Plus className="mr-2 h-4 w-4" /> Add Your Business
             </Link>
           </Button>

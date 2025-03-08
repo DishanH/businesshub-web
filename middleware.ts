@@ -4,18 +4,20 @@ import { NextResponse, type NextRequest } from 'next/server'
 // Define protected routes that require authentication
 const protectedRoutes = [
   '/nanny-services',
-  '/add-business',
+  '/businesses/create',
+  '/businesses/update',
+  '/businesses/manage',
   '/account',
-  '/business/dashboard',
-  '/business/ads',
-  '/business/pages',
+  '/account/dashboard',
+  '/account/ads',
+  '/account/pages',
   '/saved-posts',
   '/notifications'
 ]
 
 // Define role-based routes
 const adminRoutes = ['/admin']
-const businessRoutes = ['/business']
+const businessRoutes = ['/businesses']
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({

@@ -41,7 +41,7 @@ const bannerSlides = [
     description: "List your business and reach more customers",
     image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&h=400&q=80&fit=crop",
     buttonText: "Get Started",
-    buttonLink: "/add-business",
+    buttonLink: "/businesses/create",
     bgColor: "from-orange-500 to-red-700"
   }
 ]

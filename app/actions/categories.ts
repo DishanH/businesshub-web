@@ -3,38 +3,19 @@
 import { createClient, createClientWithoutCookies } from "@/utils/supabase/server"
 import { unstable_cache } from "next/cache"
 import { revalidatePath } from "next/cache"
+import type { Category } from "@/app/types/categories"
 
-// Define types for the returned data
-export type Subcategory = {
-  id: string
-  name: string
-  description?: string
-  active: boolean
-}
+//=============================================================================
+// ACTIVE CATEGORIES
+//=============================================================================
 
-export type Attribute = {
-  id: string
-  name: string
-  type: string
-  options?: string[]
-  required: boolean
-  description?: string
-}
-
-export type Category = {
-  id: string
-  name: string
-  description: string
-  slug: string
-  icon?: string
-  active: boolean
-  created_at: string
-  updated_at: string
-  subcategories: Subcategory[]
-  attributes: Attribute[]
-}
-
-// Function to fetch active categories without caching
+/**
+ * Fetch active categories without caching
+ * 
+ * Retrieves all active categories with their subcategories and attributes
+ * 
+ * @returns Object with success status and data or error details
+ */
 async function fetchActiveCategories() {
   try {
     // Use the client without cookies for this function
@@ -87,13 +68,29 @@ const getCachedActiveCategories = unstable_cache(
   { revalidate: 60 * 5 } // Cache for 5 minutes
 )
 
-// Public function to get active categories
+/**
+ * Get active categories with caching
+ * 
+ * Public function that returns cached active categories
+ * Used in the business creation form and category filters
+ * 
+ * @returns Object with success status and data or error details
+ */
 export async function getActiveCategories() {
   return getCachedActiveCategories()
 }
 
+//=============================================================================
+// ALL CATEGORIES
+//=============================================================================
+
 /**
  * Fetch all categories with caching
+ * 
+ * Retrieves all categories (active and inactive) with their subcategories and attributes
+ * Used primarily in admin interfaces
+ * 
+ * @returns Object with success status and data or error details
  */
 export const getCategories = unstable_cache(
   async () => {
@@ -142,8 +139,18 @@ export const getCategories = unstable_cache(
   { revalidate: 60 * 5 } // Cache for 5 minutes
 )
 
+//=============================================================================
+// CATEGORY BY SLUG
+//=============================================================================
+
 /**
  * Fetch a single category by slug with caching
+ * 
+ * Retrieves a specific category by its slug with subcategories and attributes
+ * Used for category detail pages and filtering
+ * 
+ * @param slug - The URL-friendly slug of the category
+ * @returns Object with success status and data or error details
  */
 export const getCategoryBySlug = unstable_cache(
   async (slug: string) => {
@@ -192,8 +199,15 @@ export const getCategoryBySlug = unstable_cache(
   { revalidate: 60 * 5 } // Cache for 5 minutes
 )
 
+//=============================================================================
+// CACHE REVALIDATION
+//=============================================================================
+
 /**
  * Revalidate category caches
+ * 
+ * Call this function after updating categories to refresh the cache
+ * This ensures that users see the most up-to-date category information
  */
 export async function revalidateCategories() {
   revalidatePath("/")

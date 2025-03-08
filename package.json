@@ -26,6 +26,7 @@
     "@radix-ui/react-toast": "^1.2.6",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
+    "@types/google.maps": "^3.58.1",
     "@types/js-cookie": "^3.0.6",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
