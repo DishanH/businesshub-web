@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getFeaturedBusinesses } from "@/app/owner/business-profiles/actions/core";
+import { getFeaturedBusinesses } from "@/app/(public)/business-profiles/actions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";

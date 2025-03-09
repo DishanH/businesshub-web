@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getBusinessById } from "@/app/owner/business-profiles/actions/core";
+import { getBusinessById } from "@/app/owner/business-profiles/actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";

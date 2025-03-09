@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getBusinessesByCategory, getBusinessesByLocation, searchBusinesses } from "@/app/(owner)/business-profiles/actions/core"
+import { getBusinessesByCategory, getBusinessesByLocation, searchBusinesses } from "@/app/(public)/business-profiles/actions"
 
 export async function GET(request: Request) {
   try {

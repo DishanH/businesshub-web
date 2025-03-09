@@ -16,7 +16,7 @@ import {
   ArrowRight,
   Activity
 } from "lucide-react";
-import { getUserBusinesses } from "@/app/owner/business-profiles/actions/core";
+import { getUserBusinesses } from "@/app/owner/business-profiles/manage/actions";
 import { toast } from "@/components/ui/use-toast";
 
 // Define business type

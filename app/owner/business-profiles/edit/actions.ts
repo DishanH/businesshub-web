@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { addBusinessSchema, type AddBusinessFormData } from "@/app/types/business";
 import { z } from 'zod';
-import { verifyBusinessOwnership } from "../actions/utils";
+import { verifyBusinessOwnership } from "../utils";
 
 /**
  * Update an existing business in the database
@@ -35,7 +35,7 @@ export async function updateBusiness(businessId: string, formData: AddBusinessFo
 
     // Check if the business exists and belongs to the current user
     const ownershipCheck = await verifyBusinessOwnership(businessId);
-    if (!ownershipCheck.success || !ownershipCheck.isOwner) {
+    if (!ownershipCheck.success) {
       return { 
         success: false, 
         error: ownershipCheck.error || "You do not have permission to update this business" 

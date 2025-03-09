@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getActiveCategories } from "@/app/actions/categories"
+import { getActiveCategories } from "@/app/(public)/categories/actions"
 
 export async function GET() {
   try {

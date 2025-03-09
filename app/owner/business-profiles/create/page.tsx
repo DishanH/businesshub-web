@@ -40,12 +40,12 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 // Data and Types
-import { getActiveCategories } from "@/app/actions/categories"
+import { getActiveCategories } from "@/app/(public)/categories/actions"
 import { addBusiness } from "@/app/owner/business-profiles/create/actions"
 import { updateBusiness } from "@/app/owner/business-profiles/edit/actions"
 import { ClientCategory } from "@/app/types/categories"
 import { cn } from "@/lib/utils"
-import type { Business } from "@/app/owner/business-profiles/actions/types"
+import type { Business } from "@/app/owner/business-profiles/types"
 
 // Extended Business type with additional properties needed for the form
 interface ExtendedBusiness extends Business {
@@ -553,7 +553,7 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
                   ? "Your business has been updated successfully."
                   : "Your business has been added successfully."
               })
-              router.push("/businesses/manage")
+              router.push("owner/business-profiles/manage")
             } else {
               // Handle validation errors if any
               if (result.validationErrors) {

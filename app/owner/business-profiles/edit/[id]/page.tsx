@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getBusinessById } from "@/app/owner/business-profiles/actions/core"
+import { getBusinessById } from "@/app/owner/business-profiles/actions"
 import { toast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
 import CreateBusinessPage from "@/app/owner/business-profiles/create/page"
-import type { Business } from "@/app/owner/business-profiles/actions/types"
+import type { Business } from "@/app/owner/business-profiles/types"
 
 interface UpdateBusinessPageProps {
   params: {
