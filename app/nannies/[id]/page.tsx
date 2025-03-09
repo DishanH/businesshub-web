@@ -85,7 +85,7 @@ export default function NannyDetailPage({ params }: { params: { id: string } }) 
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold">Nanny not found</h1>
         <Button asChild className="mt-4">
-          <Link href="/nanny-services">Back to Nanny Services</Link>
+          <Link href="/nannies">Back to Nannies</Link>
         </Button>
       </div>
     )
@@ -102,8 +102,8 @@ export default function NannyDetailPage({ params }: { params: { id: string } }) 
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/nanny-services" className="hover:text-foreground">
-              Nanny Services
+            <BreadcrumbLink href="/nannies" className="hover:text-foreground">
+              Nannies
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

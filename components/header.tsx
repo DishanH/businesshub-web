@@ -70,9 +70,9 @@ export default function Header() {
           </div>
           <nav className="hidden md:flex items-center space-x-4">
             <Button variant="ghost" asChild>
-              <Link href="/nanny-services" className="flex items-center">
+              <Link href="/nannies" className="flex items-center">
                 <Baby className="h-4 w-4 mr-2" />
-                Nanny Services
+                Nannies
               </Link>
             </Button>
           </nav>
@@ -83,7 +83,7 @@ export default function Header() {
           {user ? (
             <>
               <Button variant="ghost" size="icon" asChild>
-                <Link href="/saved-posts">
+                <Link href="/user/saved-posts">
                   <Button variant="ghost" size="icon">
                     <Heart className="h-5 w-5" />
                   </Button>
@@ -129,25 +129,25 @@ export default function Header() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <Link href="/account">Account Settings</Link>
+                    <Link href="/user/account">Account Settings</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href="/businesses/manage">My Businesses</Link>
+                    <Link href="/owner/business-profiles/manage">My Businesses</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href="/account/dashboard">Business Dashboard</Link>
+                    <Link href="/owner/dashboard">Business Dashboard</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href="/account/ads">Manage Ads</Link>
+                    <Link href="/user/account/ads">Manage Ads</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href="/account/pages">Customize Pages</Link>
+                    <Link href="/user/account/pages">Customize Pages</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href="/privacy">Privacy</Link>
+                    <Link href="/site/privacy">Privacy</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href="/contact">Contact Us</Link>
+                    <Link href="/site/contact">Contact Us</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={handleSignOut}>

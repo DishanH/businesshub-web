@@ -10,7 +10,7 @@
 
 // Re-export business actions from their new locations
 export { addBusiness } from "../create/actions";
-export { updateBusiness } from "../update/actions";
+export { updateBusiness } from "../edit/actions";
 
 // Re-export business actions from the businesses.ts file
 export { 

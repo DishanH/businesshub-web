@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Loader2, PlusCircle, Pencil, Trash2, Eye, Search } from "lucide-react";
-import { getUserBusinesses, deleteBusiness, updateBusinessStatus } from "@/app/businesses/actions/core";
-import type { Business } from "@/app/businesses/actions/types";
+import { getUserBusinesses, deleteBusiness, updateBusinessStatus } from "@/app/owner/business-profiles/actions/core";
+import type { Business } from "@/app/owner/business-profiles/actions/types";
 import { toast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -307,13 +307,13 @@ export default function ManageBusinessesPage() {
                   
                   <div className="flex gap-2 w-full">
                     <Button variant="outline" size="sm" className="flex-1" asChild>
-                      <Link href={`/businesses/${business.id}`}>
+                      <Link href={`/business-profiles/${business.id}`}>
                         <Eye className="h-4 w-4 mr-1" />
                         View
                       </Link>
                     </Button>
                     <Button variant="default" size="sm" className="flex-1" asChild>
-                      <Link href={`/businesses/edit/${business.id}`}>
+                      <Link href={`/business-profiles/edit/${business.id}`}>
                         <Pencil className="h-4 w-4 mr-1" />
                         Edit
                       </Link>

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getBusinessById } from "../actions/core";
+import { getBusinessById } from "@/app/owner/business-profiles/actions/core";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,7 +14,6 @@ import {
   Globe, 
   Clock, 
   ArrowLeft, 
-  Edit, 
   Star, 
   Menu, 
   Utensils, 
@@ -32,7 +31,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-interface BusinessPageProps {
+interface BusinessProfilePageProps {
   params: {
     id: string;
   };
@@ -58,7 +57,7 @@ interface BusinessAttribute {
   value: string | number | boolean | string[];
 }
 
-export async function generateMetadata({ params }: BusinessPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: BusinessProfilePageProps): Promise<Metadata> {
   const { data: business } = await getBusinessById(params.id);
   
   if (!business) {
@@ -177,7 +176,7 @@ const mockReviews = [
   },
 ];
 
-export default async function BusinessPage({ params }: BusinessPageProps) {
+export default async function BusinessProfilePage({ params }: BusinessProfilePageProps) {
   const { data: business, error } = await getBusinessById(params.id);
   
   if (error || !business) {
@@ -230,9 +229,9 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
         <div className="absolute inset-0 bg-black/20" />
         <div className="container relative h-full flex flex-col justify-end pb-12 z-10">
           <Button variant="outline" size="sm" asChild className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm">
-            <Link href="/businesses">
+            <Link href="/business-profiles">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Businesses
+              Back to Business Profiles
             </Link>
           </Button>
           <div className="space-y-2">
@@ -460,12 +459,6 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             {/* Action Buttons */}
             <div className="flex flex-col gap-2">
               <Button size="lg" className="w-full">Contact Business</Button>
-              <Button variant="outline" size="lg" className="w-full" asChild>
-                <Link href={`/businesses/edit/${business.id}`}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Business
-                </Link>
-              </Button>
             </div>
 
             {/* Contact Information */}

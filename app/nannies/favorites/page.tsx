@@ -113,7 +113,7 @@ export default function FavoritesPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/nanny-services" className="hover:text-foreground">
+            <BreadcrumbLink href="/nannies" className="hover:text-foreground">
               Nanny Services
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -126,7 +126,7 @@ export default function FavoritesPage() {
 
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-4">
-          <Link href="/nanny-services">
+          <Link href="/nannies">
             <Button variant="ghost" size="sm" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Nanny Services
@@ -152,7 +152,7 @@ export default function FavoritesPage() {
                 </p>
               </div>
               <Button asChild className="mt-4">
-                <Link href="/nanny-services">Browse Nannies</Link>
+                <Link href="/nannies">Browse Nannies</Link>
               </Button>
             </div>
           </Card>

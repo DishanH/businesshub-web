@@ -210,7 +210,7 @@ export default function CreateProfilePage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/nanny-services">Nanny Services</BreadcrumbLink>
+            <BreadcrumbLink href="/nannies">Nannies</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>

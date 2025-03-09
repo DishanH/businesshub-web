@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getBusinessById } from "@/app/businesses/actions/core"
+import { getBusinessById } from "@/app/owner/business-profiles/actions/core"
 import { toast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
-import CreateBusinessPage from "@/app/businesses/create/page"
-import type { Business } from "@/app/businesses/actions/types"
+import CreateBusinessPage from "@/app/owner/business-profiles/create/page"
+import type { Business } from "@/app/owner/business-profiles/actions/types"
 
 interface UpdateBusinessPageProps {
   params: {
@@ -66,7 +66,7 @@ export default function UpdateBusinessPage({ params }: UpdateBusinessPageProps) 
           <h2 className="text-xl font-medium mb-2">Error Loading Business</h2>
           <p className="text-muted-foreground mb-6">{error}</p>
           <button
-            onClick={() => router.push("/businesses/manage")}
+            onClick={() => router.push("/business-profiles/manage")}
             className="bg-primary text-primary-foreground px-4 py-2 rounded-md"
           >
             Back to Manage Businesses

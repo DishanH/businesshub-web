@@ -23,7 +23,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/businesses" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/business-profiles" className="text-muted-foreground hover:text-primary transition-colors">
                   Businesses
                 </Link>
               </li>
@@ -53,13 +53,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
-                  Contact Us
+                <Link href="/site/contact" className="text-muted-foreground hover:text-primary transition-colors">
+                  Contact
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
-                  Privacy Policy
+                <Link href="/site/privacy" className="text-muted-foreground hover:text-primary transition-colors">
+                  Privacy
                 </Link>
               </li>
             </ul>

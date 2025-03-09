@@ -41,11 +41,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 // Data and Types
 import { getActiveCategories } from "@/app/actions/categories"
-import { addBusiness } from "@/app/businesses/create/actions"
-import { updateBusiness } from "@/app/businesses/update/actions"
+import { addBusiness } from "@/app/owner/business-profiles/create/actions"
+import { updateBusiness } from "@/app/owner/business-profiles/edit/actions"
 import { ClientCategory } from "@/app/types/categories"
 import { cn } from "@/lib/utils"
-import type { Business } from "@/app/businesses/actions/types"
+import type { Business } from "@/app/owner/business-profiles/actions/types"
 
 // Extended Business type with additional properties needed for the form
 interface ExtendedBusiness extends Business {
@@ -628,7 +628,7 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/businesses/manage">My Businesses</BreadcrumbLink>
+              <BreadcrumbLink href="/owner/business-profiles/manage">My Businesses</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbPage>{pageTitle}</BreadcrumbPage>

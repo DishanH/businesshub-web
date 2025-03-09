@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getFeaturedBusinesses } from "./actions/core";
+import { getFeaturedBusinesses } from "@/app/owner/business-profiles/actions/core";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Search, MapPin } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Businesses | BusinessHub",
+  title: "Business Profiles | BusinessHub",
   description: "Discover and explore businesses in your area",
 };
 
-export default async function BusinessesPage() {
+export default async function BusinessProfilesPage() {
   const { data: featuredBusinesses } = await getFeaturedBusinesses(6);
 
   return (
@@ -53,7 +53,7 @@ export default async function BusinessesPage() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Browse by Category</h2>
           <Button variant="ghost" asChild>
-            <Link href="/businesses/categories">
+            <Link href="/services">
               View All <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -63,7 +63,7 @@ export default async function BusinessesPage() {
           {["Restaurants", "Retail", "Services", "Health", "Entertainment", "Professional"].map((category) => (
             <Link 
               key={category} 
-              href={`/businesses/categories/${category.toLowerCase()}`}
+              href={`/services/${category.toLowerCase()}`}
               className="bg-muted hover:bg-muted/80 transition-colors rounded-lg p-4 text-center"
             >
               <div className="font-medium">{category}</div>
@@ -77,7 +77,7 @@ export default async function BusinessesPage() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Featured Businesses</h2>
           <Button variant="ghost" asChild>
-            <Link href="/businesses/featured">
+            <Link href="/business-profiles/featured">
               View All <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -114,7 +114,7 @@ export default async function BusinessesPage() {
               
               <CardFooter>
                 <Button asChild>
-                  <Link href={`/businesses/${business.id}`}>
+                  <Link href={`/business-profiles/${business.id}`}>
                     View Details
                   </Link>
                 </Button>
@@ -125,13 +125,13 @@ export default async function BusinessesPage() {
       </section>
 
       {/* Call to Action */}
-      <section className="bg-primary text-primary-foreground rounded-lg p-8 text-center">
+      <section className="text-center py-12 bg-muted/30 rounded-lg">
         <h2 className="text-2xl font-bold mb-4">Own a Business?</h2>
         <p className="mb-6 max-w-2xl mx-auto">
           List your business on BusinessHub to reach more customers and grow your online presence.
         </p>
         <Button variant="secondary" asChild>
-          <Link href="/businesses/add">
+          <Link href="/owner/business-profiles/create">
             Add Your Business
           </Link>
         </Button>

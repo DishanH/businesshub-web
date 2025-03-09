@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Category } from "@/app/actions/categories"
-import type { Business } from "@/app/businesses/actions/types"
+import type { Business } from "@/app/(owner)/business-profiles/actions/types"
 
 import { getActiveCategories, getBusinessesByCategory } from "@/lib/data"
 import type { Attribute } from "@/lib/types"

@@ -89,7 +89,7 @@ import {
   updateBusiness, 
   getUserBusinesses,
   // etc.
-} from "@/app/businesses/actions/core"
+} from "@/app/(owner)/business-profiles/actions/core"
 ```
 
 This ensures that you're always using the most up-to-date implementation of these functions. 
