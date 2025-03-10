@@ -5,8 +5,7 @@ import {
   getBusinessSpecialsByBusinessId, 
   createBusinessServiceCategory, 
   createBusinessService,
-  BusinessServiceCategory,
-  BusinessService
+  BusinessServiceCategory
 } from "@/app/owner/business-profiles/actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -92,7 +91,16 @@ interface BusinessAttribute {
 }
 
 export async function generateMetadata({ params }: BusinessProfilePageProps): Promise<Metadata> {
-  const { data: business } = await getBusinessById(params.id);
+  const { id } = await params;
+
+  if (!id) {
+    return {
+      title: "Business Not Found | BusinessHub",
+      description: "The business you are looking for could not be found.",
+    };
+  }
+
+  const { data: business } = await getBusinessById(id);
   
   if (!business) {
     return {
@@ -514,20 +522,31 @@ const ServiceSkeleton = () => {
 };
 
 export default async function BusinessProfilePage({ params }: BusinessProfilePageProps) {
-  const { data: business, error } = await getBusinessById(params.id);
+  // Await params to fix the "params should be awaited" error
+  const { id } = await params;
+  
+  if (!id) {
+    return {
+      title: "Business Not Found | BusinessHub",
+      description: "The business you are looking for could not be found.",
+    };
+  }
+
+  const { data: business, error } = await getBusinessById(id);
   
   if (error || !business) {
     notFound();
   }
   
   // Fetch business services and specials
-  const { data: servicesData } = await getBusinessServicesByBusinessId(params.id);
-  const { data: specialsData } = await getBusinessSpecialsByBusinessId(params.id);
+  const { data: servicesData } = await getBusinessServicesByBusinessId(id);
+  const { data: specialsData } = await getBusinessSpecialsByBusinessId(id);
   
   // Check if current user is the owner of this business
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const isOwner = user && business.user_id === user.id;
+  const isOwner = user && business.owner_id === user.id;
+  
   // Format business hours for display
   const formatBusinessHours = () => {
     if (!business.hours || business.hours.length === 0) {
