@@ -5,8 +5,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { 
   MapPin, 
   Phone, 
@@ -15,11 +23,14 @@ import {
   Clock, 
   ArrowLeft, 
   Star, 
-  Menu, 
   Utensils, 
   ShoppingBag,
   Users,
-  MessageCircle
+  MessageCircle,
+  Wrench,
+  Car,
+  Dumbbell,
+  Briefcase
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -30,6 +41,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog";
 
 interface BusinessProfilePageProps {
   params: {
@@ -176,6 +196,130 @@ const mockReviews = [
   },
 ];
 
+// Add mock data for different business types
+const mockServiceBusinessMenus = {
+  "plumber": {
+    icon: <Wrench className="h-5 w-5" />,
+    title: "Services Offered",
+    categories: [
+      {
+        name: "Residential Services",
+        items: [
+          { name: "Leak Repair", description: "Fix leaking pipes, faucets, and fixtures", price: "$85/hour" },
+          { name: "Drain Cleaning", description: "Clear clogged drains and pipes", price: "$95" },
+          { name: "Water Heater Installation", description: "Install new water heater systems", price: "From $350" },
+        ]
+      },
+      {
+        name: "Commercial Services",
+        items: [
+          { name: "Plumbing Maintenance", description: "Regular maintenance for commercial properties", price: "Custom quote" },
+          { name: "Emergency Repairs", description: "24/7 emergency plumbing services", price: "$150/hour" },
+          { name: "System Inspections", description: "Comprehensive plumbing system inspections", price: "$200" },
+        ]
+      },
+      {
+        name: "Specialized Services",
+        items: [
+          { name: "Bathroom Remodeling", description: "Complete bathroom plumbing for remodels", price: "From $1,500" },
+          { name: "Sewer Line Services", description: "Repair or replace sewer lines", price: "From $800" },
+          { name: "Water Treatment", description: "Water softener and filtration installation", price: "From $450" },
+        ]
+      }
+    ]
+  },
+  "vehicle": {
+    icon: <Car className="h-5 w-5" />,
+    title: "Service Packages",
+    categories: [
+      {
+        name: "Maintenance",
+        items: [
+          { name: "Oil Change", description: "Full synthetic oil and filter change", price: "$49.99" },
+          { name: "Tire Rotation", description: "Rotate and balance all four tires", price: "$35" },
+          { name: "Multi-Point Inspection", description: "Comprehensive vehicle health check", price: "$29.99" },
+        ]
+      },
+      {
+        name: "Repairs",
+        items: [
+          { name: "Brake Service", description: "Pad replacement and rotor inspection", price: "From $180" },
+          { name: "Engine Diagnostics", description: "Computer diagnostic scan and analysis", price: "$89.99" },
+          { name: "Suspension Work", description: "Strut and shock replacement", price: "From $350" },
+        ]
+      },
+      {
+        name: "Packages",
+        items: [
+          { name: "Spring Tune-Up", description: "Prepare your vehicle for warmer weather", price: "$149.99" },
+          { name: "Winter Prep", description: "Cold weather preparation package", price: "$179.99" },
+          { name: "Road Trip Ready", description: "Complete inspection before long trips", price: "$129.99" },
+        ]
+      }
+    ]
+  },
+  "gym": {
+    icon: <Dumbbell className="h-5 w-5" />,
+    title: "Membership Options",
+    categories: [
+      {
+        name: "Memberships",
+        items: [
+          { name: "Basic", description: "Access to gym floor and cardio equipment", price: "$29.99/month" },
+          { name: "Premium", description: "Full access including classes and amenities", price: "$49.99/month" },
+          { name: "Family Plan", description: "Coverage for up to 4 family members", price: "$89.99/month" },
+        ]
+      },
+      {
+        name: "Personal Training",
+        items: [
+          { name: "Single Session", description: "One-on-one training session", price: "$65" },
+          { name: "5-Pack", description: "Five personal training sessions", price: "$300" },
+          { name: "Monthly Program", description: "Weekly sessions and custom plan", price: "$240/month" },
+        ]
+      },
+      {
+        name: "Specialty Services",
+        items: [
+          { name: "Nutrition Consultation", description: "Personalized nutrition planning", price: "$75" },
+          { name: "Body Composition Analysis", description: "Detailed body metrics assessment", price: "$45" },
+          { name: "Group Training", description: "Small group specialized training", price: "$25/session" },
+        ]
+      }
+    ]
+  },
+  "professional": {
+    icon: <Briefcase className="h-5 w-5" />,
+    title: "Professional Services",
+    categories: [
+      {
+        name: "Consultations",
+        items: [
+          { name: "Initial Consultation", description: "First-time client assessment", price: "$150" },
+          { name: "Strategy Session", description: "Focused problem-solving meeting", price: "$200/hour" },
+          { name: "Project Evaluation", description: "Comprehensive project review", price: "From $500" },
+        ]
+      },
+      {
+        name: "Ongoing Services",
+        items: [
+          { name: "Monthly Retainer", description: "Ongoing professional support", price: "From $1,000/month" },
+          { name: "Project-Based Work", description: "Defined scope project completion", price: "Custom quote" },
+          { name: "Hourly Services", description: "As-needed professional assistance", price: "$175/hour" },
+        ]
+      },
+      {
+        name: "Specialized Offerings",
+        items: [
+          { name: "Training Workshop", description: "Group training on specific topics", price: "From $750" },
+          { name: "Document Preparation", description: "Professional document creation", price: "From $350" },
+          { name: "Expert Testimony", description: "Professional testimony services", price: "$300/hour" },
+        ]
+      }
+    ]
+  }
+};
+
 export default async function BusinessProfilePage({ params }: BusinessProfilePageProps) {
   const { data: business, error } = await getBusinessById(params.id);
   
@@ -212,59 +356,127 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
       </div>
     );
   };
+
+  // Determine business type for menu display
+  const getBusinessTypeMenu = () => {
+    if (!business.category) return null;
+    
+    const category = business.category.name.toLowerCase();
+    
+    if (category.includes("restaurant") || category.includes("food") || category.includes("cafe")) {
+      return {
+        icon: <Utensils className="h-5 w-5" />,
+        title: "Menu",
+        categories: mockMenuCategories
+      };
+    } else if (category.includes("plumb")) {
+      return mockServiceBusinessMenus.plumber;
+    } else if (category.includes("auto") || category.includes("car") || category.includes("vehicle")) {
+      return mockServiceBusinessMenus.vehicle;
+    } else if (category.includes("gym") || category.includes("fitness")) {
+      return mockServiceBusinessMenus.gym;
+    } else if (category.includes("consult") || category.includes("legal") || category.includes("account")) {
+      return mockServiceBusinessMenus.professional;
+    }
+    
+    // Default to a generic service menu
+    return {
+      icon: <Briefcase className="h-5 w-5" />,
+      title: "Services & Pricing",
+      categories: [
+        {
+          name: "Popular Services",
+          items: mockServices.map(service => ({
+            name: service.name,
+            description: service.description,
+            price: service.price
+          }))
+        }
+      ]
+    };
+  };
+  
+  const businessTypeMenu = getBusinessTypeMenu();
   
   return (
     <div className="min-h-screen bg-background">
+      {/* Breadcrumb Navigation */}
+      <div className="container py-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/business-profiles">Business Profiles</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{business.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
       {/* Hero Banner */}
-      <div className="relative h-[300px] md:h-[400px] w-full bg-gradient-to-r from-primary/90 to-primary/70 overflow-hidden">
-        {business.images && business.images.length > 0 && (
+      <div className="relative h-[300px] md:h-[400px] overflow-hidden">
+        {business.images && business.images.length > 0 ? (
           <Image 
             src={business.images.find((img: BusinessImage) => img.is_primary)?.url || business.images[0].url} 
             alt={business.images.find((img: BusinessImage) => img.is_primary)?.alt_text || business.name}
             fill
-            className="object-cover opacity-30 mix-blend-overlay"
+            className="object-cover"
             priority
           />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/70"></div>
         )}
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="container relative h-full flex flex-col justify-end pb-12 z-10">
-          <Button variant="outline" size="sm" asChild className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm">
-            <Link href="/business-profiles">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Business Profiles
-            </Link>
-          </Button>
-          <div className="space-y-2">
-            <div className="flex flex-wrap gap-2">
-              <Badge className="bg-background/80 text-foreground backdrop-blur-sm">
-                {business.category?.name || "Uncategorized"}
-              </Badge>
-              {business.subcategory && (
-                <Badge variant="outline" className="bg-background/80 text-foreground backdrop-blur-sm">
-                  {business.subcategory.name}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30 flex items-end">
+          <div className="container p-6">
+            <div className="max-w-3xl space-y-4">
+              <div className="flex flex-wrap gap-2">
+                <Badge className="bg-primary/90 backdrop-blur-sm">
+                  {business.category?.name || "Uncategorized"}
                 </Badge>
-              )}
-              <Badge variant={business.is_active ? "default" : "outline"} className="bg-background/80 backdrop-blur-sm">
-                {business.is_active ? "Active" : "Inactive"}
-              </Badge>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-md">{business.name}</h1>
-            <p className="text-lg text-white/90 max-w-2xl drop-shadow-sm">{business.description.substring(0, 120)}...</p>
-            <div className="flex items-center gap-2 text-white/90">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star 
-                    key={star} 
-                    className={`h-5 w-5 ${star <= business.rating ? "fill-yellow-400 text-yellow-400" : "text-white/40"}`} 
-                  />
-                ))}
+                {business.subcategory && (
+                  <Badge variant="secondary" className="backdrop-blur-sm">
+                    {business.subcategory.name}
+                  </Badge>
+                )}
+                <Badge 
+                  variant={business.is_active ? "default" : "destructive"} 
+                  className={`backdrop-blur-sm ${business.is_active ? "bg-green-600 hover:bg-green-700" : "bg-red-600/90 hover:bg-red-700/90"}`}
+                >
+                  {business.is_active ? "Active" : "Inactive"}
+                </Badge>
               </div>
-              <span>{business.rating.toFixed(1)}</span>
-              <span>•</span>
-              <span>{"$".repeat(business.price_range)}</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white">{business.name}</h1>
+              <p className="text-lg md:text-xl text-white/90 max-w-2xl">{business.description.substring(0, 150)}...</p>
+              <div className="flex items-center gap-3 text-white/90">
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star 
+                      key={star} 
+                      className={`h-5 w-5 ${star <= business.rating ? "fill-yellow-400 text-yellow-400" : "text-white/40"}`} 
+                    />
+                  ))}
+                </div>
+                <span className="font-medium">{business.rating.toFixed(1)}</span>
+                <span>•</span>
+                <span>{"$".repeat(business.price_range)}</span>
+              </div>
             </div>
           </div>
         </div>
+        
+        {/* Back to My Business Button */}
+        <Button variant="secondary" size="sm" asChild className="absolute top-4 right-4 bg-background/90 text-foreground hover:bg-background backdrop-blur-sm">
+          <Link href="/owner/dashboard">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to My Business
+          </Link>
+        </Button>
       </div>
 
       <div className="container py-8">
@@ -276,8 +488,8 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
                 <Users className="mr-2 h-5 w-5" />
                 About {business.name}
               </h2>
-              <Card>
-                <CardContent className="pt-6">
+              <Card className="overflow-hidden border-0 shadow-md">
+                <CardContent className="p-6">
                   <p className="text-muted-foreground leading-relaxed">{business.description}</p>
                   {business.additional_info && (
                     <>
@@ -286,6 +498,93 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
                       <p className="text-muted-foreground leading-relaxed">{business.additional_info}</p>
                     </>
                   )}
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* Our Services Section */}
+            <section>
+              <h2 className="text-2xl font-bold mb-4 flex items-center">
+                <Briefcase className="mr-2 h-5 w-5" />
+                Our Services
+              </h2>
+              <Card className="overflow-hidden border-0 shadow-md">
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {mockServices.slice(0, 4).map((service, index) => (
+                      <div key={index} className="flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow">
+                        <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                        <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                        <div className="flex justify-between items-center mt-auto">
+                          <span className="text-xl font-bold text-primary">{service.price}</span>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">Learn More</Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>{service.name}</DialogTitle>
+                                <DialogDescription>
+                                  Detailed information about this service
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="py-4">
+                                <h4 className="font-medium mb-2">Description</h4>
+                                <p className="text-muted-foreground mb-4">{service.description}</p>
+                                <h4 className="font-medium mb-2">Price</h4>
+                                <p className="text-xl font-bold text-primary">{service.price}</p>
+                                <h4 className="font-medium mt-4 mb-2">Additional Information</h4>
+                                <p className="text-muted-foreground">
+                                  This service includes all standard features and benefits. Contact us for customization options.
+                                </p>
+                              </div>
+                              <div className="flex justify-end">
+                                <DialogClose asChild>
+                                  <Button variant="outline" size="sm">Close</Button>
+                                </DialogClose>
+                                <Button className="ml-2" size="sm">Book Now</Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6 text-center">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline">View All Services</Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center">
+                            <Briefcase className="mr-2 h-5 w-5" />
+                            All Services
+                          </DialogTitle>
+                          <DialogDescription>
+                            Complete list of services offered by {business.name}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {mockServices.map((service, index) => (
+                            <div key={index} className="flex flex-col p-4 border rounded-lg">
+                              <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                              <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                              <div className="flex justify-between items-center mt-auto">
+                                <span className="text-xl font-bold text-primary">{service.price}</span>
+                                <Button variant="outline" size="sm">Book Now</Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex justify-end">
+                          <DialogClose asChild>
+                            <Button variant="outline">Close</Button>
+                          </DialogClose>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </CardContent>
               </Card>
             </section>
@@ -300,8 +599,8 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
                 <CarouselContent>
                   {mockSpecials.map((special) => (
                     <CarouselItem key={special.id} className="md:basis-1/2 lg:basis-1/2">
-                      <Card className="h-full">
-                        <div className="h-40 relative overflow-hidden rounded-t-lg">
+                      <Card className="h-full border-0 shadow-md overflow-hidden">
+                        <div className="h-40 relative overflow-hidden">
                           <Image
                             src={special.image}
                             alt={special.name}
@@ -326,61 +625,50 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
               </Carousel>
             </section>
 
-            {/* Services Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4 flex items-center">
-                <Utensils className="mr-2 h-5 w-5" />
-                Our Services
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {mockServices.map((service) => (
-                  <Card key={service.id} className="overflow-hidden transition-all hover:shadow-md">
-                    <CardHeader className="pb-2">
-                      <CardTitle>{service.name}</CardTitle>
-                      <CardDescription>{service.description}</CardDescription>
-                    </CardHeader>
-                    <CardFooter className="pt-2 flex justify-between items-center">
-                      <span className="text-xl font-bold text-primary">{service.price}</span>
-                      <Button variant="outline" size="sm">Learn More</Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </section>
-
-            {/* Menu Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4 flex items-center">
-                <Menu className="mr-2 h-5 w-5" />
-                Menu
-              </h2>
-              <Tabs defaultValue={mockMenuCategories[0].name.toLowerCase()}>
-                <TabsList className="mb-4 w-full justify-start overflow-auto">
-                  {mockMenuCategories.map((category) => (
-                    <TabsTrigger key={category.name} value={category.name.toLowerCase()}>
-                      {category.name}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                {mockMenuCategories.map((category) => (
-                  <TabsContent key={category.name} value={category.name.toLowerCase()}>
-                    <div className="space-y-4">
-                      {category.items.map((item, index) => (
-                        <Card key={index}>
-                          <CardContent className="p-4 flex justify-between items-center">
-                            <div>
-                              <h3 className="font-medium">{item.name}</h3>
-                              <p className="text-sm text-muted-foreground">{item.description}</p>
-                            </div>
-                            <span className="text-lg font-bold text-primary">{item.price}</span>
-                          </CardContent>
-                        </Card>
+            {/* Dynamic Menu/Services Section based on business type */}
+            {businessTypeMenu && (
+              <section>
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                  {businessTypeMenu.icon}
+                  <span className="ml-2">{businessTypeMenu.title}</span>
+                </h2>
+                <Card className="border-0 shadow-md overflow-hidden">
+                  <Tabs defaultValue={businessTypeMenu.categories[0].name.toLowerCase()}>
+                    <TabsList className="h-12 w-full justify-start overflow-hidden p-0 bg-muted/50 rounded-t-lg rounded-b-none border-b">
+                      {businessTypeMenu.categories.map((category) => (
+                        <TabsTrigger 
+                          key={category.name} 
+                          value={category.name.toLowerCase()}
+                          className="py-4 px-6 h-12 data-[state=active]:bg-background rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                        >
+                          {category.name}
+                        </TabsTrigger>
                       ))}
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </section>
+                    </TabsList>
+                    {businessTypeMenu.categories.map((category) => (
+                      <TabsContent key={category.name} value={category.name.toLowerCase()} className="p-4">
+                        <div className="space-y-4">
+                          {category.items.map((item, index) => (
+                            <Card key={index} className="overflow-hidden border border-muted hover:border-muted-foreground/20 transition-all">
+                              <CardContent className="p-4 flex justify-between items-center">
+                                <div>
+                                  <h3 className="font-medium">{item.name}</h3>
+                                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                                </div>
+                                <div className="flex flex-col items-end">
+                                  <span className="text-lg font-bold text-primary">{item.price}</span>
+                                  <Button variant="ghost" size="sm" className="mt-2">Details</Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </Card>
+              </section>
+            )}
 
             {/* Find Us Section */}
             <section>
@@ -388,7 +676,7 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
                 <MapPin className="mr-2 h-5 w-5" />
                 Find Us
               </h2>
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden border-0 shadow-md">
                 <div className="h-[400px] w-full">
                   <iframe
                     src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyCwxqsBze-6BFAf9jfR_8US5jU6ELEhSoE&q=${encodeURIComponent(
@@ -422,7 +710,7 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
               </h2>
               <div className="space-y-4">
                 {mockReviews.map((review) => (
-                  <Card key={review.id}>
+                  <Card key={review.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -458,11 +746,12 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
           <div className="space-y-6">
             {/* Action Buttons */}
             <div className="flex flex-col gap-2">
-              <Button size="lg" className="w-full">Contact Business</Button>
+              <Button size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Contact Business</Button>
+              <Button size="lg" variant="outline" className="w-full border-primary/20 hover:bg-primary/5 hover:border-primary/30">Book Appointment</Button>
             </div>
 
             {/* Contact Information */}
-            <Card>
+            <Card className="border-0 shadow-md">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Phone className="mr-2 h-5 w-5" />
@@ -527,7 +816,7 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
             </Card>
             
             {/* Business Hours */}
-            <Card>
+            <Card className="border-0 shadow-md">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Clock className="mr-2 h-5 w-5" />
@@ -541,7 +830,7 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
             </Card>
 
             {/* Quick Info */}
-            <Card>
+            <Card className="border-0 shadow-md">
               <CardHeader>
                 <CardTitle>Quick Info</CardTitle>
               </CardHeader>
@@ -566,13 +855,27 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
 
                 {business.attributes && business.attributes.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-medium mb-1">Features</h3>
-                    <div className="flex flex-wrap gap-1">
-                      {business.attributes.map((attr: BusinessAttribute) => (
-                        <Badge key={attr.id} variant="outline">
-                          {attr.attribute_id}: {attr.value.toString()}
-                        </Badge>
-                      ))}
+                    <h3 className="text-sm font-medium mb-2">Features</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {business.attributes.map((attr: BusinessAttribute) => {
+                        // Format the attribute value based on its type
+                        let displayValue = attr.value;
+                        if (typeof attr.value === 'boolean') {
+                          displayValue = attr.value ? 'Yes' : 'No';
+                        } else if (Array.isArray(attr.value)) {
+                          displayValue = attr.value.join(', ');
+                        }
+                        
+                        return (
+                          <Badge 
+                            key={attr.id} 
+                            variant="secondary" 
+                            className="py-1 px-2 bg-secondary/80 text-secondary-foreground"
+                          >
+                            {displayValue.toString()}
+                          </Badge>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

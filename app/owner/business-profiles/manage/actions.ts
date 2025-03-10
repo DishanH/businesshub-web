@@ -130,7 +130,7 @@ export async function deleteBusiness(id: string) {
  * Update business active status
  * 
  * @param id - Business ID to update
- * @param isActive - New active status
+ * @param isActive - New active status (opposite of deactivated_by_user)
  * @returns Object with success status and error details if applicable
  */
 export async function updateBusinessStatus(id: string, isActive: boolean) {
@@ -150,7 +150,7 @@ export async function updateBusinessStatus(id: string, isActive: boolean) {
     // Verify ownership before update
     const { data: business, error: fetchError } = await supabase
       .from("businesses")
-      .select("user_id")
+      .select("user_id, deactivated_by_user")
       .eq("id", id)
       .single();
     
@@ -168,11 +168,12 @@ export async function updateBusinessStatus(id: string, isActive: boolean) {
         error: "You don't have permission to update this business" 
       };
     }
-    
-    // Update the business status
+    console.log(isActive);
+    // Update the business deactivated_by_user status
+    // Note: is_active will be updated by admin after review
     const { error: updateError } = await supabase
       .from("businesses")
-      .update({ is_active: isActive })
+      .update({ deactivated_by_user: isActive })
       .eq("id", id);
     
     if (updateError) {
