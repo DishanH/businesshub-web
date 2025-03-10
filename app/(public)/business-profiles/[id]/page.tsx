@@ -1,11 +1,19 @@
 import { Metadata } from "next";
-import { getBusinessById, getBusinessServicesByBusinessId, getBusinessSpecialsByBusinessId } from "@/app/owner/business-profiles/actions";
+import { 
+  getBusinessById, 
+  getBusinessServicesByBusinessId, 
+  getBusinessSpecialsByBusinessId, 
+  createBusinessServiceCategory, 
+  createBusinessService,
+  BusinessServiceCategory,
+  BusinessService
+} from "@/app/owner/business-profiles/actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Breadcrumb,
@@ -30,7 +38,10 @@ import {
   Wrench,
   Car,
   Dumbbell,
-  Briefcase
+  Briefcase,
+  Plus,
+  Edit,
+  AlertCircle
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -48,8 +59,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose
+  DialogClose,
+  DialogFooter
 } from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { createClient } from "@/utils/supabase/server";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface BusinessProfilePageProps {
   params: {
@@ -57,7 +72,6 @@ interface BusinessProfilePageProps {
   };
 }
 
-// Define types for business data
 interface BusinessImage {
   id: string;
   url: string;
@@ -176,7 +190,7 @@ const mockReviews = [
     avatar: "/placeholder.svg",
     rating: 5,
     date: "2023-05-15",
-    content: "Excellent service! The staff was very friendly and professional. I'll definitely be coming back."
+    content: "Excellent service! The staff was very friendly and professional. I&apos;ll definitely be coming back."
   },
   {
     id: 2,
@@ -192,7 +206,7 @@ const mockReviews = [
     avatar: "/placeholder.svg",
     rating: 5,
     date: "2023-03-10",
-    content: "I've been a regular customer for years and have never been disappointed. Highly recommended!"
+    content: "I&apos;ve been a regular customer for years and have never been disappointed. Highly recommended!"
   },
 ];
 
@@ -320,6 +334,185 @@ const mockServiceBusinessMenus = {
   }
 };
 
+// Service Category Form Component
+const ServiceCategoryForm = ({ businessId, onSuccess }: { businessId: string, onSuccess?: () => void }) => {
+  return (
+    <form className="space-y-4" action={async (formData: FormData) => {
+      'use server';
+      
+      const name = formData.get('name') as string;
+      const description = formData.get('description') as string;
+      
+      if (!name) return;
+      
+      await createBusinessServiceCategory({
+        business_id: businessId,
+        name,
+        description: description || undefined,
+      });
+      
+      if (onSuccess) onSuccess();
+    }}>
+      <div className="space-y-2">
+        <label htmlFor="name" className="text-sm font-medium">Category Name</label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          className="w-full p-2 border rounded-md" 
+          placeholder="e.g., Consultations, Maintenance Services"
+          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <label htmlFor="description" className="text-sm font-medium">Description (Optional)</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          className="w-full p-2 border rounded-md min-h-[100px]" 
+          placeholder="Describe this category of services"
+        />
+      </div>
+      
+      <div className="flex justify-end">
+        <DialogClose asChild>
+          <Button variant="outline" type="button" className="mr-2">Cancel</Button>
+        </DialogClose>
+        <Button type="submit">Save Category</Button>
+      </div>
+    </form>
+  );
+};
+
+// Service Form Component
+const ServiceForm = ({ businessId, categories, onSuccess }: { 
+  businessId: string, 
+  categories: BusinessServiceCategory[],
+  onSuccess?: () => void 
+}) => {
+  return (
+    <form className="space-y-4" action={async (formData: FormData) => {
+      'use server';
+      
+      const name = formData.get('name') as string;
+      const description = formData.get('description') as string;
+      const categoryId = formData.get('category_id') as string;
+      const price = formData.get('price') ? parseFloat(formData.get('price') as string) : undefined;
+      const priceDescription = formData.get('price_description') as string;
+      const isFeatured = formData.get('is_featured') === 'on';
+      
+      if (!name) return;
+      
+      await createBusinessService({
+        business_id: businessId,
+        category_id: categoryId || undefined,
+        name,
+        description: description || undefined,
+        price,
+        price_description: priceDescription || undefined,
+        is_featured: isFeatured,
+      });
+      
+      if (onSuccess) onSuccess();
+    }}>
+      <div className="space-y-2">
+        <label htmlFor="name" className="text-sm font-medium">Service Name</label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          className="w-full p-2 border rounded-md" 
+          placeholder="e.g., Initial Consultation, Oil Change"
+          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <label htmlFor="category_id" className="text-sm font-medium">Category</label>
+        <select 
+          id="category_id" 
+          name="category_id" 
+          className="w-full p-2 border rounded-md"
+        >
+          <option value="">Uncategorized</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>{category.name}</option>
+          ))}
+        </select>
+      </div>
+      
+      <div className="space-y-2">
+        <label htmlFor="description" className="text-sm font-medium">Description</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          className="w-full p-2 border rounded-md min-h-[100px]" 
+          placeholder="Describe what this service includes"
+        />
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label htmlFor="price" className="text-sm font-medium">Price ($)</label>
+          <input 
+            type="number" 
+            id="price" 
+            name="price" 
+            step="0.01" 
+            min="0" 
+            className="w-full p-2 border rounded-md" 
+            placeholder="e.g., 99.99"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <label htmlFor="price_description" className="text-sm font-medium">Price Description</label>
+          <input 
+            type="text" 
+            id="price_description" 
+            name="price_description" 
+            className="w-full p-2 border rounded-md" 
+            placeholder="e.g., From $99.99, $50/hour"
+          />
+        </div>
+      </div>
+      
+      <div className="flex items-center space-x-2">
+        <input 
+          type="checkbox" 
+          id="is_featured" 
+          name="is_featured" 
+          className="rounded border-gray-300"
+        />
+        <label htmlFor="is_featured" className="text-sm font-medium">Feature this service on your profile</label>
+      </div>
+      
+      <div className="flex justify-end">
+        <DialogClose asChild>
+          <Button variant="outline" type="button" className="mr-2">Cancel</Button>
+        </DialogClose>
+        <Button type="submit">Save Service</Button>
+      </div>
+    </form>
+  );
+};
+
+// Service Skeleton Component
+const ServiceSkeleton = () => {
+  return (
+    <div className="flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow">
+      <Skeleton className="h-6 w-3/4 mb-2" />
+      <Skeleton className="h-4 w-full mb-2" />
+      <Skeleton className="h-4 w-5/6 mb-4" />
+      <div className="flex justify-between items-center mt-auto">
+        <Skeleton className="h-6 w-20" />
+        <Skeleton className="h-9 w-24" />
+      </div>
+    </div>
+  );
+};
+
 export default async function BusinessProfilePage({ params }: BusinessProfilePageProps) {
   const { data: business, error } = await getBusinessById(params.id);
   
@@ -331,6 +524,10 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
   const { data: servicesData } = await getBusinessServicesByBusinessId(params.id);
   const { data: specialsData } = await getBusinessSpecialsByBusinessId(params.id);
   
+  // Check if current user is the owner of this business
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isOwner = user && business.user_id === user.id;
   // Format business hours for display
   const formatBusinessHours = () => {
     if (!business.hours || business.hours.length === 0) {
@@ -508,15 +705,226 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
 
             {/* Our Services Section */}
             <section>
-              <h2 className="text-2xl font-bold mb-4 flex items-center">
-                <Briefcase className="mr-2 h-5 w-5" />
-                Our Services
-              </h2>
-              <Card className="overflow-hidden border-0 shadow-md">
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {servicesData && servicesData.featuredServices && servicesData.featuredServices.length > 0 ? (
-                      servicesData.featuredServices.slice(0, 4).map((service) => (
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold flex items-center">
+                  <Briefcase className="mr-2 h-5 w-5" />
+                  Our Services
+                </h2>
+                {isOwner && (
+                  <div className="flex space-x-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex items-center">
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Service
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[550px]">
+                        <DialogHeader>
+                          <DialogTitle>Add New Service</DialogTitle>
+                          <DialogDescription>
+                            Create a new service to showcase what your business offers.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <ServiceForm 
+                          businessId={business.id} 
+                          categories={servicesData?.categories || []} 
+                        />
+                      </DialogContent>
+                    </Dialog>
+                    
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex items-center">
+                          <Edit className="mr-2 h-4 w-4" />
+                          Manage Services
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Manage Business Services</DialogTitle>
+                          <DialogDescription>
+                            Add, edit, or remove services for your business profile.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <Tabs defaultValue="categories">
+                            <TabsList className="mb-4">
+                              <TabsTrigger value="categories">Service Categories</TabsTrigger>
+                              <TabsTrigger value="services">Services</TabsTrigger>
+                            </TabsList>
+                            
+                            <TabsContent value="categories">
+                              <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                  <h3 className="text-lg font-medium">Service Categories</h3>
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button size="sm" className="flex items-center">
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Add Category
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[500px]">
+                                      <DialogHeader>
+                                        <DialogTitle>Add Service Category</DialogTitle>
+                                        <DialogDescription>
+                                          Create a new category to organize your services.
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <ServiceCategoryForm businessId={business.id} />
+                                    </DialogContent>
+                                  </Dialog>
+                                </div>
+                                
+                                {servicesData?.categories && servicesData.categories.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {servicesData.categories.map((category) => (
+                                      <Card key={category.id}>
+                                        <CardHeader className="py-3">
+                                          <div className="flex justify-between items-center">
+                                            <CardTitle className="text-base">{category.name}</CardTitle>
+                                            <Button variant="ghost" size="sm">
+                                              <Edit className="h-4 w-4" />
+                                            </Button>
+                                          </div>
+                                          {category.description && (
+                                            <CardDescription>{category.description}</CardDescription>
+                                          )}
+                                        </CardHeader>
+                                      </Card>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <Alert>
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertTitle>No categories found</AlertTitle>
+                                    <AlertDescription>
+                                      You haven&apos;t added any service categories yet. Create categories to organize your services.
+                                    </AlertDescription>
+                                  </Alert>
+                                )}
+                              </div>
+                            </TabsContent>
+                            
+                            <TabsContent value="services">
+                              <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                  <h3 className="text-lg font-medium">Services</h3>
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button size="sm" className="flex items-center">
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Add Service
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[550px]">
+                                      <DialogHeader>
+                                        <DialogTitle>Add New Service</DialogTitle>
+                                        <DialogDescription>
+                                          Create a new service to showcase what your business offers.
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <ServiceForm 
+                                        businessId={business.id} 
+                                        categories={servicesData?.categories || []} 
+                                      />
+                                    </DialogContent>
+                                  </Dialog>
+                                </div>
+                                
+                                {servicesData?.categories && servicesData.categories.some(cat => cat.services.length > 0) || 
+                                 (servicesData?.uncategorizedServices && servicesData.uncategorizedServices.length > 0) ? (
+                                  <div className="space-y-4">
+                                    {servicesData.categories.map((category) => (
+                                      category.services.length > 0 && (
+                                        <div key={category.id} className="space-y-2">
+                                          <h4 className="font-medium">{category.name}</h4>
+                                          {category.services.map((service) => (
+                                            <Card key={service.id}>
+                                              <CardHeader className="py-3">
+                                                <div className="flex justify-between items-center">
+                                                  <CardTitle className="text-base">{service.name}</CardTitle>
+                                                  <Button variant="ghost" size="sm">
+                                                    <Edit className="h-4 w-4" />
+                                                  </Button>
+                                                </div>
+                                                {service.description && (
+                                                  <CardDescription>{service.description}</CardDescription>
+                                                )}
+                                              </CardHeader>
+                                              <CardFooter className="py-2 flex justify-between">
+                                                <span className="text-sm font-medium text-primary">
+                                                  {service.price_description || (service.price ? `$${service.price}` : 'No price set')}
+                                                </span>
+                                                <Badge variant={service.is_featured ? "default" : "outline"}>
+                                                  {service.is_featured ? "Featured" : "Not Featured"}
+                                                </Badge>
+                                              </CardFooter>
+                                            </Card>
+                                          ))}
+                                        </div>
+                                      )
+                                    ))}
+                                    
+                                    {servicesData.uncategorizedServices && servicesData.uncategorizedServices.length > 0 && (
+                                      <div className="space-y-2">
+                                        <h4 className="font-medium">Uncategorized Services</h4>
+                                        {servicesData.uncategorizedServices.map((service) => (
+                                          <Card key={service.id}>
+                                            <CardHeader className="py-3">
+                                              <div className="flex justify-between items-center">
+                                                <CardTitle className="text-base">{service.name}</CardTitle>
+                                                <Button variant="ghost" size="sm">
+                                                  <Edit className="h-4 w-4" />
+                                                </Button>
+                                              </div>
+                                              {service.description && (
+                                                <CardDescription>{service.description}</CardDescription>
+                                              )}
+                                            </CardHeader>
+                                            <CardFooter className="py-2 flex justify-between">
+                                              <span className="text-sm font-medium text-primary">
+                                                {service.price_description || (service.price ? `$${service.price}` : 'No price set')}
+                                              </span>
+                                              <Badge variant={service.is_featured ? "default" : "outline"}>
+                                                {service.is_featured ? "Featured" : "Not Featured"}
+                                              </Badge>
+                                            </CardFooter>
+                                          </Card>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <Alert>
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertTitle>No services found</AlertTitle>
+                                    <AlertDescription>
+                                      You haven&apos;t added any services yet. Add services to showcase what your business offers.
+                                    </AlertDescription>
+                                  </Alert>
+                                )}
+                              </div>
+                            </TabsContent>
+                          </Tabs>
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Close</Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                )}
+              </div>
+              
+              {servicesData && servicesData.featuredServices && servicesData.featuredServices.length > 0 ? (
+                <Card className="overflow-hidden border-0 shadow-md">
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {servicesData.featuredServices.slice(0, 4).map((service) => (
                         <div key={service.id} className="flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow">
                           <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
                           <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
@@ -553,139 +961,151 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
                             </Dialog>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      mockServices.slice(0, 4).map((service, index) => (
-                        <div key={index} className="flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow">
-                          <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
-                          <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
-                          <div className="flex justify-between items-center mt-auto">
-                            <span className="text-xl font-bold text-primary">{service.price}</span>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" size="sm">Learn More</Button>
-                              </DialogTrigger>
-                              <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                  <DialogTitle>{service.name}</DialogTitle>
-                                  <DialogDescription>
-                                    Detailed information about this service
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="py-4">
-                                  <h4 className="font-medium mb-2">Description</h4>
-                                  <p className="text-muted-foreground mb-4">{service.description}</p>
-                                  <h4 className="font-medium mb-2">Price</h4>
-                                  <p className="text-xl font-bold text-primary">{service.price}</p>
-                                  <h4 className="font-medium mt-4 mb-2">Additional Information</h4>
-                                  <p className="text-muted-foreground">
-                                    This service includes all standard features and benefits. Contact us for customization options.
-                                  </p>
-                                </div>
-                                <div className="flex justify-end">
-                                  <DialogClose asChild>
-                                    <Button variant="outline" size="sm">Close</Button>
-                                  </DialogClose>
-                                  <Button className="ml-2" size="sm">Book Now</Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <div className="mt-6 text-center">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline">View All Services</Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle className="flex items-center">
-                            <Briefcase className="mr-2 h-5 w-5" />
-                            All Services
-                          </DialogTitle>
-                          <DialogDescription>
-                            Complete list of services offered by {business.name}
-                          </DialogDescription>
-                        </DialogHeader>
-                        {servicesData && servicesData.categories && servicesData.categories.length > 0 ? (
-                          <div className="py-4">
-                            <Tabs defaultValue={servicesData.categories[0].id}>
-                              <TabsList className="mb-4">
-                                {servicesData.categories.map((category) => (
-                                  <TabsTrigger key={category.id} value={category.id}>
-                                    {category.name}
-                                  </TabsTrigger>
-                                ))}
-                                {servicesData.uncategorizedServices && servicesData.uncategorizedServices.length > 0 && (
-                                  <TabsTrigger value="uncategorized">Other Services</TabsTrigger>
-                                )}
-                              </TabsList>
-                              
-                              {servicesData.categories.map((category) => (
-                                <TabsContent key={category.id} value={category.id} className="space-y-4">
-                                  {category.description && (
-                                    <p className="text-muted-foreground mb-4">{category.description}</p>
+                      ))}
+                    </div>
+                    <div className="mt-6 text-center">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">View All Services</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle className="flex items-center">
+                              <Briefcase className="mr-2 h-5 w-5" />
+                              All Services
+                            </DialogTitle>
+                            <DialogDescription>
+                              Complete list of services offered by {business.name}
+                            </DialogDescription>
+                          </DialogHeader>
+                          {servicesData && servicesData.categories && servicesData.categories.length > 0 ? (
+                            <div className="py-4">
+                              <Tabs defaultValue={servicesData.categories[0].id}>
+                                <TabsList className="mb-4">
+                                  {servicesData.categories.map((category) => (
+                                    <TabsTrigger key={category.id} value={category.id}>
+                                      {category.name}
+                                    </TabsTrigger>
+                                  ))}
+                                  {servicesData.uncategorizedServices && servicesData.uncategorizedServices.length > 0 && (
+                                    <TabsTrigger value="uncategorized">Other Services</TabsTrigger>
                                   )}
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {category.services.map((service) => (
-                                      <div key={service.id} className="flex flex-col p-4 border rounded-lg">
-                                        <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
-                                        <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
-                                        <div className="flex justify-between items-center mt-auto">
-                                          <span className="text-xl font-bold text-primary">{service.price_description || `$${service.price}`}</span>
-                                          <Button variant="outline" size="sm">Book Now</Button>
+                                </TabsList>
+                                
+                                {servicesData.categories.map((category) => (
+                                  <TabsContent key={category.id} value={category.id} className="space-y-4">
+                                    {category.description && (
+                                      <p className="text-muted-foreground mb-4">{category.description}</p>
+                                    )}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      {category.services.map((service) => (
+                                        <div key={service.id} className="flex flex-col p-4 border rounded-lg">
+                                          <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                                          <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                                          <div className="flex justify-between items-center mt-auto">
+                                            <span className="text-xl font-bold text-primary">{service.price_description || `$${service.price}`}</span>
+                                            <Button variant="outline" size="sm">Book Now</Button>
+                                          </div>
                                         </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </TabsContent>
-                              ))}
-                              
-                              {servicesData.uncategorizedServices && servicesData.uncategorizedServices.length > 0 && (
-                                <TabsContent value="uncategorized" className="space-y-4">
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {servicesData.uncategorizedServices.map((service) => (
-                                      <div key={service.id} className="flex flex-col p-4 border rounded-lg">
-                                        <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
-                                        <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
-                                        <div className="flex justify-between items-center mt-auto">
-                                          <span className="text-xl font-bold text-primary">{service.price_description || `$${service.price}`}</span>
-                                          <Button variant="outline" size="sm">Book Now</Button>
+                                      ))}
+                                    </div>
+                                  </TabsContent>
+                                ))}
+                                
+                                {servicesData.uncategorizedServices && servicesData.uncategorizedServices.length > 0 && (
+                                  <TabsContent value="uncategorized" className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      {servicesData.uncategorizedServices.map((service) => (
+                                        <div key={service.id} className="flex flex-col p-4 border rounded-lg">
+                                          <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                                          <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                                          <div className="flex justify-between items-center mt-auto">
+                                            <span className="text-xl font-bold text-primary">{service.price_description || `$${service.price}`}</span>
+                                            <Button variant="outline" size="sm">Book Now</Button>
+                                          </div>
                                         </div>
-                                      </div>
-                                    ))}
+                                      ))}
+                                    </div>
+                                  </TabsContent>
+                                )}
+                              </Tabs>
+                            </div>
+                          ) : (
+                            <div className="py-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {mockServices.map((service, index) => (
+                                <div key={index} className="flex flex-col p-4 border rounded-lg">
+                                  <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                                  <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                                  <div className="flex justify-between items-center mt-auto">
+                                    <span className="text-xl font-bold text-primary">{service.price}</span>
+                                    <Button variant="outline" size="sm">Book Now</Button>
                                   </div>
-                                </TabsContent>
-                              )}
-                            </Tabs>
-                          </div>
-                        ) : (
-                          <div className="py-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {mockServices.map((service, index) => (
-                              <div key={index} className="flex flex-col p-4 border rounded-lg">
-                                <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
-                                <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
-                                <div className="flex justify-between items-center mt-auto">
-                                  <span className="text-xl font-bold text-primary">{service.price}</span>
-                                  <Button variant="outline" size="sm">Book Now</Button>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
+                          )}
+                          <div className="flex justify-end">
+                            <DialogClose asChild>
+                              <Button variant="outline">Close</Button>
+                            </DialogClose>
                           </div>
-                        )}
-                        <div className="flex justify-end">
-                          <DialogClose asChild>
-                            <Button variant="outline">Close</Button>
-                          </DialogClose>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardContent>
-              </Card>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="overflow-hidden border-0 shadow-md">
+                  {isOwner ? (
+                    <CardContent className="p-6">
+                      <div className="mb-6">
+                        <h3 className="text-xl font-medium mb-2">Service Preview</h3>
+                        <p className="text-muted-foreground mb-6">
+                          This is how your services will appear to customers. Add services to make this section live.
+                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <ServiceSkeleton />
+                        <ServiceSkeleton />
+                        <ServiceSkeleton />
+                        <ServiceSkeleton />
+                      </div>
+                      
+                      <div className="flex justify-center">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button className="flex items-center">
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add Your First Service
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[550px]">
+                            <DialogHeader>
+                              <DialogTitle>Add New Service</DialogTitle>
+                              <DialogDescription>
+                                Create a new service to showcase what your business offers.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <ServiceForm 
+                              businessId={business.id} 
+                              categories={servicesData?.categories || []} 
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </CardContent>
+                  ) : (
+                    <CardContent className="p-10 flex flex-col items-center justify-center text-center">
+                      <Briefcase className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-xl font-medium mb-2">No Services Available</h3>
+                      <p className="text-muted-foreground mb-6 max-w-md">
+                        This business hasn&apos;t added any services to their profile yet.
+                      </p>
+                    </CardContent>
+                  )}
+                </Card>
+              )}
             </section>
 
             {/* Featured Specials Section */}

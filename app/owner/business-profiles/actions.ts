@@ -49,7 +49,7 @@ export async function getBusinessById(id: string) {
 }
 
 // Define types for services and categories
-interface BusinessServiceCategory {
+export interface BusinessServiceCategory {
   id: string;
   business_id: string;
   name: string;
@@ -59,7 +59,7 @@ interface BusinessServiceCategory {
   updated_at: string;
 }
 
-interface BusinessService {
+export interface BusinessService {
   id: string;
   business_id: string;
   category_id: string | null;
@@ -73,7 +73,7 @@ interface BusinessService {
   updated_at: string;
 }
 
-interface BusinessSpecial {
+export interface BusinessSpecial {
   id: string;
   business_id: string;
   name: string;
@@ -166,6 +166,214 @@ export async function getBusinessSpecialsByBusinessId(businessId: string) {
     return {
       data: null,
       error: 'Failed to fetch business specials'
+    };
+  }
+}
+
+// Create a new business service category
+export async function createBusinessServiceCategory(data: {
+  business_id: string;
+  name: string;
+  description?: string;
+  display_order?: number;
+}) {
+  try {
+    const supabase = await createClient();
+    
+    const { data: result, error } = await supabase
+      .from('business_service_categories')
+      .insert({
+        business_id: data.business_id,
+        name: data.name,
+        description: data.description || null,
+        display_order: data.display_order || 0
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return {
+      data: result,
+      error: null
+    };
+  } catch (error) {
+    console.error('Error creating business service category:', error);
+    return {
+      data: null,
+      error: 'Failed to create business service category'
+    };
+  }
+}
+
+// Create a new business service
+export async function createBusinessService(data: {
+  business_id: string;
+  category_id?: string;
+  name: string;
+  description?: string;
+  price?: number;
+  price_description?: string;
+  is_featured?: boolean;
+  display_order?: number;
+}) {
+  try {
+    const supabase = await createClient();
+    
+    const { data: result, error } = await supabase
+      .from('business_services')
+      .insert({
+        business_id: data.business_id,
+        category_id: data.category_id || null,
+        name: data.name,
+        description: data.description || null,
+        price: data.price || null,
+        price_description: data.price_description || null,
+        is_featured: data.is_featured || false,
+        display_order: data.display_order || 0
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return {
+      data: result,
+      error: null
+    };
+  } catch (error) {
+    console.error('Error creating business service:', error);
+    return {
+      data: null,
+      error: 'Failed to create business service'
+    };
+  }
+}
+
+// Update a business service category
+export async function updateBusinessServiceCategory(id: string, data: {
+  name?: string;
+  description?: string;
+  display_order?: number;
+}) {
+  try {
+    const supabase = await createClient();
+    
+    const { data: result, error } = await supabase
+      .from('business_service_categories')
+      .update({
+        name: data.name,
+        description: data.description,
+        display_order: data.display_order
+      })
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return {
+      data: result,
+      error: null
+    };
+  } catch (error) {
+    console.error('Error updating business service category:', error);
+    return {
+      data: null,
+      error: 'Failed to update business service category'
+    };
+  }
+}
+
+// Update a business service
+export async function updateBusinessService(id: string, data: {
+  category_id?: string;
+  name?: string;
+  description?: string;
+  price?: number;
+  price_description?: string;
+  is_featured?: boolean;
+  display_order?: number;
+}) {
+  try {
+    const supabase = await createClient();
+    
+    const { data: result, error } = await supabase
+      .from('business_services')
+      .update({
+        category_id: data.category_id,
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        price_description: data.price_description,
+        is_featured: data.is_featured,
+        display_order: data.display_order
+      })
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return {
+      data: result,
+      error: null
+    };
+  } catch (error) {
+    console.error('Error updating business service:', error);
+    return {
+      data: null,
+      error: 'Failed to update business service'
+    };
+  }
+}
+
+// Delete a business service category
+export async function deleteBusinessServiceCategory(id: string) {
+  try {
+    const supabase = await createClient();
+    
+    const { error } = await supabase
+      .from('business_service_categories')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    
+    return {
+      success: true,
+      error: null
+    };
+  } catch (error) {
+    console.error('Error deleting business service category:', error);
+    return {
+      success: false,
+      error: 'Failed to delete business service category'
+    };
+  }
+}
+
+// Delete a business service
+export async function deleteBusinessService(id: string) {
+  try {
+    const supabase = await createClient();
+    
+    const { error } = await supabase
+      .from('business_services')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    
+    return {
+      success: true,
+      error: null
+    };
+  } catch (error) {
+    console.error('Error deleting business service:', error);
+    return {
+      success: false,
+      error: 'Failed to delete business service'
     };
   }
 } 
