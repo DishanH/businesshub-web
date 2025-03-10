@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getBusinessById } from "@/app/owner/business-profiles/actions";
+import { getBusinessById, getBusinessServicesByBusinessId, getBusinessSpecialsByBusinessId } from "@/app/owner/business-profiles/actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -327,6 +327,10 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
     notFound();
   }
   
+  // Fetch business services and specials
+  const { data: servicesData } = await getBusinessServicesByBusinessId(params.id);
+  const { data: specialsData } = await getBusinessSpecialsByBusinessId(params.id);
+  
   // Format business hours for display
   const formatBusinessHours = () => {
     if (!business.hours || business.hours.length === 0) {
@@ -511,44 +515,85 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
               <Card className="overflow-hidden border-0 shadow-md">
                 <CardContent className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {mockServices.slice(0, 4).map((service, index) => (
-                      <div key={index} className="flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow">
-                        <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
-                        <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
-                        <div className="flex justify-between items-center mt-auto">
-                          <span className="text-xl font-bold text-primary">{service.price}</span>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm">Learn More</Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                              <DialogHeader>
-                                <DialogTitle>{service.name}</DialogTitle>
-                                <DialogDescription>
-                                  Detailed information about this service
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="py-4">
-                                <h4 className="font-medium mb-2">Description</h4>
-                                <p className="text-muted-foreground mb-4">{service.description}</p>
-                                <h4 className="font-medium mb-2">Price</h4>
-                                <p className="text-xl font-bold text-primary">{service.price}</p>
-                                <h4 className="font-medium mt-4 mb-2">Additional Information</h4>
-                                <p className="text-muted-foreground">
-                                  This service includes all standard features and benefits. Contact us for customization options.
-                                </p>
-                              </div>
-                              <div className="flex justify-end">
-                                <DialogClose asChild>
-                                  <Button variant="outline" size="sm">Close</Button>
-                                </DialogClose>
-                                <Button className="ml-2" size="sm">Book Now</Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
+                    {servicesData && servicesData.featuredServices && servicesData.featuredServices.length > 0 ? (
+                      servicesData.featuredServices.slice(0, 4).map((service) => (
+                        <div key={service.id} className="flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow">
+                          <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                          <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                          <div className="flex justify-between items-center mt-auto">
+                            <span className="text-xl font-bold text-primary">{service.price_description || `$${service.price}`}</span>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">Learn More</Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                  <DialogTitle>{service.name}</DialogTitle>
+                                  <DialogDescription>
+                                    Detailed information about this service
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="py-4">
+                                  <h4 className="font-medium mb-2">Description</h4>
+                                  <p className="text-muted-foreground mb-4">{service.description}</p>
+                                  <h4 className="font-medium mb-2">Price</h4>
+                                  <p className="text-xl font-bold text-primary">{service.price_description || `$${service.price}`}</p>
+                                  <h4 className="font-medium mt-4 mb-2">Additional Information</h4>
+                                  <p className="text-muted-foreground">
+                                    This service includes all standard features and benefits. Contact us for customization options.
+                                  </p>
+                                </div>
+                                <div className="flex justify-end">
+                                  <DialogClose asChild>
+                                    <Button variant="outline" size="sm">Close</Button>
+                                  </DialogClose>
+                                  <Button className="ml-2" size="sm">Book Now</Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      mockServices.slice(0, 4).map((service, index) => (
+                        <div key={index} className="flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow">
+                          <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                          <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                          <div className="flex justify-between items-center mt-auto">
+                            <span className="text-xl font-bold text-primary">{service.price}</span>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">Learn More</Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                  <DialogTitle>{service.name}</DialogTitle>
+                                  <DialogDescription>
+                                    Detailed information about this service
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="py-4">
+                                  <h4 className="font-medium mb-2">Description</h4>
+                                  <p className="text-muted-foreground mb-4">{service.description}</p>
+                                  <h4 className="font-medium mb-2">Price</h4>
+                                  <p className="text-xl font-bold text-primary">{service.price}</p>
+                                  <h4 className="font-medium mt-4 mb-2">Additional Information</h4>
+                                  <p className="text-muted-foreground">
+                                    This service includes all standard features and benefits. Contact us for customization options.
+                                  </p>
+                                </div>
+                                <div className="flex justify-end">
+                                  <DialogClose asChild>
+                                    <Button variant="outline" size="sm">Close</Button>
+                                  </DialogClose>
+                                  <Button className="ml-2" size="sm">Book Now</Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                   <div className="mt-6 text-center">
                     <Dialog>
@@ -565,18 +610,72 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
                             Complete list of services offered by {business.name}
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="py-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {mockServices.map((service, index) => (
-                            <div key={index} className="flex flex-col p-4 border rounded-lg">
-                              <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
-                              <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
-                              <div className="flex justify-between items-center mt-auto">
-                                <span className="text-xl font-bold text-primary">{service.price}</span>
-                                <Button variant="outline" size="sm">Book Now</Button>
+                        {servicesData && servicesData.categories && servicesData.categories.length > 0 ? (
+                          <div className="py-4">
+                            <Tabs defaultValue={servicesData.categories[0].id}>
+                              <TabsList className="mb-4">
+                                {servicesData.categories.map((category) => (
+                                  <TabsTrigger key={category.id} value={category.id}>
+                                    {category.name}
+                                  </TabsTrigger>
+                                ))}
+                                {servicesData.uncategorizedServices && servicesData.uncategorizedServices.length > 0 && (
+                                  <TabsTrigger value="uncategorized">Other Services</TabsTrigger>
+                                )}
+                              </TabsList>
+                              
+                              {servicesData.categories.map((category) => (
+                                <TabsContent key={category.id} value={category.id} className="space-y-4">
+                                  {category.description && (
+                                    <p className="text-muted-foreground mb-4">{category.description}</p>
+                                  )}
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {category.services.map((service) => (
+                                      <div key={service.id} className="flex flex-col p-4 border rounded-lg">
+                                        <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                                        <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                                        <div className="flex justify-between items-center mt-auto">
+                                          <span className="text-xl font-bold text-primary">{service.price_description || `$${service.price}`}</span>
+                                          <Button variant="outline" size="sm">Book Now</Button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </TabsContent>
+                              ))}
+                              
+                              {servicesData.uncategorizedServices && servicesData.uncategorizedServices.length > 0 && (
+                                <TabsContent value="uncategorized" className="space-y-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {servicesData.uncategorizedServices.map((service) => (
+                                      <div key={service.id} className="flex flex-col p-4 border rounded-lg">
+                                        <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                                        <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                                        <div className="flex justify-between items-center mt-auto">
+                                          <span className="text-xl font-bold text-primary">{service.price_description || `$${service.price}`}</span>
+                                          <Button variant="outline" size="sm">Book Now</Button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </TabsContent>
+                              )}
+                            </Tabs>
+                          </div>
+                        ) : (
+                          <div className="py-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {mockServices.map((service, index) => (
+                              <div key={index} className="flex flex-col p-4 border rounded-lg">
+                                <h3 className="text-lg font-semibold mb-2">{service.name}</h3>
+                                <p className="text-muted-foreground flex-grow mb-4">{service.description}</p>
+                                <div className="flex justify-between items-center mt-auto">
+                                  <span className="text-xl font-bold text-primary">{service.price}</span>
+                                  <Button variant="outline" size="sm">Book Now</Button>
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
+                        )}
                         <div className="flex justify-end">
                           <DialogClose asChild>
                             <Button variant="outline">Close</Button>
@@ -597,26 +696,49 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
               </h2>
               <Carousel className="w-full">
                 <CarouselContent>
-                  {mockSpecials.map((special) => (
-                    <CarouselItem key={special.id} className="md:basis-1/2 lg:basis-1/2">
-                      <Card className="h-full border-0 shadow-md overflow-hidden">
-                        <div className="h-40 relative overflow-hidden">
-                          <Image
-                            src={special.image}
-                            alt={special.name}
-                            fill
-                            className="object-cover transition-transform hover:scale-105"
-                          />
-                        </div>
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-xl">{special.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-muted-foreground">{special.description}</p>
-                        </CardContent>
-                      </Card>
-                    </CarouselItem>
-                  ))}
+                  {specialsData && specialsData.length > 0 ? (
+                    specialsData.map((special) => (
+                      <CarouselItem key={special.id} className="md:basis-1/2 lg:basis-1/2">
+                        <Card className="h-full border-0 shadow-md overflow-hidden">
+                          <div className="h-40 relative overflow-hidden">
+                            <Image
+                              src={special.image_url || "/placeholder.svg"}
+                              alt={special.name}
+                              fill
+                              className="object-cover transition-transform hover:scale-105"
+                            />
+                          </div>
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-xl">{special.name}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-muted-foreground">{special.description}</p>
+                          </CardContent>
+                        </Card>
+                      </CarouselItem>
+                    ))
+                  ) : (
+                    mockSpecials.map((special) => (
+                      <CarouselItem key={special.id} className="md:basis-1/2 lg:basis-1/2">
+                        <Card className="h-full border-0 shadow-md overflow-hidden">
+                          <div className="h-40 relative overflow-hidden">
+                            <Image
+                              src={special.image}
+                              alt={special.name}
+                              fill
+                              className="object-cover transition-transform hover:scale-105"
+                            />
+                          </div>
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-xl">{special.name}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-muted-foreground">{special.description}</p>
+                          </CardContent>
+                        </Card>
+                      </CarouselItem>
+                    ))
+                  )}
                 </CarouselContent>
                 <div className="flex justify-center mt-4">
                   <CarouselPrevious className="relative mr-2 translate-y-0" />
@@ -632,7 +754,7 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
                   {businessTypeMenu.icon}
                   <span className="ml-2">{businessTypeMenu.title}</span>
                 </h2>
-                <Card className="border-0 shadow-md overflow-hidden">
+                <Card className="shadow-md overflow-hidden">
                   <Tabs defaultValue={businessTypeMenu.categories[0].name.toLowerCase()}>
                     <TabsList className="h-12 w-full justify-start overflow-hidden p-0 bg-muted/50 rounded-t-lg rounded-b-none border-b">
                       {businessTypeMenu.categories.map((category) => (
