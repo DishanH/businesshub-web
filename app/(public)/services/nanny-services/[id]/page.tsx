@@ -29,8 +29,9 @@ interface NannyServicePageProps {
 }
 
 export async function generateMetadata({ params }: NannyServicePageProps): Promise<Metadata> {
+  const { id } = params;
   // In a real app, you would fetch the nanny data from an API
-  const nanny = NANNIES.find(n => n.id === params.id);
+  const nanny = NANNIES.find(n => n.id === id);
   
   if (!nanny) {
     return {
@@ -40,8 +41,8 @@ export async function generateMetadata({ params }: NannyServicePageProps): Promi
   }
   
   return {
-    title: `${nanny.name} - Nanny Services | BusinessHub`,
-    description: nanny.description,
+    title: `${nanny.name} | BusinessHub Nanny Services`,
+    description: nanny.description.substring(0, 160),
   };
 }
 
@@ -151,9 +152,17 @@ const NANNIES = [
   }
 ];
 
-export default function NannyServicePage({ params }: NannyServicePageProps) {
+export default async function NannyServicePage({ params }: NannyServicePageProps) {
+  const { id } = params;
+
+  if (!id) {
+    return {
+      title: "Nanny Not Found | BusinessHub",
+      description: "The nanny you are looking for could not be found.",
+    };
+  }
   // In a real app, you would fetch the nanny data from an API
-  const nanny = NANNIES.find(n => n.id === params.id);
+  const nanny = NANNIES.find(n => n.id === id);
   
   if (!nanny) {
     notFound();

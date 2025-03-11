@@ -22,7 +22,10 @@ import {
 import type { Message } from "@/lib/types"
 
 export default function BusinessOwnerMessagesPage({ params }: { params: { id: string } }) {
-  const businessOwner = getBusinessOwnerById(params.id)
+
+  const { id } = params;
+
+  const businessOwner = getBusinessOwnerById(id)
   const user = getUsers().find((u) => u.id === businessOwner?.userId)
   const [messages, setMessages] = useState<Message[]>(
     [...getMessagesBySenderId(user?.id || ""), ...getMessagesByReceiverId(user?.id || "")].sort(
