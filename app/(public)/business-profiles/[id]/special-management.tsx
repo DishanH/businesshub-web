@@ -30,6 +30,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { BusinessSpecial } from "./specials-actions";
+import { Switch } from "@/components/ui/switch";
 
 // Special Form Component
 const SpecialForm = ({ 
@@ -423,6 +424,133 @@ const SpecialsList = ({
   );
 };
 
+// Section Preferences Component
+const SectionPreferencesForm = ({ 
+  businessId,
+  onSuccess
+}: { 
+  businessId: string,
+  onSuccess?: () => void
+}) => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState("Featured Specials");
+  const [isVisible, setIsVisible] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  // Fetch current preferences
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const response = await fetch(`/api/business/${businessId}/section-preferences/specials`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            setTitle(data.title || "Featured Specials");
+            setIsVisible(data.is_visible !== undefined ? data.is_visible : true);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching section preferences:", error);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchPreferences();
+  }, [businessId]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const response = await fetch('/api/section-preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          business_id: businessId,
+          section_type: 'specials',
+          title,
+          is_visible: isVisible
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update section preferences');
+      }
+      
+      toast({
+        title: "Preferences Updated",
+        description: "Section preferences have been successfully updated.",
+      });
+      
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      console.error('Error updating section preferences:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update section preferences. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (initialLoading) {
+    return (
+      <div className="flex justify-center py-8">
+        <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="section-title">Section Title</Label>
+          <Input 
+            id="section-title" 
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g., Featured Specials"
+          />
+          <p className="text-sm text-muted-foreground">
+            This title will be displayed at the top of the specials section.
+          </p>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="visibility">Section Visibility</Label>
+            <Switch 
+              id="visibility" 
+              checked={isVisible}
+              onCheckedChange={setIsVisible}
+            />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {isVisible 
+              ? "The specials section is visible to all visitors." 
+              : "The specials section is hidden from visitors but remains visible to you."}
+          </p>
+        </div>
+      </div>
+      
+      <div className="flex justify-end space-x-2">
+        <Button type="submit" disabled={loading}>
+          {loading && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
+          Save Preferences
+        </Button>
+      </div>
+    </form>
+  );
+};
+
 export default function SpecialManagement({ 
   businessId,
   onSpecialsUpdated
@@ -434,6 +562,20 @@ export default function SpecialManagement({
   const [activeTab, setActiveTab] = useState("list");
   const [specialToEdit, setSpecialToEdit] = useState<BusinessSpecial | null>(null);
   
+  // Listen for the custom event from AddFirstSpecialButton
+  useEffect(() => {
+    const handleOpenManagement = () => {
+      setIsOpen(true);
+      setActiveTab("add");
+    };
+    
+    window.addEventListener('open-specials-management', handleOpenManagement);
+    
+    return () => {
+      window.removeEventListener('open-specials-management', handleOpenManagement);
+    };
+  }, []);
+  
   const handleSpecialSuccess = () => {
     setActiveTab("list");
     setSpecialToEdit(null);
@@ -441,6 +583,12 @@ export default function SpecialManagement({
     
     // Dispatch a custom event that the SpecialsSection component can listen for
     window.dispatchEvent(new CustomEvent('specials-updated'));
+  };
+  
+  const handlePreferencesSuccess = () => {
+    // Dispatch a custom event to refresh the section with new preferences
+    window.dispatchEvent(new CustomEvent('section-preferences-updated'));
+    if (onSpecialsUpdated) onSpecialsUpdated();
   };
   
   const handleEditSpecial = (special: BusinessSpecial) => {
@@ -489,7 +637,8 @@ export default function SpecialManagement({
           <div className="flex justify-between items-center mb-4">
             <TabsList>
               <TabsTrigger value="list">All Specials</TabsTrigger>
-              <TabsTrigger value="add">Add New</TabsTrigger>
+              {/* <TabsTrigger value="add">Add New</TabsTrigger> */}
+              <TabsTrigger value="preferences">Section Preferences</TabsTrigger>
               {specialToEdit && (
                 <TabsTrigger value="edit">Edit Special</TabsTrigger>
               )}
@@ -520,6 +669,13 @@ export default function SpecialManagement({
             <SpecialForm 
               businessId={businessId} 
               onSuccess={handleSpecialSuccess}
+            />
+          </TabsContent>
+          
+          <TabsContent value="preferences">
+            <SectionPreferencesForm 
+              businessId={businessId}
+              onSuccess={handlePreferencesSuccess}
             />
           </TabsContent>
           

@@ -88,7 +88,7 @@ export default function SpecialsSection({
       const data = await response.json();
       if (data) {
         setSectionTitle(data.title || 'Our Specials');
-        setIsVisible(data.isVisible);
+        setIsVisible(data.is_visible);
       } else {
         setSectionTitle('Our Specials');
         setIsVisible(true);
@@ -108,12 +108,18 @@ export default function SpecialsSection({
       fetchSpecials();
     };
 
+    const handlePreferencesUpdate = () => {
+      fetchSectionPreferences();
+    };
+
     window.addEventListener('specials-updated', handleSpecialUpdate);
+    window.addEventListener('section-preferences-updated', handlePreferencesUpdate);
     
     return () => {
       window.removeEventListener('specials-updated', handleSpecialUpdate);
+      window.removeEventListener('section-preferences-updated', handlePreferencesUpdate);
     };
-  }, [fetchSpecials]);
+  }, [fetchSpecials, fetchSectionPreferences]);
 
   // Fetch section preferences on mount
   useEffect(() => {
@@ -195,13 +201,13 @@ export default function SpecialsSection({
         </h2>
         {isOwner && (
           <div className="flex space-x-2">
+            {!isVisible && (
+              <Badge variant="outline" className="ml-2">Hidden</Badge>
+            )}
             <SpecialManagement 
               businessId={businessId} 
               onSpecialsUpdated={fetchSpecials}
             />
-            {!isVisible && (
-              <Badge variant="outline" className="ml-2">Hidden</Badge>
-            )}
           </div>
         )}
       </div>
