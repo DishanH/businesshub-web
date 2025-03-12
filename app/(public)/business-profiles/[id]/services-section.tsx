@@ -12,7 +12,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import ServiceManagement from "./service-management";
@@ -151,7 +152,41 @@ export default function ServicesSection({
                         : (service.price_description || 'Price upon request')
                       }
                     </span>
-                    <Button variant="outline" size="sm">View Details</Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">View Details</Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[500px]">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center">
+                            {service.name}
+                            {service.is_featured && (
+                              <Badge className="ml-2">Featured</Badge>
+                            )}
+                          </DialogTitle>
+                          <DialogDescription>
+                            Service details
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <h3 className="font-medium mb-2">Description</h3>
+                          <p className="text-muted-foreground mb-4">{service.description}</p>
+                          
+                          <h3 className="font-medium mb-2">Pricing</h3>
+                          <p className="text-lg font-bold text-primary">
+                            {service.price !== null 
+                              ? `$${service.price.toFixed(2)}${service.price_description ? ` ${service.price_description}` : ''}`
+                              : (service.price_description || 'Price upon request')
+                            }
+                          </p>
+                        </div>
+                        <div className="flex justify-end">
+                          <DialogClose asChild>
+                            <Button variant="outline">Close</Button>
+                          </DialogClose>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               ))}
@@ -207,6 +242,41 @@ export default function ServicesSection({
                                         : (service.price_description || 'Price upon request')
                                       }
                                     </span>
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <Button variant="outline" size="sm">View Details</Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="sm:max-w-[500px]">
+                                        <DialogHeader>
+                                          <DialogTitle className="flex items-center">
+                                            {service.name}
+                                            {service.is_featured && (
+                                              <Badge className="ml-2">Featured</Badge>
+                                            )}
+                                          </DialogTitle>
+                                          <DialogDescription>
+                                            Service details
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="py-4">
+                                          <h3 className="font-medium mb-2">Description</h3>
+                                          <p className="text-muted-foreground mb-4">{service.description}</p>
+                                          
+                                          <h3 className="font-medium mb-2">Pricing</h3>
+                                          <p className="text-lg font-bold text-primary">
+                                            {service.price !== null 
+                                              ? `$${service.price.toFixed(2)}${service.price_description ? ` ${service.price_description}` : ''}`
+                                              : (service.price_description || 'Price upon request')
+                                            }
+                                          </p>
+                                        </div>
+                                        <div className="flex justify-end">
+                                          <DialogClose asChild>
+                                            <Button variant="outline">Close</Button>
+                                          </DialogClose>
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
                                   </div>
                                 </div>
                               ))}
@@ -233,6 +303,41 @@ export default function ServicesSection({
                                         : (service.price_description || 'Price upon request')
                                       }
                                     </span>
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <Button variant="outline" size="sm">View Details</Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="sm:max-w-[500px]">
+                                        <DialogHeader>
+                                          <DialogTitle className="flex items-center">
+                                            {service.name}
+                                            {service.is_featured && (
+                                              <Badge className="ml-2">Featured</Badge>
+                                            )}
+                                          </DialogTitle>
+                                          <DialogDescription>
+                                            Service details
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="py-4">
+                                          <h3 className="font-medium mb-2">Description</h3>
+                                          <p className="text-muted-foreground mb-4">{service.description}</p>
+                                          
+                                          <h3 className="font-medium mb-2">Pricing</h3>
+                                          <p className="text-lg font-bold text-primary">
+                                            {service.price !== null 
+                                              ? `$${service.price.toFixed(2)}${service.price_description ? ` ${service.price_description}` : ''}`
+                                              : (service.price_description || 'Price upon request')
+                                            }
+                                          </p>
+                                        </div>
+                                        <div className="flex justify-end">
+                                          <DialogClose asChild>
+                                            <Button variant="outline">Close</Button>
+                                          </DialogClose>
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
                                   </div>
                                 </div>
                               ))}

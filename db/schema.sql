@@ -28,6 +28,18 @@ CREATE TABLE IF NOT EXISTS business_specials (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Business Section Preferences Table
+CREATE TABLE IF NOT EXISTS business_section_preferences (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+  section_type VARCHAR(50) NOT NULL, -- e.g., 'services', 'specials', etc.
+  title VARCHAR(255),
+  is_visible BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(business_id, section_type)
+);
+
 -- Business Service Categories Table (for organizing services by category)
 CREATE TABLE IF NOT EXISTS business_service_categories (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

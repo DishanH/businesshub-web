@@ -28,7 +28,6 @@ import {
   ArrowLeft, 
   Star, 
   Utensils, 
-  ShoppingBag,
   Users,
   MessageCircle,
   Wrench,
@@ -48,6 +47,7 @@ import {
 } from "@/components/ui/carousel";
 import { createClient } from "@/utils/supabase/server";
 import ServicesSection from './services-section';
+import SpecialsSection from './specials-section';
 
 interface BusinessProfilePageProps {
   params: {
@@ -98,28 +98,6 @@ export async function generateMetadata({ params }: BusinessProfilePageProps): Pr
     description: business.description,
   };
 }
-
-// Mock data for sections that might not be in the database yet
-const mockSpecials = [
-  {
-    id: 1,
-    name: "Summer Special",
-    description: "Limited time offer: 20% off all services",
-    image: "/placeholder.svg",
-  },
-  {
-    id: 2,
-    name: "New Customer Discount",
-    description: "First-time customers receive a complimentary consultation",
-    image: "/placeholder.svg",
-  },
-  {
-    id: 3,
-    name: "Loyalty Program",
-    description: "Join our loyalty program and earn points with every visit",
-    image: "/placeholder.svg",
-  },
-];
 
 const mockServices = [
   {
@@ -537,63 +515,12 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
             />
 
             {/* Featured Specials Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4 flex items-center">
-                <ShoppingBag className="mr-2 h-5 w-5" />
-                Featured Specials
-              </h2>
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {specialsData && specialsData.length > 0 ? (
-                    specialsData.map((special) => (
-                      <CarouselItem key={special.id} className="md:basis-1/2 lg:basis-1/2">
-                        <Card className="h-full border-0 shadow-md overflow-hidden">
-                          <div className="h-40 relative overflow-hidden">
-                            <Image
-                              src={special.image_url || "/placeholder.svg"}
-                              alt={special.name}
-                              fill
-                              className="object-cover transition-transform hover:scale-105"
-                            />
-                          </div>
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-xl">{special.name}</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-muted-foreground">{special.description}</p>
-                          </CardContent>
-                        </Card>
-                      </CarouselItem>
-                    ))
-                  ) : (
-                    mockSpecials.map((special) => (
-                      <CarouselItem key={special.id} className="md:basis-1/2 lg:basis-1/2">
-                        <Card className="h-full border-0 shadow-md overflow-hidden">
-                          <div className="h-40 relative overflow-hidden">
-                            <Image
-                              src={special.image}
-                              alt={special.name}
-                              fill
-                              className="object-cover transition-transform hover:scale-105"
-                            />
-                          </div>
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-xl">{special.name}</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-muted-foreground">{special.description}</p>
-                          </CardContent>
-                        </Card>
-                      </CarouselItem>
-                    ))
-                  )}
-                </CarouselContent>
-                <div className="flex justify-center mt-4">
-                  <CarouselPrevious className="relative mr-2 translate-y-0" />
-                  <CarouselNext className="relative ml-2 translate-y-0" />
-                </div>
-              </Carousel>
-            </section>
+            <SpecialsSection 
+              businessId={business.id} 
+              isOwner={isOwner} 
+              businessName={business.name}
+              initialSpecialsData={specialsData}
+            />
 
             {/* Dynamic Menu/Services Section based on business type */}
             {businessTypeMenu && (
