@@ -75,7 +75,7 @@ interface BusinessAttribute {
 }
 
 export async function generateMetadata({ params }: BusinessProfilePageProps): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id) {
     return {
@@ -306,7 +306,7 @@ const mockServiceBusinessMenus = {
 
 export default async function BusinessProfilePage({ params }: BusinessProfilePageProps) {
   // Properly await the params object
-  const { id } = params;
+  const { id } = await params;
   
   if (!id) {
     return {
@@ -639,7 +639,7 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
               </div>
             </section>
 
-            {/* Our Specials Section */}
+            {/* Our Specials Section
             {specialsData && specialsData.length > 0 && (
               <section>
                 <div className="flex justify-between items-center mb-4">
@@ -693,7 +693,7 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
                   <CarouselNext />
                 </Carousel>
               </section>
-            )}
+            )} */}
           </div>
 
           <div className="space-y-6">

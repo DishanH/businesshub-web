@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { id: string, type: string } }
 ) {
   try {
-    const { id, type } = params;
+    const { id, type } = await params;
     
     if (!id || !type) {
       return NextResponse.json(
