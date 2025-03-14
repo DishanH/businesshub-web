@@ -1,53 +1,43 @@
 import { Metadata } from "next";
-import { 
-  getBusinessById, 
-  getBusinessServicesByBusinessId, 
-  getBusinessSpecialsByBusinessId
-} from "@/app/owner/business-profiles/actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { 
+  Briefcase, 
   MapPin, 
   Phone, 
   Mail, 
   Globe, 
   Clock, 
-  ArrowLeft, 
   Star, 
-  Utensils, 
+  ArrowLeft,
   Users,
   MessageCircle,
-  Wrench,
-  Car,
-  Dumbbell,
-  Briefcase,
-  Plus
+  Utensils, 
+  Wrench, 
+  Car, 
+  Dumbbell
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { 
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
 import { createClient } from "@/utils/supabase/server";
+import { getBusinessById, getBusinessServicesByBusinessId, getBusinessSpecialsByBusinessId } from "@/app/owner/business-profiles/actions";
 import ServicesSection from './services-section';
 import SpecialsSection from './specials-section';
+import MenuSection from "./menu-section";
+import { getBusinessMenuDataForProfile } from "./menu-actions";
 
 interface BusinessProfilePageProps {
   params: {
@@ -306,7 +296,7 @@ const mockServiceBusinessMenus = {
 
 export default async function BusinessProfilePage({ params }: BusinessProfilePageProps) {
   // Properly await the params object
-  const { id } = await params;
+  const { id } = params;
   
   if (!id) {
     return {
@@ -324,6 +314,9 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
   // Fetch business services and specials
   const { data: servicesData } = await getBusinessServicesByBusinessId(id);
   const { data: specialsData } = await getBusinessSpecialsByBusinessId(id);
+  
+  // Fetch business menu data
+  const { data: menuData } = await getBusinessMenuDataForProfile(id);
   
   // Check if current user is the owner of this business
   const supabase = await createClient();
@@ -523,7 +516,13 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
             />
 
             {/* Dynamic Menu/Services Section based on business type */}
-            {businessTypeMenu && (
+            {menuData ? (
+              <MenuSection 
+                businessId={id}
+                isOwner={isOwner}
+                initialMenuData={menuData}
+              />
+            ) : businessTypeMenu && (
               <section>
                 <h2 className="text-2xl font-bold mb-4 flex items-center">
                   {businessTypeMenu.icon}
