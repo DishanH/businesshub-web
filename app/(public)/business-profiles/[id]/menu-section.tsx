@@ -4,10 +4,11 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Utensils, Briefcase, Wrench, Car, Dumbbell } from "lucide-react";
+import { Utensils, Briefcase, Wrench, Car, Dumbbell, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BusinessMenuData } from "@/app/owner/business-profiles/menu-types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MenuManagement from "./menu-management";
 
 // Menu Item Skeleton Component
 const MenuItemSkeleton = () => {
@@ -96,6 +97,11 @@ export default function MenuSection({
     return iconMap[iconName] || <Utensils className="h-5 w-5" />;
   };
 
+  // Handle menu data update
+  const handleMenuUpdated = () => {
+    fetchMenuData();
+  };
+
   return (
     <section>
       <div className="flex justify-between items-center mb-4">
@@ -117,10 +123,15 @@ export default function MenuSection({
             {!isVisible && (
               <Badge variant="outline" className="ml-2">Hidden</Badge>
             )}
-            {/* Menu Management Dialog would go here */}
-            <Button variant="outline" size="sm">
-              Manage Menu
-            </Button>
+            <MenuManagement 
+              businessId={businessId}
+              menuData={menuData}
+              onMenuUpdated={handleMenuUpdated}
+            >
+              <Button variant="outline" size="sm">
+                Manage Menu
+              </Button>
+            </MenuManagement>
           </div>
         )}
       </div>
@@ -203,9 +214,16 @@ export default function MenuSection({
               </div>
               
               <div className="flex justify-center mt-6">
-                <Button variant="default">
-                  Add Your First Menu Item
-                </Button>
+                <MenuManagement 
+                  businessId={businessId}
+                  menuData={menuData}
+                  onMenuUpdated={handleMenuUpdated}
+                >
+                  <Button variant="default">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Your First Menu Item
+                  </Button>
+                </MenuManagement>
               </div>
             </CardContent>
           ) : (

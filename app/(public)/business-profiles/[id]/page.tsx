@@ -296,7 +296,7 @@ const mockServiceBusinessMenus = {
 
 export default async function BusinessProfilePage({ params }: BusinessProfilePageProps) {
   // Properly await the params object
-  const { id } = params;
+  const { id } = await params;
   
   if (!id) {
     return {
