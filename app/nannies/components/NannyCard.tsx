@@ -116,7 +116,7 @@ export default function NannyCard({ nanny, isGridLayout, isLiked, onLike }: Nann
         </CardContent>
         <CardFooter className={`flex gap-4 ${!isGridLayout ? 'px-0 pb-0' : ''}`}>
           <Button asChild className="flex-1">
-            <Link href={`/nanny-services/${nanny.id}`}>View Profile</Link>
+            <Link href={`/nannies/${nanny.id}`}>View Profile</Link>
           </Button>
           <Button variant="outline" className="flex-1">
             Contact

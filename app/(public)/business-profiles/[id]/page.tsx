@@ -12,7 +12,6 @@ import {
   Star, 
   ArrowLeft,
   Users,
-  MessageCircle,
   Utensils, 
   Wrench, 
   Car, 
@@ -22,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { 
   Breadcrumb,
@@ -37,6 +35,7 @@ import { getBusinessById, getBusinessServicesByBusinessId, getBusinessSpecialsBy
 import ServicesSection from './services-section';
 import SpecialsSection from './specials-section';
 import MenuSection from "./menu-section";
+import ReviewsSection from "./reviews-section";
 import { getBusinessMenuDataForProfile } from "./menu-actions";
 
 interface BusinessProfilePageProps {
@@ -141,33 +140,6 @@ const mockMenuCategories = [
       { name: "Ice Cream", description: "Three scoops of your choice", price: "$5.99" },
     ]
   }
-];
-
-const mockReviews = [
-  {
-    id: 1,
-    author: "John Doe",
-    avatar: "/placeholder.svg",
-    rating: 5,
-    date: "2023-05-15",
-    content: "Excellent service! The staff was very friendly and professional. I&apos;ll definitely be coming back."
-  },
-  {
-    id: 2,
-    author: "Jane Smith",
-    avatar: "/placeholder.svg",
-    rating: 4,
-    date: "2023-04-22",
-    content: "Great experience overall. The quality was top-notch, though prices are a bit on the higher side."
-  },
-  {
-    id: 3,
-    author: "Michael Johnson",
-    avatar: "/placeholder.svg",
-    rating: 5,
-    date: "2023-03-10",
-    content: "I&apos;ve been a regular customer for years and have never been disappointed. Highly recommended!"
-  },
 ];
 
 // Add mock data for different business types
@@ -599,100 +571,11 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
             </section>
 
             {/* Customer Reviews Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4 flex items-center">
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Customer Reviews
-              </h2>
-              <div className="space-y-4">
-                {mockReviews.map((review) => (
-                  <Card key={review.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Avatar>
-                            <AvatarImage src={review.avatar} />
-                            <AvatarFallback>{review.author[0]}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h3 className="font-medium">{review.author}</h3>
-                            <p className="text-sm text-muted-foreground">{review.date}</p>
-                          </div>
-                        </div>
-                        <div className="flex">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star 
-                              key={star} 
-                              className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} 
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{review.content}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-                <Button variant="outline" className="w-full">View All Reviews</Button>
-              </div>
-            </section>
-
-            {/* Our Specials Section
-            {specialsData && specialsData.length > 0 && (
-              <section>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold flex items-center">
-                    <Star className="mr-2 h-5 w-5" />
-                    Special Offers
-                  </h2>
-                  {isOwner && (
-                    <Button variant="outline" size="sm" className="flex items-center">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Special
-                    </Button>
-                  )}
-                </div>
-                
-                <Carousel className="w-full">
-                  <CarouselContent>
-                    {specialsData.map((special) => (
-                      <CarouselItem key={special.id} className="md:basis-1/2 lg:basis-1/3">
-                        <Card>
-                          {special.image_url && (
-                            <div className="relative h-48 w-full">
-                              <Image
-                                src={special.image_url}
-                                alt={special.name}
-                                fill
-                                className="object-cover rounded-t-lg"
-                              />
-                            </div>
-                          )}
-                          <CardHeader>
-                            <CardTitle>{special.name}</CardTitle>
-                            {special.description && (
-                              <CardDescription>{special.description}</CardDescription>
-                            )}
-                          </CardHeader>
-                          <CardContent>
-                            {(special.start_date || special.end_date) && (
-                              <p className="text-sm text-muted-foreground">
-                                {special.start_date && `From ${new Date(special.start_date).toLocaleDateString()}`}
-                                {special.start_date && special.end_date && " to "}
-                                {special.end_date && `${new Date(special.end_date).toLocaleDateString()}`}
-                              </p>
-                            )}
-                          </CardContent>
-                        </Card>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
-              </section>
-            )} */}
+            <ReviewsSection 
+              businessId={business.id} 
+              isOwner={isOwner} 
+              businessName={business.name}
+            />
           </div>
 
           <div className="space-y-6">
