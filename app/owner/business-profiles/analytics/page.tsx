@@ -173,12 +173,12 @@ export default function BusinessAnalyticsPage() {
   // Helper function to render trend indicators
   const renderTrend = (trend: string, change: number) => {
     return trend === "up" ? (
-      <span className="text-green-600 dark:text-green-400 flex items-center">
+      <span className="text-green-600 dark:text-green-500 flex items-center">
         <ArrowUpRight className="h-4 w-4 mr-1" />
         +{change}%
       </span>
     ) : (
-      <span className="text-red-600 dark:text-red-400 flex items-center">
+      <span className="text-red-600 dark:text-red-500 flex items-center">
         <ArrowDownRight className="h-4 w-4 mr-1" />
         {change}%
       </span>
@@ -189,30 +189,28 @@ export default function BusinessAnalyticsPage() {
     <div className="container py-8 space-y-8 max-w-7xl mx-auto">
       {/* Coming Soon Banner */}
       {showBanner && (
-        <div className="relative overflow-hidden rounded-lg border border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-sm mb-6">
-          <div className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-700/20 [mask-image:linear-gradient(0deg,#fff,rgba(255,255,255,0.6))] dark:[mask-image:linear-gradient(0deg,rgba(255,255,255,0.1),rgba(255,255,255,0.5))]"></div>
+        <div className="relative overflow-hidden rounded-lg border border-border bg-muted/50 shadow-sm mb-6">
           <div className="relative p-6">
             <button 
               onClick={() => setShowBanner(false)} 
-              className="absolute top-3 right-3 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
               aria-label="Dismiss banner"
             >
               <span className="sr-only">Dismiss</span>
               <span className="text-xl">×</span>
             </button>
             <div className="flex items-start gap-4">
-              <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0">
-                <InfoIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <InfoIcon className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-1">Analytics Dashboard Preview</h3>
-                <p className="text-blue-700 dark:text-blue-400">
+                <h3 className="text-lg font-semibold mb-1">Analytics Dashboard Preview</h3>
+                <p className="text-muted-foreground">
                   This analytics dashboard is currently in preview mode with sample data. Live data integration and additional features will be available soon. We appreciate your patience as we work to enhance your business insights experience.
                 </p>
                 <div className="mt-4 flex gap-3">
                   <Button 
                     size="sm" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={() => window.open('https://forms.example.com/analytics-feedback', '_blank')}
                   >
                     Provide Feedback
@@ -220,7 +218,6 @@ export default function BusinessAnalyticsPage() {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/50"
                     onClick={() => setShowBanner(false)}
                   >
                     Dismiss
@@ -258,9 +255,9 @@ export default function BusinessAnalyticsPage() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800 mr-2 cursor-help">
+                <Badge variant="outline" className="bg-muted text-muted-foreground border-border mr-2 cursor-help">
                   <span className="flex items-center">
-                    <span className="h-2 w-2 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>
+                    <span className="h-2 w-2 rounded-full bg-primary mr-1.5 animate-pulse"></span>
                     Demo Data
                   </span>
                 </Badge>
@@ -300,14 +297,14 @@ export default function BusinessAnalyticsPage() {
 
       {/* Key Metrics Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Card>
+        <Card className="bg-background">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">{analyticsData.summary.totalViews.value}</div>
-              <BarChart className="h-4 w-4 text-blue-600" />
+              <BarChart className="h-4 w-4 text-primary" />
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
               <span>vs. previous period</span>
@@ -316,14 +313,14 @@ export default function BusinessAnalyticsPage() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-background">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Customer Leads</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">{analyticsData.summary.totalLeads.value}</div>
-              <Users className="h-4 w-4 text-indigo-600" />
+              <Users className="h-4 w-4 text-primary" />
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
               <span>vs. previous period</span>
@@ -332,14 +329,14 @@ export default function BusinessAnalyticsPage() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-background">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Reviews</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">{analyticsData.summary.totalReviews.value}</div>
-              <MessageSquare className="h-4 w-4 text-purple-600" />
+              <MessageSquare className="h-4 w-4 text-primary" />
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
               <span>vs. previous period</span>
@@ -348,14 +345,14 @@ export default function BusinessAnalyticsPage() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-background">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">{analyticsData.summary.averageRating.value}</div>
-              <Star className="h-4 w-4 text-amber-500 fill-current" />
+              <Star className="h-4 w-4 text-primary" />
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
               <span>vs. previous period</span>
@@ -364,14 +361,14 @@ export default function BusinessAnalyticsPage() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-background">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">{analyticsData.summary.conversionRate.value}%</div>
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <TrendingUp className="h-4 w-4 text-primary" />
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
               <span>vs. previous period</span>
@@ -380,14 +377,14 @@ export default function BusinessAnalyticsPage() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-background">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Engagement Rate</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">{analyticsData.summary.engagementRate.value}%</div>
-              <Activity className="h-4 w-4 text-rose-600" />
+              <Activity className="h-4 w-4 text-primary" />
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
               <span>vs. previous period</span>
@@ -408,7 +405,7 @@ export default function BusinessAnalyticsPage() {
         
         <TabsContent value="overview" className="space-y-6">
           {/* Profile Views Chart */}
-          <Card>
+          <Card className="bg-background">
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div>
@@ -422,7 +419,7 @@ export default function BusinessAnalyticsPage() {
               </div>
             </CardHeader>
             <CardContent className="h-80">
-              <div className="flex items-center justify-center h-full bg-muted/20 rounded-md">
+              <div className="flex items-center justify-center h-full bg-muted rounded-md">
                 <div className="text-center">
                   <LineChart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">Chart visualization would appear here</p>
@@ -434,7 +431,7 @@ export default function BusinessAnalyticsPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Traffic Sources */}
-            <Card>
+            <Card className="bg-background">
               <CardHeader>
                 <CardTitle>Traffic Sources</CardTitle>
                 <CardDescription>Where your profile views are coming from</CardDescription>
@@ -460,7 +457,7 @@ export default function BusinessAnalyticsPage() {
             </Card>
             
             {/* Business Performance */}
-            <Card>
+            <Card className="bg-background">
               <CardHeader>
                 <CardTitle>Business Performance</CardTitle>
                 <CardDescription>Leads by business profile</CardDescription>
@@ -503,13 +500,13 @@ export default function BusinessAnalyticsPage() {
         
         <TabsContent value="traffic" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="md:col-span-2">
+            <Card className="md:col-span-2 bg-background">
               <CardHeader>
                 <CardTitle>Traffic Analysis</CardTitle>
                 <CardDescription>Detailed breakdown of your profile traffic</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
-                <div className="flex items-center justify-center h-full bg-muted/20 rounded-md">
+                <div className="flex items-center justify-center h-full bg-muted rounded-md">
                   <div className="text-center">
                     <BarChart2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">Traffic analysis visualization would appear here</p>
@@ -519,13 +516,13 @@ export default function BusinessAnalyticsPage() {
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="bg-background">
               <CardHeader>
                 <CardTitle>Traffic by Device</CardTitle>
                 <CardDescription>How users are accessing your profiles</CardDescription>
               </CardHeader>
               <CardContent className="h-60">
-                <div className="flex items-center justify-center h-full bg-muted/20 rounded-md">
+                <div className="flex items-center justify-center h-full bg-muted rounded-md">
                   <div className="text-center">
                     <PieChart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">Device breakdown chart would appear here</p>
@@ -534,13 +531,13 @@ export default function BusinessAnalyticsPage() {
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="bg-background">
               <CardHeader>
                 <CardTitle>Traffic by Time</CardTitle>
                 <CardDescription>When users are viewing your profiles</CardDescription>
               </CardHeader>
               <CardContent className="h-60">
-                <div className="flex items-center justify-center h-full bg-muted/20 rounded-md">
+                <div className="flex items-center justify-center h-full bg-muted rounded-md">
                   <div className="text-center">
                     <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">Time distribution chart would appear here</p>
@@ -552,7 +549,7 @@ export default function BusinessAnalyticsPage() {
         </TabsContent>
         
         <TabsContent value="leads" className="space-y-6">
-          <Card className="md:col-span-2">
+          <Card className="md:col-span-2 bg-background">
             <CardHeader>
               <CardTitle>Leads & Conversions</CardTitle>
               <CardDescription>Track your business leads and conversion rates</CardDescription>
@@ -566,7 +563,7 @@ export default function BusinessAnalyticsPage() {
                       <Badge variant="outline">{business.conversion}% conversion rate</Badge>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Card>
+                      <Card className="bg-background">
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
                         </CardHeader>
@@ -574,7 +571,7 @@ export default function BusinessAnalyticsPage() {
                           <div className="text-2xl font-bold">{business.leads}</div>
                         </CardContent>
                       </Card>
-                      <Card>
+                      <Card className="bg-background">
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm font-medium">Converted</CardTitle>
                         </CardHeader>
@@ -582,7 +579,7 @@ export default function BusinessAnalyticsPage() {
                           <div className="text-2xl font-bold">{Math.round(business.leads * (business.conversion / 100))}</div>
                         </CardContent>
                       </Card>
-                      <Card>
+                      <Card className="bg-background">
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm font-medium">Pending</CardTitle>
                         </CardHeader>
@@ -605,7 +602,7 @@ export default function BusinessAnalyticsPage() {
         </TabsContent>
         
         <TabsContent value="activity" className="space-y-6">
-          <Card>
+          <Card className="bg-background">
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div>

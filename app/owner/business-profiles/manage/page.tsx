@@ -219,29 +219,29 @@ export default function ManageBusinessesPage() {
     <div className="container py-8 space-y-8 max-w-7xl mx-auto">
       {/* New Feature Banner */}
       {showNewFeatureBanner && (
-        <div className="relative overflow-hidden rounded-lg border border-indigo-200 dark:border-indigo-800 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 shadow-sm mb-6">
+        <div className="relative overflow-hidden rounded-lg border border-border bg-muted/50 shadow-sm mb-6">
           <div className="relative p-4">
             <button 
               onClick={() => setShowNewFeatureBanner(false)} 
-              className="absolute top-2 right-2 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+              className="absolute top-0 right-2 text-muted-foreground hover:text-foreground"
               aria-label="Dismiss banner"
             >
               <span className="sr-only">Dismiss</span>
               <span className="text-xl">×</span>
             </button>
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
-                <BarChart className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <BarChart className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-indigo-800 dark:text-indigo-300">New Feature: Analytics Dashboard</h3>
-                <p className="text-sm text-indigo-700 dark:text-indigo-400">
+                <h3 className="text-sm font-semibold">New Feature: Analytics Dashboard</h3>
+                <p className="text-sm text-muted-foreground">
                   Explore our new analytics dashboard to gain deeper insights into your business performance.
                 </p>
               </div>
               <Button 
                 size="sm" 
-                className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="ml-auto mr-2"
                 onClick={() => {
                   router.push("/owner/business-profiles/analytics");
                   setShowNewFeatureBanner(false);
@@ -296,15 +296,15 @@ export default function ManageBusinessesPage() {
         {/* Sidebar with Stats and Activity */}
         <div className="lg:col-span-4 space-y-6">
           {/* Stats Overview */}
-          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden">
+          <div className="bg-background dark:bg-background rounded-xl shadow-sm border border-border/40 overflow-hidden">
             <div className="p-6 border-b border-border/40">
               <h2 className="text-xl font-semibold">Performance Overview</h2>
               <p className="text-sm text-muted-foreground mt-1">Last 30 days statistics</p>
             </div>
             <div className="grid grid-cols-2 divide-x divide-y divide-border/40">
               <div className="p-4 flex flex-col items-center justify-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/30 mb-2">
-                  <BarChart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-2">
+                  <BarChart className="h-5 w-5 text-primary" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">Profile Views</p>
                 <p className="text-2xl font-bold">{dashboardData.totalViews}</p>
@@ -313,8 +313,8 @@ export default function ManageBusinessesPage() {
                 </p>
               </div>
               <div className="p-4 flex flex-col items-center justify-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950/30 mb-2">
-                  <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-2">
+                  <Users className="h-5 w-5 text-primary" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">Customer Leads</p>
                 <p className="text-2xl font-bold">{dashboardData.totalLeads}</p>
@@ -323,8 +323,8 @@ export default function ManageBusinessesPage() {
                 </p>
               </div>
               <div className="p-4 flex flex-col items-center justify-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-950/30 mb-2">
-                  <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-2">
+                  <MessageSquare className="h-5 w-5 text-primary" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">Reviews</p>
                 <p className="text-2xl font-bold">{dashboardData.totalReviews}</p>
@@ -333,8 +333,8 @@ export default function ManageBusinessesPage() {
                 </p>
               </div>
               <div className="p-4 flex flex-col items-center justify-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/30 mb-2">
-                  <Star className="h-5 w-5 text-amber-600 dark:text-amber-400 fill-current" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-2">
+                  <Star className="h-5 w-5 text-primary" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">Avg. Rating</p>
                 <p className="text-2xl font-bold">{dashboardData.averageRating}</p>
@@ -346,7 +346,7 @@ export default function ManageBusinessesPage() {
           </div>
 
           {/* Recent Activity Feed */}
-          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden">
+          <div className="bg-background dark:bg-background rounded-xl shadow-sm border border-border/40 overflow-hidden">
             <div className="p-6 border-b border-border/40 flex justify-between items-center">
               <div>
                 <h2 className="text-xl font-semibold">Recent Activity</h2>
@@ -388,7 +388,7 @@ export default function ManageBusinessesPage() {
           </div>
 
           {/* Recent Messages Preview */}
-          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden">
+          <div className="bg-background dark:bg-background rounded-xl shadow-sm border border-border/40 overflow-hidden">
             <div className="p-6 border-b border-border/40 flex justify-between items-center">
               <div>
                 <h2 className="text-xl font-semibold">Recent Messages</h2>
@@ -412,7 +412,7 @@ export default function ManageBusinessesPage() {
           </div>
 
           {/* Performance Overview Section */}
-          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden mt-6">
+          <div className="bg-background dark:bg-background rounded-xl shadow-sm border border-border/40 overflow-hidden mt-6">
             <div className="p-6 border-b border-border/40 flex justify-between items-center">
               <div>
                 <h2 className="text-xl font-semibold">Performance Insights</h2>
@@ -432,8 +432,8 @@ export default function ManageBusinessesPage() {
                 Gain deeper insights into your business performance with our comprehensive analytics dashboard.
               </p>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center">
-                  <BarChart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <BarChart className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <p className="font-medium">Traffic Analysis</p>
@@ -441,8 +441,8 @@ export default function ManageBusinessesPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <p className="font-medium">Lead Conversion</p>
@@ -462,7 +462,7 @@ export default function ManageBusinessesPage() {
 
         {/* Main Content Area */}
         <div className="lg:col-span-8">
-          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden">
+          <div className="bg-background dark:bg-background rounded-xl shadow-sm border border-border/40 overflow-hidden">
             <div className="p-6 border-b border-border/40 flex justify-between items-center">
               <div>
                 <h2 className="text-xl font-semibold">My Businesses</h2>
@@ -552,11 +552,11 @@ export default function ManageBusinessesPage() {
                           )}
                           <div className="absolute top-3 right-3">
                             {business.is_active ? (
-                              <Badge className="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-1">Active</Badge>
+                              <Badge className="bg-green-500/90 dark:bg-green-600/90 hover:bg-green-600 dark:hover:bg-green-700 text-white dark:text-white font-medium px-3 py-1">Active</Badge>
                             ) : business.deactivated_by_user ? (
-                              <Badge variant="outline" className="border-red-500 text-red-500 bg-white/90 dark:bg-gray-900/90 dark:text-red-400 font-medium px-3 py-1">Deactivated</Badge>
+                              <Badge variant="outline" className="border-destructive text-destructive bg-background font-medium px-3 py-1">Deactivated</Badge>
                             ) : (
-                              <Badge variant="secondary" className="bg-amber-500 hover:bg-amber-600 text-white font-medium px-3 py-1">Pending Review</Badge>
+                              <Badge variant="secondary" className="bg-amber-500/90 dark:bg-amber-600/90 hover:bg-amber-600 dark:hover:bg-amber-700 text-white dark:text-white font-medium px-3 py-1">Pending Review</Badge>
                             )}
                           </div>
                         </div>
@@ -577,10 +577,7 @@ export default function ManageBusinessesPage() {
                                   <Switch
                                     checked={!business.deactivated_by_user}
                                     disabled={toggling === business.id}
-                                    className={`border-2 ${!business.deactivated_by_user 
-                                      ? "data-[state=checked]:bg-green-500 border-green-300 dark:border-green-700" 
-                                      : "data-[state=unchecked]:bg-red-200 dark:data-[state=unchecked]:bg-red-900/50 border-red-300 dark:border-red-800"
-                                    } [&>span]:bg-white dark:[&>span]:bg-gray-200`}
+                                    className="border-2 data-[state=checked]:bg-green-500/90 dark:data-[state=checked]:bg-green-600/90 data-[state=unchecked]:bg-destructive/20 dark:data-[state=unchecked]:bg-destructive/30 border-border [&>span]:bg-background"
                                   />
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
@@ -600,7 +597,7 @@ export default function ManageBusinessesPage() {
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                     <AlertDialogAction 
                                       onClick={() => handleToggleActive(business.id, business.deactivated_by_user)}
-                                      className={business.deactivated_by_user ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+                                      className={business.deactivated_by_user ? "bg-primary hover:bg-primary/90" : "bg-destructive hover:bg-destructive/90"}
                                     >
                                       {toggling === business.id ? (
                                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -680,7 +677,7 @@ export default function ManageBusinessesPage() {
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction 
                                     onClick={() => handleDelete(business.id)}
-                                    className="bg-red-500 hover:bg-red-600"
+                                    className="bg-destructive hover:bg-destructive/90"
                                   >
                                     Delete
                                   </AlertDialogAction>
