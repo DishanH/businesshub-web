@@ -70,7 +70,7 @@ export default function NannyGrid() {
   const [searchQuery, setSearchQuery] = useState("")
   const [likedNannies, setLikedNannies] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
-  const [isGridLayout, setIsGridLayout] = useState(true)
+  const [isGridLayout, setIsGridLayout] = useState(false)
   
   const ITEMS_PER_PAGE = 6
   

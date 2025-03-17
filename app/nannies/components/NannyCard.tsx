@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Star, MapPin, Clock, Heart } from "lucide-react"
+import { MapPin, Clock, Heart } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -85,13 +85,19 @@ export default function NannyCard({ nanny, isGridLayout, isLiked, onLike }: Nann
           </div>
         )}
         <CardContent className={`${isGridLayout ? 'mt-4' : 'mt-4'}`}>
-          <div className="flex items-center gap-2 mb-3">
+          {/* Rating section hidden as requested */}
+          {/* <div className="flex items-center gap-2 mb-3">
             <div className="flex items-center">
               <Star className="h-4 w-4 text-yellow-400 fill-current" />
               <span className="ml-1 font-medium">{nanny.rating}</span>
             </div>
             <span className="text-muted-foreground">({nanny.reviews} reviews)</span>
             <Badge variant="secondary" className="ml-auto">
+              {nanny.hourlyRate}/hr
+            </Badge>
+          </div> */}
+          <div className="flex justify-end mb-3">
+            <Badge variant="secondary">
               {nanny.hourlyRate}/hr
             </Badge>
           </div>
@@ -115,10 +121,10 @@ export default function NannyCard({ nanny, isGridLayout, isLiked, onLike }: Nann
           </div>
         </CardContent>
         <CardFooter className={`flex gap-4 ${!isGridLayout ? 'px-0 pb-0' : ''}`}>
-          <Button asChild className="flex-1">
+          <Button asChild className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-sm">
             <Link href={`/nannies/${nanny.id}`}>View Profile</Link>
           </Button>
-          <Button variant="outline" className="flex-1">
+          <Button variant="secondary" className="flex-1 font-medium shadow-sm">
             Contact
           </Button>
         </CardFooter>
