@@ -8,14 +8,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Loader2, PlusCircle, Pencil, Trash2, Eye, Search, Building, MapPin, Phone, Mail, Calendar, BarChart, Users, MessageSquare, Star, Activity } from "lucide-react";
+import { Loader2, PlusCircle, Pencil, Trash2, Eye, Search, Building, MapPin, Phone, BarChart, Users, MessageSquare, Star, Activity } from "lucide-react";
 import { getUserBusinesses, deleteBusiness, updateBusinessStatus } from "@/app/owner/business-profiles/manage/actions";
 import type { Business } from "@/app/owner/business-profiles/types";
 import { toast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { TabsList, TabsTrigger, Tabs, TabsContent } from "@/components/ui/tabs";
+import { TabsList, TabsTrigger, Tabs } from "@/components/ui/tabs";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -46,7 +46,6 @@ export default function ManageBusinessesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("all");
-  const [mainTab, setMainTab] = useState("businesses");
   const itemsPerPage = 6;
   const router = useRouter();
 
@@ -230,97 +229,146 @@ export default function ManageBusinessesPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Business Dashboard</h1>
           <p className="text-muted-foreground mt-1">Manage your businesses and services</p>
         </div>
-        <Button onClick={() => router.push("/owner/business-profiles/create")} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all">
+        <Button 
+          onClick={() => router.push("/owner/business-profiles/create")} 
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
+        >
           <PlusCircle className="mr-2 h-4 w-4" />
           Add New Business
         </Button>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Profile Views</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{dashboardData.totalViews}</div>
-              <BarChart className="h-4 w-4 text-muted-foreground" />
+      {/* Main Content with Sidebar Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+        {/* Sidebar with Stats and Activity */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Stats Overview */}
+          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden">
+            <div className="p-6 border-b border-border/40">
+              <h2 className="text-xl font-semibold">Performance Overview</h2>
+              <p className="text-sm text-muted-foreground mt-1">Last 30 days statistics</p>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">+12% from last month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Customer Leads</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{dashboardData.totalLeads}</div>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">+5% from last month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Reviews</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{dashboardData.totalReviews}</div>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">+3 new reviews</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{dashboardData.averageRating}</div>
-              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">+0.2 from last month</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Tabs */}
-      <Tabs value={mainTab} onValueChange={setMainTab} className="w-full">
-        <TabsList className="grid w-full h-12 grid-cols-2 mb-6">
-          <TabsTrigger value="businesses" className="text-base py-1.5">My Businesses</TabsTrigger>
-          <TabsTrigger value="activity" className="text-base py-1.5">Recent Activity</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="businesses" className="mt-0">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-2xl font-semibold">Business Profiles</h2>
-              <p className="text-muted-foreground">Manage and update your business listings</p>
+            <div className="grid grid-cols-2 divide-x divide-y divide-border/40">
+              <div className="p-4 flex flex-col items-center justify-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/30 mb-2">
+                  <BarChart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <p className="text-sm font-medium text-muted-foreground">Profile Views</p>
+                <p className="text-2xl font-bold">{dashboardData.totalViews}</p>
+                <p className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                  <span className="i-lucide-trending-up mr-1"></span>+12%
+                </p>
+              </div>
+              <div className="p-4 flex flex-col items-center justify-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950/30 mb-2">
+                  <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <p className="text-sm font-medium text-muted-foreground">Customer Leads</p>
+                <p className="text-2xl font-bold">{dashboardData.totalLeads}</p>
+                <p className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                  <span className="i-lucide-trending-up mr-1"></span>+5%
+                </p>
+              </div>
+              <div className="p-4 flex flex-col items-center justify-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-950/30 mb-2">
+                  <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <p className="text-sm font-medium text-muted-foreground">Reviews</p>
+                <p className="text-2xl font-bold">{dashboardData.totalReviews}</p>
+                <p className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                  <span className="i-lucide-trending-up mr-1"></span>+3 new
+                </p>
+              </div>
+              <div className="p-4 flex flex-col items-center justify-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/30 mb-2">
+                  <Star className="h-5 w-5 text-amber-600 dark:text-amber-400 fill-current" />
+                </div>
+                <p className="text-sm font-medium text-muted-foreground">Avg. Rating</p>
+                <p className="text-2xl font-bold">{dashboardData.averageRating}</p>
+                <p className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                  <span className="i-lucide-trending-up mr-1"></span>+0.2
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 rounded-xl shadow-sm mb-8">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              <div className="w-full md:w-1/2">
-                <div className="relative">
+          {/* Recent Activity Feed */}
+          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden">
+            <div className="p-6 border-b border-border/40 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold">Recent Activity</h2>
+                <p className="text-sm text-muted-foreground mt-1">Latest updates and interactions</p>
+              </div>
+              <Button variant="ghost" size="sm" className="text-primary">View All</Button>
+            </div>
+            <div className="divide-y divide-border/40">
+              {dashboardData.activityFeed.slice(0, 3).map((activity) => (
+                <div key={activity.id} className="p-4 hover:bg-muted/30 transition-colors">
+                  <div className="flex gap-3">
+                    <Activity className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium">{activity.title}</p>
+                      <p className="text-sm text-muted-foreground">{activity.description}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 border-t border-border/40">
+              <Button variant="outline" size="sm" className="w-full">
+                View All Activity
+              </Button>
+            </div>
+          </div>
+
+          {/* Recent Messages Preview */}
+          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden">
+            <div className="p-6 border-b border-border/40 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold">Recent Messages</h2>
+                <p className="text-sm text-muted-foreground mt-1">Latest inquiries from customers</p>
+              </div>
+              <Button variant="ghost" size="sm" className="text-primary">View All</Button>
+            </div>
+            <div className="divide-y divide-border/40">
+              {dashboardData.recentMessages.map((message) => (
+                <div key={message.id} className="p-4 hover:bg-muted/30 transition-colors">
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="font-medium">{message.from}</p>
+                      <p className="text-sm text-muted-foreground">{message.subject}</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{message.date}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="lg:col-span-8">
+          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden">
+            <div className="p-6 border-b border-border/40 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold">My Businesses</h2>
+                <p className="text-sm text-muted-foreground mt-1">Manage and update your business listings</p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="relative w-64">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by name, description, location..."
+                    placeholder="Search businesses..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-white dark:bg-gray-950 border-0 shadow-sm"
+                    className="pl-10 pr-8 h-9 bg-background"
                   />
                   {searchQuery && (
                     <Button 
@@ -334,367 +382,248 @@ export default function ManageBusinessesPage() {
                     </Button>
                   )}
                 </div>
+                
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
+                  <TabsList className="h-9 bg-muted/50">
+                    <TabsTrigger value="all" className="text-xs px-3">All</TabsTrigger>
+                    <TabsTrigger value="active" className="text-xs px-3">Active</TabsTrigger>
+                    <TabsTrigger value="inactive" className="text-xs px-3">Inactive</TabsTrigger>
+                  </TabsList>
+                </Tabs>
               </div>
-              
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto">
-                <TabsList className="bg-white dark:bg-gray-950 shadow-sm">
-                  <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    All
-                  </TabsTrigger>
-                  <TabsTrigger value="active" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    Active
-                  </TabsTrigger>
-                  <TabsTrigger value="inactive" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    Inactive
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
             </div>
-          </div>
 
-          {filteredBusinesses.length === 0 ? (
-            <div className="text-center py-16 bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40">
-              <Building className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-20" />
-              <h2 className="text-xl font-medium mb-2">
-                {searchQuery ? "No businesses match your search" : "You haven't added any businesses yet"}
-              </h2>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                {searchQuery 
-                  ? "Try a different search term or clear the filters" 
-                  : "Get started by adding your first business listing to showcase your services"}
-              </p>
-              {!searchQuery && (
-                <Button 
-                  onClick={() => router.push("/owner/business-profiles/create")}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Business
-                </Button>
-              )}
-              {searchQuery && (
-                <Button variant="outline" onClick={() => setSearchQuery("")}>
-                  Clear Search
-                </Button>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paginatedBusinesses.map((business) => (
-                  <Card 
-                    key={business.id} 
-                    className="overflow-hidden flex flex-col h-full bg-white dark:bg-gray-950 border-border/40 rounded-xl hover:shadow-lg transition-all duration-300"
+            {filteredBusinesses.length === 0 ? (
+              <div className="text-center py-16">
+                <Building className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-20" />
+                <h2 className="text-xl font-medium mb-2">
+                  {searchQuery ? "No businesses match your search" : "You haven't added any businesses yet"}
+                </h2>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  {searchQuery 
+                    ? "Try a different search term or clear the filters" 
+                    : "Get started by adding your first business listing to showcase your services"}
+                </p>
+                {!searchQuery && (
+                  <Button 
+                    onClick={() => router.push("/owner/business-profiles/create")}
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
                   >
-                    <div className="h-48 bg-muted relative group">
-                      {business.images && business.images.length > 0 ? (
-                        <Image 
-                          src={business.images.find(img => img.is_primary)?.url || business.images[0].url} 
-                          alt={business.images.find(img => img.is_primary)?.alt_text || business.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
-                          <Building className="h-12 w-12 text-muted-foreground opacity-30" />
-                        </div>
-                      )}
-                      <div className="absolute top-3 right-3">
-                        {business.is_active ? (
-                          <Badge className="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-1">Active</Badge>
-                        ) : business.deactivated_by_user ? (
-                          <Badge variant="outline" className="border-red-500 text-red-500 bg-white/90 dark:bg-gray-900/90 dark:text-red-400 font-medium px-3 py-1">Deactivated</Badge>
-                        ) : (
-                          <Badge variant="secondary" className="bg-amber-500 hover:bg-amber-600 text-white font-medium px-3 py-1">Pending Review</Badge>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="line-clamp-1 text-xl">{business.name}</CardTitle>
-                          <CardDescription className="flex items-center gap-1 mt-1">
-                            <Badge variant="outline" className="rounded-full font-normal">
-                              {business.category?.name || "Uncategorized"}
-                            </Badge>
-                          </CardDescription>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {!business.deactivated_by_user ? "Active" : "Inactive"}
-                          </span>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Switch
-                                checked={!business.deactivated_by_user}
-                                disabled={toggling === business.id}
-                                className={`border-2 ${!business.deactivated_by_user 
-                                  ? "data-[state=checked]:bg-green-500 border-green-300 dark:border-green-700" 
-                                  : "data-[state=unchecked]:bg-red-200 dark:data-[state=unchecked]:bg-red-900/50 border-red-300 dark:border-red-800"
-                                } [&>span]:bg-white dark:[&>span]:bg-gray-200`}
-                              />
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  {business.deactivated_by_user 
-                                    ? "Activate Business?" 
-                                    : "Deactivate Business?"}
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  {business.deactivated_by_user 
-                                    ? "This will submit a request to activate your business. An admin will review your request before the business is activated." 
-                                    : "This will deactivate your business. Your business will no longer be visible to the public."}
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction 
-                                  onClick={() => handleToggleActive(business.id, business.deactivated_by_user)}
-                                  className={business.deactivated_by_user ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
-                                >
-                                  {toggling === business.id ? (
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  ) : null}
-                                  {business.deactivated_by_user ? "Request Activation" : "Deactivate"}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                          {toggling === business.id && (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          )}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent className="pb-2 flex-grow space-y-3">
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {business.description}
-                      </p>
-                      
-                      <div className="space-y-1.5">
-                        <div className="flex items-start gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                          <span className="line-clamp-1">
-                            {business.address}, {business.city}, {business.state} {business.zip}
-                          </span>
-                        </div>
-                        
-                        {business.phone && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Phone className="h-4 w-4 text-muted-foreground" />
-                            <span>{business.phone}</span>
-                          </div>
-                        )}
-                        
-                        {business.email && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Mail className="h-4 w-4 text-muted-foreground" />
-                            <span className="line-clamp-1">{business.email}</span>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>Added {new Date(business.created_at).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                    
-                    <CardFooter className="pt-4 flex flex-col gap-3 border-t border-border/40 mt-auto">
-                      <div className="flex gap-2 w-full">
-                        <Button variant="outline" size="sm" className="flex-1 rounded-full" asChild>
-                          <Link href={`/business-profiles/${business.id}`} target="_blank">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Link>
-                        </Button>
-                        <Button 
-                          variant="default" 
-                          size="sm" 
-                          className="flex-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" 
-                          asChild
-                        >
-                          <Link href={`/owner/business-profiles/edit/${business.id}`}>
-                            <Pencil className="h-4 w-4 mr-1" />
-                            Edit
-                          </Link>
-                        </Button>
-                        
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm" className="w-10 h-9 rounded-full">
-                              {deleting === business.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="rounded-lg">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will permanently delete the business and all associated data. This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction 
-                                onClick={() => handleDelete(business.id)}
-                                className="bg-red-500 hover:bg-red-600"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                ))}
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Business
+                  </Button>
+                )}
+                {searchQuery && (
+                  <Button variant="outline" onClick={() => setSearchQuery("")}>
+                    Clear Search
+                  </Button>
+                )}
               </div>
-              
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <Pagination className="mt-8">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                      />
-                    </PaginationItem>
-                    
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                      <PaginationItem key={i}>
-                        <PaginationLink
-                          isActive={currentPage === i + 1}
-                          onClick={() => setCurrentPage(i + 1)}
-                        >
-                          {i + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                    
-                    <PaginationItem>
-                      <PaginationNext 
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              )}
-            </>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="activity" className="mt-0">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-2xl font-semibold">Recent Activities</h2>
-              <p className="text-muted-foreground">Track interactions and updates for your business</p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Recent Messages */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Recent Messages</CardTitle>
-                <CardDescription>Latest inquiries from potential customers</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {dashboardData.recentMessages.length > 0 ? (
-                  <div className="space-y-4">
-                    {dashboardData.recentMessages.map((message) => (
-                      <div key={message.id} className="flex justify-between border-b pb-3 last:border-0 last:pb-0">
-                        <div>
-                          <p className="font-medium">{message.from}</p>
-                          <p className="text-sm text-muted-foreground">{message.subject}</p>
+            ) : (
+              <>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {paginatedBusinesses.map((business) => (
+                      <Card 
+                        key={business.id} 
+                        className="overflow-hidden flex flex-col h-full border-border/40 rounded-xl hover:shadow-md transition-all duration-300"
+                      >
+                        <div className="h-40 bg-muted relative group">
+                          {business.images && business.images.length > 0 ? (
+                            <Image 
+                              src={business.images.find(img => img.is_primary)?.url || business.images[0].url} 
+                              alt={business.images.find(img => img.is_primary)?.alt_text || business.name}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
+                              <Building className="h-12 w-12 text-muted-foreground opacity-30" />
+                            </div>
+                          )}
+                          <div className="absolute top-3 right-3">
+                            {business.is_active ? (
+                              <Badge className="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-1">Active</Badge>
+                            ) : business.deactivated_by_user ? (
+                              <Badge variant="outline" className="border-red-500 text-red-500 bg-white/90 dark:bg-gray-900/90 dark:text-red-400 font-medium px-3 py-1">Deactivated</Badge>
+                            ) : (
+                              <Badge variant="secondary" className="bg-amber-500 hover:bg-amber-600 text-white font-medium px-3 py-1">Pending Review</Badge>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground">{message.date}</p>
-                      </div>
+                        
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="line-clamp-1 text-xl">{business.name}</CardTitle>
+                              <CardDescription className="flex items-center gap-1 mt-1">
+                                <Badge variant="outline" className="rounded-full font-normal">
+                                  {business.category?.name || "Uncategorized"}
+                                </Badge>
+                              </CardDescription>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Switch
+                                    checked={!business.deactivated_by_user}
+                                    disabled={toggling === business.id}
+                                    className={`border-2 ${!business.deactivated_by_user 
+                                      ? "data-[state=checked]:bg-green-500 border-green-300 dark:border-green-700" 
+                                      : "data-[state=unchecked]:bg-red-200 dark:data-[state=unchecked]:bg-red-900/50 border-red-300 dark:border-red-800"
+                                    } [&>span]:bg-white dark:[&>span]:bg-gray-200`}
+                                  />
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      {business.deactivated_by_user 
+                                        ? "Activate Business?" 
+                                        : "Deactivate Business?"}
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      {business.deactivated_by_user 
+                                        ? "This will submit a request to activate your business. An admin will review your request before the business is activated." 
+                                        : "This will deactivate your business. Your business will no longer be visible to the public."}
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => handleToggleActive(business.id, business.deactivated_by_user)}
+                                      className={business.deactivated_by_user ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+                                    >
+                                      {toggling === business.id ? (
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                      ) : null}
+                                      {business.deactivated_by_user ? "Request Activation" : "Deactivate"}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                              {toggling === business.id && (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              )}
+                            </div>
+                          </div>
+                        </CardHeader>
+                        
+                        <CardContent className="pb-2 flex-grow">
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                            {business.description}
+                          </p>
+                          
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex items-start gap-2">
+                              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                              <span className="line-clamp-1">
+                                {business.city}, {business.state}
+                              </span>
+                            </div>
+                            
+                            {business.phone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <span className="line-clamp-1">{business.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                        
+                        <CardFooter className="pt-4 flex flex-col gap-3 border-t border-border/40 mt-auto">
+                          <div className="flex gap-2 w-full">
+                            <Button variant="outline" size="sm" className="flex-1 rounded-full" asChild>
+                              <Link href={`/business-profiles/${business.id}`} target="_blank">
+                                <Eye className="h-4 w-4 mr-1" />
+                                View
+                              </Link>
+                            </Button>
+                            <Button 
+                              variant="default" 
+                              size="sm" 
+                              className="flex-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" 
+                              asChild
+                            >
+                              <Link href={`/owner/business-profiles/edit/${business.id}`}>
+                                <Pencil className="h-4 w-4 mr-1" />
+                                Edit
+                              </Link>
+                            </Button>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm" className="w-10 h-9 rounded-full">
+                                  {deleting === business.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="rounded-lg">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will permanently delete the business and all associated data. This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDelete(business.id)}
+                                    className="bg-red-500 hover:bg-red-600"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </CardFooter>
+                      </Card>
                     ))}
                   </div>
-                ) : (
-                  <p className="text-center text-muted-foreground py-4">No recent messages</p>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" size="sm" className="w-full">
-                  View All Messages
-                </Button>
-              </CardFooter>
-            </Card>
-            
-            {/* Upcoming Appointments */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Upcoming Appointments</CardTitle>
-                <CardDescription>Scheduled meetings with clients</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {dashboardData.upcomingAppointments.length > 0 ? (
-                  <div className="space-y-4">
-                    {dashboardData.upcomingAppointments.map((appointment) => (
-                      <div key={appointment.id} className="flex justify-between border-b pb-3 last:border-0 last:pb-0">
-                        <div>
-                          <p className="font-medium">{appointment.client}</p>
-                          <p className="text-sm text-muted-foreground">{appointment.service}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm">{appointment.date}</p>
-                          <p className="text-sm text-muted-foreground">{appointment.time}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-muted-foreground py-4">No upcoming appointments</p>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" size="sm" className="w-full">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Manage Calendar
-                </Button>
-              </CardFooter>
-            </Card>
-            
-            {/* Activity Feed */}
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle className="text-lg">Activity Feed</CardTitle>
-                <CardDescription>Recent activity on your account</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {dashboardData.activityFeed.map((activity) => (
-                    <div key={activity.id} className="flex gap-3">
-                      <Activity className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-medium">{activity.title}</p>
-                        <p className="text-sm text-muted-foreground">{activity.description}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
-                      </div>
-                    </div>
-                  ))}
                 </div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" size="sm" className="w-full">
-                  View All Activity
-                </Button>
-              </CardFooter>
-            </Card>
+                
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="p-4 border-t border-border/40">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: totalPages }).map((_, i) => (
+                          <PaginationItem key={i}>
+                            <PaginationLink
+                              isActive={currentPage === i + 1}
+                              onClick={() => setCurrentPage(i + 1)}
+                            >
+                              {i + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+                        
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   );
 } 
