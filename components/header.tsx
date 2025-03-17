@@ -132,10 +132,7 @@ export default function Header() {
                     <Link href="/user/account">Account Settings</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href="/owner/business-profiles/manage">My Businesses</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/owner/dashboard">Business Dashboard</Link>
+                    <Link href="/owner/business-profiles/manage">Business Dashboard</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link href="/user/account/ads">Manage Ads</Link>
