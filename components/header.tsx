@@ -135,6 +135,9 @@ export default function Header() {
                     <Link href="/owner/business-profiles/manage">Business Dashboard</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
+                    <Link href="/owner/business-profiles/analytics">Analytics & Performance</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
                     <Link href="/user/account/ads">Manage Ads</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>

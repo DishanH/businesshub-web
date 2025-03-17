@@ -46,6 +46,7 @@ export default function ManageBusinessesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("all");
+  const [showNewFeatureBanner, setShowNewFeatureBanner] = useState(true);
   const itemsPerPage = 6;
   const router = useRouter();
 
@@ -216,6 +217,43 @@ export default function ManageBusinessesPage() {
 
   return (
     <div className="container py-8 space-y-8 max-w-7xl mx-auto">
+      {/* New Feature Banner */}
+      {showNewFeatureBanner && (
+        <div className="relative overflow-hidden rounded-lg border border-indigo-200 dark:border-indigo-800 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 shadow-sm mb-6">
+          <div className="relative p-4">
+            <button 
+              onClick={() => setShowNewFeatureBanner(false)} 
+              className="absolute top-2 right-2 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+              aria-label="Dismiss banner"
+            >
+              <span className="sr-only">Dismiss</span>
+              <span className="text-xl">×</span>
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
+                <BarChart className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-indigo-800 dark:text-indigo-300">New Feature: Analytics Dashboard</h3>
+                <p className="text-sm text-indigo-700 dark:text-indigo-400">
+                  Explore our new analytics dashboard to gain deeper insights into your business performance.
+                </p>
+              </div>
+              <Button 
+                size="sm" 
+                className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white"
+                onClick={() => {
+                  router.push("/owner/business-profiles/analytics");
+                  setShowNewFeatureBanner(false);
+                }}
+              >
+                Try it now
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Breadcrumb Navigation */}
       <Breadcrumb>
         <BreadcrumbList>
@@ -234,13 +272,23 @@ export default function ManageBusinessesPage() {
           <h1 className="text-3xl font-bold tracking-tight">Business Dashboard</h1>
           <p className="text-muted-foreground mt-1">Manage your businesses and services</p>
         </div>
-        <Button 
-          onClick={() => router.push("/owner/business-profiles/create")} 
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Business
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            variant="outline"
+            onClick={() => router.push("/owner/business-profiles/analytics")} 
+            className="flex items-center gap-2"
+          >
+            <BarChart className="h-4 w-4" />
+            Analytics & Performance
+          </Button>
+          <Button 
+            onClick={() => router.push("/owner/business-profiles/create")} 
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Business
+          </Button>
+        </div>
       </div>
 
       {/* Main Content with Sidebar Layout */}
@@ -304,7 +352,14 @@ export default function ManageBusinessesPage() {
                 <h2 className="text-xl font-semibold">Recent Activity</h2>
                 <p className="text-sm text-muted-foreground mt-1">Latest updates and interactions</p>
               </div>
-              <Button variant="ghost" size="sm" className="text-primary">View All</Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary"
+                onClick={() => router.push("/owner/business-profiles/analytics?tab=activity")}
+              >
+                View All
+              </Button>
             </div>
             <div className="divide-y divide-border/40">
               {dashboardData.activityFeed.slice(0, 3).map((activity) => (
@@ -321,7 +376,12 @@ export default function ManageBusinessesPage() {
               ))}
             </div>
             <div className="p-4 border-t border-border/40">
-              <Button variant="outline" size="sm" className="w-full">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full"
+                onClick={() => router.push("/owner/business-profiles/analytics?tab=activity")}
+              >
                 View All Activity
               </Button>
             </div>
@@ -348,6 +408,54 @@ export default function ManageBusinessesPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Performance Overview Section */}
+          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-border/40 overflow-hidden mt-6">
+            <div className="p-6 border-b border-border/40 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold">Performance Insights</h2>
+                <p className="text-sm text-muted-foreground mt-1">View detailed analytics</p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary"
+                onClick={() => router.push("/owner/business-profiles/analytics")}
+              >
+                View Details
+              </Button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-muted-foreground mb-4">
+                Gain deeper insights into your business performance with our comprehensive analytics dashboard.
+              </p>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center">
+                  <BarChart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="font-medium">Traffic Analysis</p>
+                  <p className="text-sm text-muted-foreground">Understand where your visitors come from</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <p className="font-medium">Lead Conversion</p>
+                  <p className="text-sm text-muted-foreground">Track your customer acquisition funnel</p>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full mt-2"
+                onClick={() => router.push("/owner/business-profiles/analytics")}
+              >
+                Go to Analytics Dashboard
+              </Button>
             </div>
           </div>
         </div>
