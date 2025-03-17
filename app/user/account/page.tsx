@@ -26,6 +26,14 @@ import { Separator } from "@/components/ui/separator"
 import { toast } from "@/components/ui/use-toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { updateProfile, uploadAvatar } from "./actions"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 // Define the form schema with Zod
 const profileFormSchema = z.object({
@@ -210,36 +218,85 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container max-w-3xl py-10">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-          <p className="text-muted-foreground">
-            Manage your personal information and how it appears across Business Hub.
-          </p>
+    <div className="container py-10">
+      {/* Breadcrumb Navigation - Full width */}
+      <div className="flex justify-between items-center mb-8">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/user">User</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Account</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
+      <div className="mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+          <div className="text-left">
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Your Profile</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your personal information and how it appears across Business Hub.
+            </p>
+          </div>
+          {user && (
+            <div className="flex items-center gap-3 bg-muted/50 p-3 rounded-lg self-start">
+              {/* <Avatar className="h-10 w-10 border-2 border-primary/20">
+                <AvatarImage src={avatarPreview || ""} alt={form.getValues().fullName} />
+                <AvatarFallback>
+                  {form.getValues().fullName?.charAt(0)?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar> */}
+              <div className="flex flex-col">
+                {/* <span className="text-sm font-medium">{user.email}</span> */}
+                <span className="text-xs text-muted-foreground">Member since {new Date(user.created_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+          )}
         </div>
-        
-        <Separator />
-        
+      </div>
+      
+      {/* Full width separator */}
+      <Separator className="bg-gradient-to-r from-border via-primary/20 to-border mb-8" />
+      
+      <div className="mx-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Picture</CardTitle>
+            <Card className="overflow-hidden border-border/40 shadow-sm hover:shadow-md transition-shadow duration-300">
+              <CardHeader className="bg-muted/30 border-b border-border/30 pb-4">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="h-6 w-1 bg-primary rounded-full"></span>
+                  Profile Picture
+                </CardTitle>
                 <CardDescription>
                   This will be displayed on your profile and across the site.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-6">
-                  <Avatar className="h-24 w-24">
-                    <AvatarImage src={avatarPreview || ""} alt={form.getValues().fullName} />
-                    <AvatarFallback className="text-2xl">
-                      {form.getValues().fullName?.charAt(0)?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col gap-2">
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  <div className="relative group">
+                    <Avatar className="h-28 w-28 border-4 border-background shadow-xl group-hover:border-primary/20 transition-all duration-300">
+                      <AvatarImage src={avatarPreview || ""} alt={form.getValues().fullName} />
+                      <AvatarFallback className="text-3xl bg-primary/5">
+                        {form.getValues().fullName?.charAt(0)?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <label htmlFor="avatar-upload" className="cursor-pointer w-full h-full flex items-center justify-center text-xs font-medium">
+                        Change
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2 flex-1">
                     <Input
+                      id="avatar-upload"
                       type="file"
                       accept="image/*"
                       onChange={handleAvatarChange}
@@ -253,59 +310,72 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
+            <Card className="overflow-hidden border-border/40 shadow-sm hover:shadow-md transition-shadow duration-300">
+              <CardHeader className="bg-muted/30 border-b border-border/30 pb-4">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="h-6 w-1 bg-primary rounded-full"></span>
+                  Personal Information
+                </CardTitle>
                 <CardDescription>
                   Update your personal details and contact information.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your full name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your phone number" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        This will only be used for important notifications.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <CardContent className="space-y-6 pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground/80">Full Name</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter your full name" 
+                            {...field} 
+                            className="border-border/40 focus-visible:ring-primary/30"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground/80">Phone Number</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter your phone number" 
+                            {...field} 
+                            className="border-border/40 focus-visible:ring-primary/30"
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          This will only be used for important notifications.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 
                 <FormField
                   control={form.control}
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
+                      <FormLabel className="text-foreground/80">Address</FormLabel>
                       <FormControl>
                         <Textarea 
                           placeholder="Enter your address" 
-                          className="resize-none" 
+                          className="resize-none min-h-[100px] border-border/40 focus-visible:ring-primary/30" 
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-xs">
                         Your address will be used for location-based services.
                       </FormDescription>
                       <FormMessage />
@@ -313,10 +383,17 @@ export default function ProfilePage() {
                   )}
                 />
               </CardContent>
-              <CardFooter className="flex justify-end">
-                <Button type="submit" disabled={isPending}>
-                  {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isPending ? "Saving..." : "Save Changes"}
+              <CardFooter className="flex justify-end py-4 px-6 bg-muted/20 border-t border-border/30">
+                <Button 
+                  type="submit" 
+                  disabled={isPending}
+                  className="relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 w-full h-full transition-all duration-300 ease-out transform translate-x-full bg-primary/20 group-hover:translate-x-0"></span>
+                  <span className="relative flex items-center">
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isPending ? "Saving..." : "Save Changes"}
+                  </span>
                 </Button>
               </CardFooter>
             </Card>
