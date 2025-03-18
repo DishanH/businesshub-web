@@ -134,7 +134,8 @@ export default function ServicesSection({
               {servicesData.featuredServices.slice(0, 4).map((service) => (
                 <div 
                   key={service.id} 
-                  className={`flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow ${service.is_featured ? "border-primary" : ""}`}
+                  // className={`flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow ${service.is_featured ? "border-primary" : ""}`}
+                  className={`flex flex-col p-4 border rounded-lg hover:shadow-md transition-shadow`}
                 >
                   <div className="flex justify-between">
                     <h3 className="text-lg font-semibold mb-2">{service.name}</h3>

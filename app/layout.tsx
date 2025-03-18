@@ -8,6 +8,7 @@ import { PageWrapper } from "@/components/page-wrapper"
 import { Toaster } from "@/components/ui/toaster"
 import { LocationProvider } from "@/components/location-context"
 import { Footer } from "@/components/footer"
+import { ScrollToTop } from "@/components/scroll-to-top"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -33,6 +34,7 @@ export default function RootLayout({
             </PageWrapper>
             <Footer />
             <Toaster />
+            <ScrollToTop />
           </LocationProvider>
         </ThemeProvider>
       </body>

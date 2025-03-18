@@ -507,6 +507,7 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
                         <TabsTrigger 
                           key={category.name} 
                           value={category.name.toLowerCase()}
+                          // className="py-4 px-6 h-12 data-[state=active]:bg-background rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
                           className="py-4 px-6 h-12 data-[state=active]:bg-background rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
                         >
                           {category.name}
