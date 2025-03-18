@@ -23,18 +23,18 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/business-profiles" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/owner/business-profiles/manage" className="text-muted-foreground hover:text-primary transition-colors">
                   Businesses
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="text-muted-foreground hover:text-primary transition-colors">
-                  Services
+                <Link href="/owner/business-profiles/analytics" className="text-muted-foreground hover:text-primary transition-colors">
+                  Analytics
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
-                  About Us
+                <Link href="/user/account" className="text-muted-foreground hover:text-primary transition-colors">
+                  My Account
                 </Link>
               </li>
             </ul>
@@ -43,12 +43,12 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/site/blog" className="text-muted-foreground hover:text-primary transition-colors">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/site/faq" className="text-muted-foreground hover:text-primary transition-colors">
                   FAQ
                 </Link>
               </li>
@@ -67,27 +67,58 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Connect With Us</h3>
             <div className="flex space-x-4">
-              <Link href="https://facebook.com" className="text-muted-foreground hover:text-primary transition-colors">
+              <a 
+                href="https://facebook.com" 
+                className="text-muted-foreground hover:text-primary transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Facebook className="h-5 w-5" />
                 <span className="sr-only">Facebook</span>
-              </Link>
-              <Link href="https://twitter.com" className="text-muted-foreground hover:text-primary transition-colors">
+              </a>
+              <a 
+                href="https://twitter.com" 
+                className="text-muted-foreground hover:text-primary transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Twitter className="h-5 w-5" />
                 <span className="sr-only">Twitter</span>
-              </Link>
-              <Link href="https://instagram.com" className="text-muted-foreground hover:text-primary transition-colors">
+              </a>
+              <a 
+                href="https://instagram.com" 
+                className="text-muted-foreground hover:text-primary transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Instagram className="h-5 w-5" />
                 <span className="sr-only">Instagram</span>
-              </Link>
-              <Link href="https://linkedin.com" className="text-muted-foreground hover:text-primary transition-colors">
+              </a>
+              <a 
+                href="https://linkedin.com" 
+                className="text-muted-foreground hover:text-primary transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Linkedin className="h-5 w-5" />
                 <span className="sr-only">LinkedIn</span>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} Business Hub. All rights reserved.</p>
+          <div className="flex justify-center space-x-4 mt-2">
+            <Link href="/site/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/site/terms" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/site/faq" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+              FAQ
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

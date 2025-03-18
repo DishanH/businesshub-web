@@ -302,11 +302,14 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-medium">Visit Us</h3>
-                    <p className="text-sm text-muted-foreground">
-                      123 Business Hub Avenue<br />
-                      Suite 500<br />
-                      New York, NY 10001
-                    </p>
+                    <div className="mt-2">
+                      <p className="text-sm text-muted-foreground">
+                        567 King Street West<br />
+                        4th Floor<br />
+                        Toronto, ON M5V 1M3<br />
+                        Canada
+                      </p>
+                    </div>
                   </div>
                 </div>
                 
@@ -353,6 +356,12 @@ export default function ContactPage() {
                   <p className="text-sm text-muted-foreground mt-1">
                     Absolutely! You can request a demo through this contact form or by calling our sales team directly.
                   </p>
+                </div>
+
+                <div className="pt-2 mt-4 border-t border-border/20">
+                  <Button variant="outline" asChild className="w-full">
+                    <a href="/site/faq">View all frequently asked questions</a>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
