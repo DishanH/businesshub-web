@@ -224,10 +224,6 @@ export default function BlogPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/site">Site</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
               <BreadcrumbPage>Blog</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>

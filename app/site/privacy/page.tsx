@@ -25,10 +25,6 @@ export default function PrivacyPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/site">Site</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
               <BreadcrumbPage>Privacy Policy</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>

@@ -87,10 +87,6 @@ export default function ContactPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/site">Site</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
               <BreadcrumbPage>Contact Us</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>

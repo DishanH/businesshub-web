@@ -224,10 +224,6 @@ export default function FAQPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/site">Site</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
               <BreadcrumbPage>Frequently Asked Questions</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
