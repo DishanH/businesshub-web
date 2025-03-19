@@ -20,7 +20,11 @@ interface Business {
   description: string;
   category_id: string;
   image?: string;
-  [key: string]: any; // For other properties
+  subcategory_id?: string;
+  price_range?: string;
+  rating?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const metadata: Metadata = {
@@ -114,7 +118,7 @@ export default async function NewlyAddedBusinessesPage() {
             <p className="text-muted-foreground mb-6">
               Check back later for newly added business listings
             </p>
-            <Button asChild>
+            <Button variant="secondary" asChild>
               <Link href="/business-profiles">View All Businesses</Link>
             </Button>
           </div>
@@ -127,7 +131,7 @@ export default async function NewlyAddedBusinessesPage() {
         <p className="mb-6 max-w-2xl mx-auto">
           Add your business to BusinessHub today and get discovered by new customers.
         </p>
-        <Button variant="secondary" asChild>
+        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all" asChild>
           <Link href="/owner/business-profiles/create">
             Add Your Business
           </Link>

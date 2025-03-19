@@ -117,7 +117,7 @@ export default async function FeaturedBusinessesPage() {
         <p className="mb-6 max-w-2xl mx-auto">
           Get more visibility and reach more customers by featuring your business on BusinessHub.
         </p>
-        <Button variant="secondary" asChild>
+        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all" asChild>
           <Link href="/owner/business-profiles/create">
             Add Your Business
           </Link>

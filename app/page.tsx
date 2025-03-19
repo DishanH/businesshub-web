@@ -3,7 +3,7 @@ import Link from "next/link"
 // import { cookies } from "next/headers"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Plus, ArrowRight } from "lucide-react"
+import { Plus, ArrowRight, Award, Clock, Grid } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getActiveCategories } from "@/app/(public)/categories/actions"
 import { getFeaturedBusinesses, getNewlyAddedBusinesses } from "@/app/(public)/business-profiles/actions"
@@ -175,8 +175,12 @@ async function FeaturedBusinessesSection() {
   
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center gap-2 mb-6">
+        <div className="p-1.5 rounded-full bg-primary/10">
+          <Award className="h-4 w-4 text-primary" />
+        </div>
         <h2 className="text-2xl font-bold">Featured Businesses</h2>
+        <div className="flex-1 border-t border-border/40 ml-3"></div>
         <ViewAllButton href="/business-profiles/featured" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -268,8 +272,12 @@ async function NewlyAddedBusinessesSection() {
   
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center gap-2 mb-6">
+        <div className="p-1.5 rounded-full bg-primary/10">
+          <Clock className="h-4 w-4 text-primary" />
+        </div>
         <h2 className="text-2xl font-bold">Newly Added</h2>
+        <div className="flex-1 border-t border-border/40 ml-3"></div>
         <ViewAllButton href="/business-profiles/new" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -357,15 +365,17 @@ export default function Home() {
         {/* Hero section with sliding banner */}
         <section className="space-y-4">
           <SlidingBanner />
-          <div className="text-center py-6">
-            <h1 className="text-4xl font-bold">Find Local Businesses</h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto mt-2">
-              Discover and connect with the best local businesses in your area. From restaurants to home services, find what you need.
-            </p>
-            
-            {/* Search component */}
-            <div className="mt-6">
-              <HomepageSearch popularSearches={popularSearches} />
+          <div className="relative bg-gradient-to-br from-primary/5 via-background to-muted overflow-hidden rounded-lg text-center py-12 px-4">
+            <div className="max-w-3xl mx-auto space-y-4">
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Find Local Businesses</h1>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Discover and connect with the best local businesses in your area. From restaurants to home services, find what you need.
+              </p>
+              
+              {/* Search component */}
+              <div className="mt-6">
+                <HomepageSearch popularSearches={popularSearches} />
+              </div>
             </div>
           </div>
         </section>
@@ -386,8 +396,12 @@ export default function Home() {
         
         {/* Categories section - moved down and made less prominent */}
         <section className="space-y-4 bg-muted/30 py-8 px-6 rounded-lg">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="p-1.5 rounded-full bg-primary/10">
+              <Grid className="h-4 w-4 text-primary" />
+            </div>
             <h2 className="text-2xl font-bold">Browse Categories</h2>
+            <div className="flex-1 border-t border-border/40 ml-3"></div>
             <ViewAllButton href="/categories" />
           </div>
           <Suspense fallback={<CategoriesLoading />}>
@@ -425,7 +439,7 @@ export default function Home() {
           <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
             List your business on BusinessHub to reach more customers and grow your online presence.
           </p>
-          <Button asChild>
+          <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all" asChild>
             <Link href="/owner/business-profiles/create">
               <Plus className="mr-2 h-4 w-4" />
               Add Your Business
