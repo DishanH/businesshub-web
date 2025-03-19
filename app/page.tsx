@@ -177,7 +177,7 @@ async function FeaturedBusinessesSection() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Featured Businesses</h2>
-        <ViewAllButton href="/business-profiles" />
+        <ViewAllButton href="/business-profiles/featured" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {businesses.map((business: BusinessData) => (

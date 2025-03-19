@@ -1,17 +1,17 @@
-import { Suspense } from "react"
-import { Metadata } from "next"
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { ChevronRight, SlidersHorizontal } from "lucide-react"
+import { Suspense } from "react";
+import { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ChevronRight, SlidersHorizontal } from "lucide-react";
 
-import { getActiveCategories } from "../actions"
-import { getBusinessesByCategory } from "../../business-profiles/actions"
+import { getActiveCategories } from "../actions";
+import { getBusinessesByCategory } from "../../business-profiles/actions";
 
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import BusinessCard from "@/components/business-card"
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import BusinessCard from "@/components/business-card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetTrigger,
@@ -30,170 +30,185 @@ import {
   SheetDescription,
   SheetFooter,
   SheetClose,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 // Generate metadata for the page
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { slug } = params
-  const result = await fetchCategoryBySlug(slug)
-  
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const { slug } = params;
+  const result = await fetchCategoryBySlug(slug);
+
   if (!result.success || !result.data) {
     return {
       title: "Category Not Found | BusinessHub",
       description: "The requested category could not be found",
-    }
+    };
   }
-  
+
   return {
     title: `${result.data.name} | BusinessHub`,
     description: result.data.description,
-  }
+  };
 }
 
 // Generate static paths for categories
 export async function generateStaticParams() {
-  const { data: categories } = await getActiveCategories()
-  
-  if (!categories) return []
-  
+  const { data: categories } = await getActiveCategories();
+
+  if (!categories) return [];
+
   return categories.map((category) => ({
     slug: category.slug,
-  }))
+  }));
 }
 
 // Fetch category data by slug
 async function fetchCategoryBySlug(slug: string) {
-  const { data: categories } = await getActiveCategories()
-  
+  const { data: categories } = await getActiveCategories();
+
   if (!categories) {
-    return { success: false, error: "Failed to load categories" }
+    return { success: false, error: "Failed to load categories" };
   }
-  
-  const category = categories.find((c) => c.slug === slug)
-  
+
+  const category = categories.find((c) => c.slug === slug);
+
   if (!category) {
-    return { success: false, error: "Category not found" }
+    return { success: false, error: "Category not found" };
   }
-  
-  return { success: true, data: category }
+
+  return { success: true, data: category };
 }
 
 // Category view component
-async function CategoryView({ 
+async function CategoryView({
   slug,
-  searchParams
-}: { 
+  searchParams,
+}: {
   slug: string;
-  searchParams: { sort?: string; subcategory?: string }
+  searchParams: { sort?: string; subcategory?: string };
 }) {
-  const result = await fetchCategoryBySlug(slug)
-  
+  const result = await fetchCategoryBySlug(slug);
+
   if (!result.success || !result.data) {
-    notFound()
+    notFound();
   }
-  
-  const category = result.data
-  const businessesResult = await getBusinessesByCategory(category.id)
-  const businesses = businessesResult.success ? businessesResult.data : []
-  
+
+  const category = result.data;
+  const businessesResult = await getBusinessesByCategory(category.id);
+  const businesses = businessesResult.success ? businessesResult.data : [];
+
   // Get sorting option from URL
-  const sortOption = searchParams.sort
-  
+  const sortOption = searchParams.sort;
+
   // Get subcategory filter from URL
-  const subcategoryFilter = searchParams.subcategory
-  
+  const subcategoryFilter = searchParams.subcategory;
+
   // Map of icon names to emoji fallbacks
   const iconToEmoji: Record<string, string> = {
-    "utensils": "🍽️",
-    "coffee": "☕",
-    "truck": "🚚",
-    "shirt": "👕",
-    "laptop": "💻",
-    "home": "🏠",
-    "gift": "🎁",
-    "dumbbell": "💪",
-    "scissors": "✂️",
-    "stethoscope": "🩺",
-    "gavel": "⚖️",
+    utensils: "🍽️",
+    coffee: "☕",
+    truck: "🚚",
+    shirt: "👕",
+    laptop: "💻",
+    home: "🏠",
+    gift: "🎁",
+    dumbbell: "💪",
+    scissors: "✂️",
+    stethoscope: "🩺",
+    gavel: "⚖️",
     "dollar-sign": "💰",
-    "building": "🏢",
+    building: "🏢",
     "pen-tool": "🖋️",
     "spray-can": "🧴",
-    "tool": "🔧",
-    "tree": "🌳",
-    "wrench": "🔧",
-    "droplet": "💧",
-    "book": "📚",
-    "child": "👶",
-    "calendar": "📅",
-    "film": "🎬",
-    "heart": "❤️",
-    "shopping-bag": "🛍️"
-  }
-  
+    tool: "🔧",
+    tree: "🌳",
+    wrench: "🔧",
+    droplet: "💧",
+    book: "📚",
+    child: "👶",
+    calendar: "📅",
+    film: "🎬",
+    heart: "❤️",
+    "shopping-bag": "🛍️",
+  };
+
   // Get emoji for icon
   const getIconDisplay = (iconName?: string) => {
-    if (!iconName) return null
-    return iconToEmoji[iconName] || "🔍"
-  }
-  
-  const activeSubcategories = category.subcategories?.filter(sub => sub.active) || []
-  
+    if (!iconName) return null;
+    return iconToEmoji[iconName] || "🔍";
+  };
+
+  const activeSubcategories =
+    category.subcategories?.filter((sub) => sub.active) || [];
+
   // Filter businesses by subcategory if specified
-  let filteredBusinesses = businesses
+  let filteredBusinesses = businesses;
   if (subcategoryFilter && businesses) {
     // In a real application, you'd likely have a subcategory_id field to filter by
     // This is a simplified example that could be expanded with actual subcategory data
-    filteredBusinesses = businesses
-    
+    filteredBusinesses = businesses;
+
     // Show a message when filter is applied but no matching businesses
     if (filteredBusinesses.length === 0) {
       // You might want to add UI to indicate that a filter is applied but no results found
     }
   }
-  
+
   // Sort businesses based on sort option
   if (sortOption && filteredBusinesses) {
-    const sortedBusinesses = [...filteredBusinesses]
+    const sortedBusinesses = [...filteredBusinesses];
     switch (sortOption) {
-      case 'rating-desc':
-        sortedBusinesses.sort((a, b) => (b.rating || 0) - (a.rating || 0))
-        filteredBusinesses = sortedBusinesses
-        break
-      case 'newest':
+      case "rating-desc":
+        sortedBusinesses.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        filteredBusinesses = sortedBusinesses;
+        break;
+      case "newest":
         // In a real application, you'd sort by creation date
         // This is a simplified example
-        filteredBusinesses = sortedBusinesses
-        break
+        filteredBusinesses = sortedBusinesses;
+        break;
       default:
         // Default sort (no change)
-        break
+        break;
     }
   }
-  
+
   // Get the active filter message
   const getFilterDescription = () => {
-    let description = ''
-    
-    if (sortOption === 'rating-desc') {
-      description = 'Sorted by highest rated'
-    } else if (sortOption === 'newest') {
-      description = 'Sorted by newest first'
+    let description = "";
+
+    if (sortOption === "rating-desc") {
+      description = "Sorted by highest rated";
+    } else if (sortOption === "newest") {
+      description = "Sorted by newest first";
     }
-    
+
     if (subcategoryFilter) {
-      const subcategory = activeSubcategories.find(sub => sub.id === subcategoryFilter)
+      const subcategory = activeSubcategories.find(
+        (sub) => sub.id === subcategoryFilter
+      );
       if (subcategory) {
-        description += description ? ' and ' : ''
-        description += `filtered by ${subcategory.name}`
+        description += description ? " and " : "";
+        description += `filtered by ${subcategory.name}`;
       }
     }
-    
-    return description
-  }
-  
-  const activeFilterDescription = getFilterDescription()
-  
+
+    return description;
+  };
+
+  const activeFilterDescription = getFilterDescription();
+
   return (
     <div className="space-y-8">
       {/* Category Header */}
@@ -206,7 +221,7 @@ async function CategoryView({
         </div>
         <p className="text-muted-foreground">{category.description}</p>
       </div>
-      
+
       {/* Subcategories Section */}
       {activeSubcategories.length > 0 && (
         <div>
@@ -224,19 +239,23 @@ async function CategoryView({
           </div>
         </div>
       )}
-      
+
       <Separator />
-      
+
       {/* Businesses in this category */}
       <div>
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-xl font-semibold">Businesses in {category.name}</h2>
+            <h2 className="text-xl font-semibold">
+              Businesses in {category.name}
+            </h2>
             {activeFilterDescription && (
-              <p className="text-sm text-muted-foreground mt-1">{activeFilterDescription}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {activeFilterDescription}
+              </p>
             )}
           </div>
-          
+
           {/* Desktop: Dropdown menu for filters */}
           <div className="hidden md:block">
             <DropdownMenu>
@@ -251,12 +270,18 @@ async function CategoryView({
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
-                    <Link href={`/categories/${slug}?sort=rating-desc`} className="w-full">
+                    <Link
+                      href={`/categories/${slug}?sort=rating-desc`}
+                      className="w-full"
+                    >
                       Highest Rated
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href={`/categories/${slug}?sort=newest`} className="w-full">
+                    <Link
+                      href={`/categories/${slug}?sort=newest`}
+                      className="w-full"
+                    >
                       Newest First
                     </Link>
                   </DropdownMenuItem>
@@ -266,7 +291,7 @@ async function CategoryView({
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-                
+
                 {activeSubcategories.length > 0 && (
                   <>
                     <DropdownMenuSeparator />
@@ -275,7 +300,10 @@ async function CategoryView({
                     <div className="max-h-[200px] overflow-y-auto">
                       {activeSubcategories.map((subcategory) => (
                         <DropdownMenuItem key={subcategory.id}>
-                          <Link href={`/categories/${slug}?subcategory=${subcategory.id}`} className="w-full">
+                          <Link
+                            href={`/categories/${slug}?subcategory=${subcategory.id}`}
+                            className="w-full"
+                          >
                             {subcategory.name}
                           </Link>
                         </DropdownMenuItem>
@@ -286,7 +314,7 @@ async function CategoryView({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
+
           {/* Mobile: Sheet for filters */}
           <div className="md:hidden">
             <Sheet>
@@ -303,37 +331,68 @@ async function CategoryView({
                     Sort and filter businesses in {category.name}
                   </SheetDescription>
                 </SheetHeader>
-                
+
                 <div className="space-y-6 py-4">
                   <div className="space-y-2">
                     <h3 className="text-sm font-medium">Sort By</h3>
                     <div className="grid gap-2">
                       <SheetClose asChild>
-                        <Link href={`/categories/${slug}?sort=rating-desc`} className="w-full">
-                          <Button variant="outline" size="sm" className="w-full justify-start">Highest Rated</Button>
+                        <Link
+                          href={`/categories/${slug}?sort=rating-desc`}
+                          className="w-full"
+                        >
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-start"
+                          >
+                            Highest Rated
+                          </Button>
                         </Link>
                       </SheetClose>
                       <SheetClose asChild>
-                        <Link href={`/categories/${slug}?sort=newest`} className="w-full">
-                          <Button variant="outline" size="sm" className="w-full justify-start">Newest First</Button>
+                        <Link
+                          href={`/categories/${slug}?sort=newest`}
+                          className="w-full"
+                        >
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-start"
+                          >
+                            Newest First
+                          </Button>
                         </Link>
                       </SheetClose>
                       <SheetClose asChild>
                         <Link href={`/categories/${slug}`} className="w-full">
-                          <Button variant="outline" size="sm" className="w-full justify-start">Default</Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-start"
+                          >
+                            Default
+                          </Button>
                         </Link>
                       </SheetClose>
                     </div>
                   </div>
-                  
+
                   {activeSubcategories.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="text-sm font-medium">Subcategories</h3>
                       <div className="grid gap-2 max-h-[200px] overflow-y-auto">
                         {activeSubcategories.map((subcategory) => (
                           <SheetClose key={subcategory.id} asChild>
-                            <Link href={`/categories/${slug}?subcategory=${subcategory.id}`} className="w-full">
-                              <Button variant="outline" size="sm" className="w-full justify-start">
+                            <Link
+                              href={`/categories/${slug}?subcategory=${subcategory.id}`}
+                              className="w-full"
+                            >
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full justify-start"
+                              >
                                 {subcategory.name}
                               </Button>
                             </Link>
@@ -343,7 +402,7 @@ async function CategoryView({
                     </div>
                   )}
                 </div>
-                
+
                 <SheetFooter>
                   <SheetClose asChild>
                     <Button className="w-full">Done</Button>
@@ -353,7 +412,7 @@ async function CategoryView({
             </Sheet>
           </div>
         </div>
-        
+
         {filteredBusinesses && filteredBusinesses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredBusinesses.map((business) => (
@@ -375,7 +434,7 @@ async function CategoryView({
           <div className="text-center py-12 bg-muted/30 rounded-lg">
             <h3 className="text-xl font-medium mb-2">No businesses found</h3>
             <p className="text-muted-foreground mb-4">
-              {subcategoryFilter 
+              {subcategoryFilter
                 ? "There are no businesses matching your filter criteria. Try a different subcategory."
                 : "There are no businesses listed in this category yet."}
             </p>
@@ -393,7 +452,7 @@ async function CategoryView({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function CategorySkeleton() {
@@ -405,7 +464,7 @@ function CategorySkeleton() {
         <Skeleton className="h-4 w-full mb-2" />
         <Skeleton className="h-4 w-3/4" />
       </div>
-      
+
       {/* Subcategories Skeleton */}
       <div>
         <Skeleton className="h-6 w-32 mb-4" />
@@ -415,16 +474,16 @@ function CategorySkeleton() {
           ))}
         </div>
       </div>
-      
+
       <Separator />
-      
+
       {/* Businesses Skeleton */}
       <div>
         <div className="flex justify-between items-center mb-6">
           <Skeleton className="h-6 w-40" />
           <Skeleton className="h-9 w-24" />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="border rounded-lg overflow-hidden">
@@ -440,33 +499,45 @@ function CategorySkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default function CategoryPage({ 
-  params, 
-  searchParams 
-}: { 
-  params: { slug: string },
-  searchParams: { sort?: string; subcategory?: string }
+export default function CategoryPage({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams: { sort?: string; subcategory?: string };
 }) {
-  const { slug } = params
-  
+  const { slug } = params;
+
   return (
     <div className="container py-8">
       {/* Breadcrumb */}
-      <div className="flex items-center text-sm text-muted-foreground mb-6">
-        <Link href="/" className="hover:text-foreground">Home</Link>
-        <ChevronRight className="h-4 w-4 mx-1" />
-        <Link href="/categories" className="hover:text-foreground">Categories</Link>
-        <ChevronRight className="h-4 w-4 mx-1" />
-        <span className="truncate max-w-[200px]">{slug.replace(/-/g, ' ')}</span>
+      <div className="mb-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/categories">
+                Categories
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{slug.replace(/-/g, " ")}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
-      
+
       {/* Category content with Suspense */}
       <Suspense fallback={<CategorySkeleton />}>
         <CategoryView slug={slug} searchParams={searchParams} />
       </Suspense>
     </div>
-  )
-} 
+  );
+}
