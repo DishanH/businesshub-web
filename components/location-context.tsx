@@ -42,13 +42,24 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [location, setLocationState] = useState<Location>(availableLocations[0])
   const [isInitialized, setIsInitialized] = useState(false)
   
-  // Load the saved location from cookies on mount
+  // Load the saved location on mount
   useEffect(() => {
     const savedLocationId = Cookies.get("selectedLocation")
+    console.log('LocationContext: Initial cookie location ID:', savedLocationId)
+    
     if (savedLocationId) {
       const savedLocation = availableLocations.find(loc => loc.id === savedLocationId)
       if (savedLocation) {
+        console.log('LocationContext: Initializing with location:', savedLocation.name)
         setLocationState(savedLocation)
+        
+        // Dispatch event on initial load to ensure all components get the location
+        if (typeof document !== 'undefined') {
+          console.log('LocationContext: Dispatching initial location event')
+          document.dispatchEvent(new CustomEvent('locationChanged', { 
+            detail: { location: savedLocation }
+          }))
+        }
       }
     }
     setIsInitialized(true)
@@ -56,15 +67,28 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   
   // Function to set location and save to cookies
   const setLocation = (newLocation: Location) => {
+    console.log('LocationContext: Setting location:', newLocation.name)
     setLocationState(newLocation)
+    
     // Only set cookie if it's a different value to avoid unnecessary writes
     const currentLocationId = Cookies.get("selectedLocation")
     if (currentLocationId !== newLocation.id) {
+      console.log('LocationContext: Updating cookie with location:', newLocation.name)
+      // Use cookies as the single source of truth
       Cookies.set("selectedLocation", newLocation.id, { 
         expires: 365,
         path: '/',
         sameSite: 'strict'
       })
+      
+      // Always dispatch the event to ensure all components are updated, 
+      // even if the cookie value hasn't changed (e.g., first render)
+      if (typeof document !== 'undefined') {
+        console.log('LocationContext: Dispatching location changed event')
+        document.dispatchEvent(new CustomEvent('locationChanged', { 
+          detail: { location: newLocation }
+        }))
+      }
     }
   }
   

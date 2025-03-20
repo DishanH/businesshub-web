@@ -6,66 +6,67 @@ import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { LocationAutocomplete } from "@/components/location-autocomplete"
+import { useLocation } from "@/components/location-context"
 
-// Declare the custom event for TypeScript
+// Define the custom event for TypeScript
 declare global {
   interface DocumentEventMap {
-    'locationCookieChanged': CustomEvent
+    'locationChanged': CustomEvent<{ location: { id: string, name: string } }>
   }
 }
 
 interface HomepageSearchProps {
   popularSearches?: string[]
+  initialQuery?: string
+  searchType?: string
+  placeholder?: string
+  locationValue?: string
+  redirectPath?: string
 }
 
-export function HomepageSearch({ popularSearches = [] }: HomepageSearchProps) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [location, setLocation] = useState("")
-  const [defaultCity, setDefaultCity] = useState<"toronto" | "mississauga">("toronto")
+export function HomepageSearch({ 
+  popularSearches = [], 
+  initialQuery = "",
+  searchType,
+  placeholder = "What are you looking for?",
+  locationValue = "",
+  redirectPath = "/search"
+}: HomepageSearchProps) {
+  const [searchTerm, setSearchTerm] = useState(initialQuery)
+  const [location, setLocation] = useState(locationValue)
+  const { location: contextLocation } = useLocation()
   const router = useRouter()
   
-  // Function to read the location from cookie
-  const readLocationCookie = () => {
-    const savedCity = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('selectedLocation='))
-      ?.split('=')[1]
-    
-    if (savedCity === 'mississauga' || savedCity === 'toronto') {
-      setDefaultCity(savedCity as "toronto" | "mississauga")
-    }
-  }
+  // Use location ID from context
+  const locationId = contextLocation?.id || "toronto"
   
-  // Read cookie on initial mount
+  // Set initial location and listen for location changes
   useEffect(() => {
-    readLocationCookie()
-    
-    // Add event listener for storage events (for cross-tab synchronization)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'selectedLocation') {
-        readLocationCookie()
-      }
+    // If we have a locationValue prop, prioritize it
+    if (locationValue) {
+      console.log('HomepageSearch: Setting location from prop:', locationValue)
+      setLocation(locationValue)
+    }
+    // Fall back to context location
+    else if (contextLocation?.name) {
+      console.log('HomepageSearch: Setting location from context:', contextLocation.name)
+      setLocation(contextLocation.name)
     }
     
-    // Listen for cookie changes via a custom event
-    const handleCookieChange = () => {
-      readLocationCookie()
+    // Set up event listener for location changes
+    const handleLocationChange = (e: CustomEvent<{ location: { id: string, name: string } }>) => {
+      console.log('HomepageSearch: Location changed event:', e.detail.location.name)
+      setLocation(e.detail.location.name)
     }
     
-    // Add event listeners
-    window.addEventListener('storage', handleStorageChange)
-    document.addEventListener('locationCookieChanged', handleCookieChange)
-    
-    // Poll for cookie changes every 2 seconds as a fallback
-    const intervalId = setInterval(readLocationCookie, 2000)
+    // Listen for location changes
+    document.addEventListener('locationChanged', handleLocationChange)
     
     // Cleanup
     return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      document.removeEventListener('locationCookieChanged', handleCookieChange)
-      clearInterval(intervalId)
+      document.removeEventListener('locationChanged', handleLocationChange)
     }
-  }, [])
+  }, [locationValue, contextLocation?.name])
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,10 +75,15 @@ export function HomepageSearch({ popularSearches = [] }: HomepageSearchProps) {
       searchParams.set("q", searchTerm.trim())
       
       // Use the selected location or the city name from the location selector
-      const locationToUse = location.trim() || defaultCity
+      const locationToUse = location.trim() || locationId
       searchParams.set("location", locationToUse)
       
-      router.push(`/search?${searchParams.toString()}`)
+      // Add search type if provided
+      if (searchType) {
+        searchParams.set("type", searchType)
+      }
+      
+      router.push(`${redirectPath}?${searchParams.toString()}`)
     }
   }
   
@@ -86,10 +92,15 @@ export function HomepageSearch({ popularSearches = [] }: HomepageSearchProps) {
     searchParams.set("q", term)
     
     // Add location parameter to popular search queries too
-    const locationToUse = location.trim() || defaultCity
+    const locationToUse = location.trim() || locationId
     searchParams.set("location", locationToUse)
     
-    router.push(`/search?${searchParams.toString()}`)
+    // Add search type if provided
+    if (searchType) {
+      searchParams.set("type", searchType)
+    }
+    
+    router.push(`${redirectPath}?${searchParams.toString()}`)
   }
   
   return (
@@ -103,7 +114,7 @@ export function HomepageSearch({ popularSearches = [] }: HomepageSearchProps) {
             </div>
             <Input
               type="text"
-              placeholder="What are you looking for?"
+              placeholder={placeholder}
               className="pl-10 border-0 shadow-none h-10 focus-visible:ring-0 bg-transparent"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -118,7 +129,7 @@ export function HomepageSearch({ popularSearches = [] }: HomepageSearchProps) {
             <LocationAutocomplete 
               value={location}
               onChange={setLocation}
-              city={defaultCity}
+              city={(locationId === 'toronto' || locationId === 'mississauga') ? locationId : 'toronto'}
               className="border-0 shadow-none h-10 focus-visible:ring-0 bg-transparent"
             />
           </div>
@@ -138,7 +149,7 @@ export function HomepageSearch({ popularSearches = [] }: HomepageSearchProps) {
           <LocationAutocomplete 
             value={location}
             onChange={setLocation}
-            city={defaultCity}
+            city={(locationId === 'toronto' || locationId === 'mississauga') ? locationId : 'toronto'}
             className="h-10 rounded-lg"
           />
         </div>

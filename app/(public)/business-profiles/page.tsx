@@ -4,9 +4,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Search, MapPin, Star, TrendingUp, Award, Clock } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { ArrowRight, MapPin, Star, TrendingUp, Award, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SearchWrapper } from "@/components/search-wrapper";
 
 export const metadata: Metadata = {
   title: "Business Profiles | BusinessHub",
@@ -31,41 +31,13 @@ export default async function BusinessProfilesPage() {
             </p>
             
             {/* Search Bar - matching homepage style */}
-            <div className="mt-6 max-w-2xl mx-auto">
-              <form className="flex flex-col md:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    type="text"
-                    placeholder="What are you looking for?"
-                    className="pl-10"
-                  />
-                </div>
-                <div className="relative w-full md:w-40">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    type="text"
-                    placeholder="Location"
-                    className="pl-10"
-                  />
-                </div>
-                <Button type="submit">
-                  <Search className="mr-2 h-4 w-4" />
-                  Search
-                </Button>
-              </form>
-              <div className="mt-3 flex flex-wrap justify-center gap-2 text-sm text-muted-foreground">
-                <span>Popular:</span>
-                {["Restaurants", "Plumbers", "Electricians", "Hair Salons"].map((term) => (
-                  <Link 
-                    key={term} 
-                    href={`/search?q=${term}`}
-                    className="hover:text-primary transition-colors"
-                  >
-                    {term}
-                  </Link>
-                ))}
-              </div>
+            <div className="mt-6 max-w-3xl mx-auto">
+              <SearchWrapper 
+                placeholder="Find local businesses..."
+                popularSearches={["Restaurants", "Plumbers", "Electricians", "Hair Salons", "Dentists", "Gyms"]}
+                searchType="business"
+                redirectPath="/search"
+              />
             </div>
           </div>
         </div>

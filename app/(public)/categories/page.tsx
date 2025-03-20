@@ -1,14 +1,22 @@
 import { Suspense } from "react"
 import { Metadata } from "next"
 import Link from "next/link"
-import { ChevronRight, Search } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
 import { getActiveCategories } from "./actions"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { SearchWrapper } from "@/components/search-wrapper"
 
 export const metadata: Metadata = {
   title: "Categories | BusinessHub",
@@ -64,7 +72,18 @@ function CategorySkeleton() {
   )
 }
 
-function CategoryCard({ category }: { category: any }) {
+function CategoryCard({ category }: { category: { 
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  slug: string;
+  subcategories?: Array<{
+    id: string;
+    name: string;
+    active: boolean;
+  }>;
+}}) {
   // Map of icon names to emoji fallbacks if needed
   const iconToEmoji: Record<string, string> = {
     "utensils": "🍽️",
@@ -116,9 +135,9 @@ function CategoryCard({ category }: { category: any }) {
         <div className="flex flex-wrap gap-2">
           {category.subcategories && category.subcategories.length > 0 ? (
             category.subcategories
-              .filter((sub: any) => sub.active)
+              .filter((sub) => sub.active)
               .slice(0, 5)
-              .map((sub: any) => (
+              .map((sub) => (
                 <Badge key={sub.id} variant="outline" className="hover:bg-secondary">
                   {sub.name}
                 </Badge>
@@ -148,40 +167,49 @@ function CategoryCard({ category }: { category: any }) {
 
 export default function CategoriesPage() {
   return (
-    <div className="container py-8 space-y-8">
-      <div className="text-center max-w-3xl mx-auto mb-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-4">Browse Categories</h1>
-        <p className="text-muted-foreground mb-6">
-          Explore our wide range of business categories and find exactly what you're looking for
-        </p>
-        
-        {/* Category Search */}
-        <form className="flex items-center gap-2 max-w-xl mx-auto" action="/search" method="get">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input 
-              type="text" 
-              name="q"
-              placeholder="Search categories..."
-              className="pl-10"
-            />
-            <input type="hidden" name="type" value="category" />
-          </div>
-          <Button type="submit">Search</Button>
-        </form>
-      </div>
-      
+    <div className="container py-8">
       {/* Breadcrumb */}
-      <div className="flex items-center text-sm text-muted-foreground mb-6">
-        <Link href="/" className="hover:text-foreground">Home</Link>
-        <ChevronRight className="h-4 w-4 mx-1" />
-        <span>Categories</span>
+      <div className="mb-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Categories</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
       
-      {/* Category Grid with Suspense */}
-      <Suspense fallback={<CategorySkeleton />}>
-        <CategoryList />
-      </Suspense>
+      {/* Title section */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">
+          Browse Categories
+        </h1>
+        <p className="text-muted-foreground">
+          Find local businesses by category or use the search below
+        </p>
+      </div>
+      
+      {/* Search component */}
+      <div className="mb-8">
+        <SearchWrapper 
+          placeholder="Search for businesses or categories..."
+          popularSearches={["Restaurants", "Plumbers", "Electricians", "Home Services", "Healthcare"]}
+          searchType="category"
+          redirectPath="/search"
+        />
+      </div>
+      
+      {/* Categories list */}
+      <div className="my-8">
+        <h2 className="text-2xl font-semibold mb-6">All Categories</h2>
+        <Suspense fallback={<CategorySkeleton />}>
+          <CategoryList />
+        </Suspense>
+      </div>
     </div>
   )
 } 

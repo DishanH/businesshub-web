@@ -13,7 +13,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-import SearchForm from "@/components/search/search-form"
+import { SearchWrapper } from "@/components/search-wrapper"
 import FilterSidebar from "@/components/search/filter-sidebar"
 import { ResultsView } from "@/components/search/results-view"
 import MobileFilters from "@/components/search/mobile-filters"
@@ -163,7 +163,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       
       {/* Search form */}
       <div className="mb-8">
-        <SearchForm initialQuery={query} />
+        <SearchWrapper 
+          initialQuery={query} 
+          popularSearches={["Restaurants", "Plumbers", "Electricians", "Dentists", "Gyms", "Hair Salons", "Coffee Shops", "Auto Repair"]}
+          placeholder="Search businesses, services, or categories..."
+          searchType=""
+          redirectPath="/search"
+        />
       </div>
       
       {/* Filter and results section */}
