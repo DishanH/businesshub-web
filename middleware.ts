@@ -12,7 +12,8 @@ const protectedRoutes = [
   '/account/ads',
   '/account/pages',
   '/saved-posts',
-  '/notifications'
+  '/notifications',
+  '/owner/business-profiles/create'
 ]
 
 // Define role-based routes
