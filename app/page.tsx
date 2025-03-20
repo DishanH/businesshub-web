@@ -9,8 +9,8 @@ import { getActiveCategories } from "@/app/(public)/categories/actions"
 import { getFeaturedBusinesses, getNewlyAddedBusinesses } from "@/app/(public)/business-profiles/actions"
 import { HomepageSearch } from "@/components/homepage-search"
 import { CategorySection } from "@/components/category-section"
-import BusinessCard from "@/components/business-card"
 import { SlidingBanner } from "@/components/sliding-banner"
+import { FeaturedBusinessesClient, NewlyAddedBusinessesClient } from "@/components/featured-businesses"
 
 // Popular searches for the search component
 const popularSearches = [
@@ -173,6 +173,15 @@ async function FeaturedBusinessesSection() {
     )
   }
   
+  const processedBusinesses = businesses.map(business => ({
+    id: business.id,
+    name: business.name,
+    description: business.description,
+    address: `${business.address}, ${business.city}, ${business.state} ${business.zip}`,
+    rating: business.rating,
+    image: business.image || "/placeholder.svg",
+  }));
+  
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-6">
@@ -183,22 +192,7 @@ async function FeaturedBusinessesSection() {
         <div className="flex-1 border-t border-border/40 ml-3"></div>
         <ViewAllButton href="/business-profiles/featured" />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {businesses.map((business: BusinessData) => (
-          <BusinessCard
-            key={business.id}
-            business={{
-              id: business.id,
-              name: business.name,
-              description: business.description,
-              address: `${business.address}, ${business.city}, ${business.state} ${business.zip}`,
-              rating: business.rating,
-              image: business.image || "/placeholder.svg",
-            }}
-            href={`/business-profiles/${business.id}`}
-          />
-        ))}
-      </div>
+      <FeaturedBusinessesClient businesses={processedBusinesses} />
     </div>
   )
 }
@@ -270,6 +264,15 @@ async function NewlyAddedBusinessesSection() {
     )
   }
   
+  const processedBusinesses = businesses.map(business => ({
+    id: business.id,
+    name: business.name,
+    description: business.description,
+    address: `${business.address}, ${business.city}, ${business.state} ${business.zip}`,
+    rating: business.rating,
+    image: business.image || "/placeholder.svg",
+  }));
+  
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-6">
@@ -280,22 +283,7 @@ async function NewlyAddedBusinessesSection() {
         <div className="flex-1 border-t border-border/40 ml-3"></div>
         <ViewAllButton href="/business-profiles/new" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {businesses.map((business: BusinessData) => (
-          <BusinessCard
-            key={business.id}
-            business={{
-              id: business.id,
-              name: business.name,
-              description: business.description,
-              address: `${business.address}, ${business.city}, ${business.state} ${business.zip}`,
-              rating: business.rating,
-              image: business.image || "/placeholder.svg",
-            }}
-            href={`/business-profiles/${business.id}`}
-          />
-        ))}
-      </div>
+      <NewlyAddedBusinessesClient businesses={processedBusinesses} />
     </div>
   )
 }
