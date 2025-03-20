@@ -38,6 +38,12 @@ export function HeaderLocationSelector() {
     setActiveCity(city)
     cookies.set("selectedLocation", city.id, { path: "/" })
     
+    // Dispatch a custom event to notify other components about the location change
+    document.dispatchEvent(new CustomEvent('locationCookieChanged'))
+    
+    // Also update localStorage to trigger storage events for cross-tab communication
+    localStorage.setItem('selectedLocation', city.id)
+    
     // Refresh the current page to reflect the new location
     router.refresh()
   }

@@ -49,6 +49,7 @@ interface SearchPageProps {
     page?: string
     subcategories?: string
     attributes?: string
+    location?: string
   }
 }
 
@@ -57,6 +58,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const categorySlug = searchParams?.category || ""
   const sortBy = searchParams?.sort || "relevance"
   const page = Number(searchParams?.page || "1")
+  const location = searchParams?.location || "toronto"
   const subcategoryIds = searchParams?.subcategories 
     ? searchParams.subcategories.split(",") 
     : []
@@ -69,7 +71,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   
   // Fetch businesses and categories in parallel
   const [businessesResult, categoriesResult] = await Promise.all([
-    query ? searchBusinesses(query) : { success: true, data: [] },
+    query ? searchBusinesses(query, location) : { success: true, data: [] },
     getActiveCategories()
   ])
   

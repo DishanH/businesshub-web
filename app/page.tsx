@@ -436,9 +436,7 @@ async function CategoriesSection() {
 
 // Main page component
 export default function Home() {
-  // For now, default to toronto until the cookies issue is resolved
-  const selectedCity = "toronto";
-  
+  // For Next.js server component - no client-side hooks allowed
   return (
     <>
       {/* Hero section with full-width sliding banner */}
@@ -461,7 +459,7 @@ export default function Home() {
 
               {/* Search component */}
               <div className="mt-8">
-                <HomepageSearch popularSearches={popularSearches} defaultCity={selectedCity as "toronto" | "mississauga"} />
+                <HomepageSearch popularSearches={popularSearches} />
               </div>
             </div>
           </div>

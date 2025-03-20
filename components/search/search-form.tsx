@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Search } from "lucide-react"
 
@@ -14,12 +14,29 @@ interface SearchFormProps {
 export default function SearchForm({ initialQuery }: SearchFormProps) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState(initialQuery)
+  const [selectedLocation, setSelectedLocation] = useState("toronto")
+  
+  // Get location from cookie on client side
+  useEffect(() => {
+    const savedCity = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('selectedLocation='))
+      ?.split('=')[1]
+    
+    if (savedCity === 'mississauga' || savedCity === 'toronto') {
+      setSelectedLocation(savedCity)
+    }
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
     
-    router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    const searchParams = new URLSearchParams()
+    searchParams.set("q", searchQuery.trim())
+    searchParams.set("location", selectedLocation)
+    
+    router.push(`/search?${searchParams.toString()}`)
   }
 
   return (

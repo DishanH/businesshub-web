@@ -1,36 +1,95 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { LocationAutocomplete } from "@/components/location-autocomplete"
 
-interface HomepageSearchProps {
-  popularSearches?: string[]
-  defaultCity?: "toronto" | "mississauga"
+// Declare the custom event for TypeScript
+declare global {
+  interface DocumentEventMap {
+    'locationCookieChanged': CustomEvent
+  }
 }
 
-export function HomepageSearch({ popularSearches = [], defaultCity = "toronto" }: HomepageSearchProps) {
+interface HomepageSearchProps {
+  popularSearches?: string[]
+}
+
+export function HomepageSearch({ popularSearches = [] }: HomepageSearchProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [location, setLocation] = useState("")
+  const [defaultCity, setDefaultCity] = useState<"toronto" | "mississauga">("toronto")
   const router = useRouter()
+  
+  // Function to read the location from cookie
+  const readLocationCookie = () => {
+    const savedCity = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('selectedLocation='))
+      ?.split('=')[1]
+    
+    if (savedCity === 'mississauga' || savedCity === 'toronto') {
+      setDefaultCity(savedCity as "toronto" | "mississauga")
+    }
+  }
+  
+  // Read cookie on initial mount
+  useEffect(() => {
+    readLocationCookie()
+    
+    // Add event listener for storage events (for cross-tab synchronization)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'selectedLocation') {
+        readLocationCookie()
+      }
+    }
+    
+    // Listen for cookie changes via a custom event
+    const handleCookieChange = () => {
+      readLocationCookie()
+    }
+    
+    // Add event listeners
+    window.addEventListener('storage', handleStorageChange)
+    document.addEventListener('locationCookieChanged', handleCookieChange)
+    
+    // Poll for cookie changes every 2 seconds as a fallback
+    const intervalId = setInterval(readLocationCookie, 2000)
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      document.removeEventListener('locationCookieChanged', handleCookieChange)
+      clearInterval(intervalId)
+    }
+  }, [])
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchTerm.trim()) {
       const searchParams = new URLSearchParams()
       searchParams.set("q", searchTerm.trim())
-      if (location.trim()) {
-        searchParams.set("location", location.trim())
-      }
+      
+      // Use the selected location or the city name from the location selector
+      const locationToUse = location.trim() || defaultCity
+      searchParams.set("location", locationToUse)
+      
       router.push(`/search?${searchParams.toString()}`)
     }
   }
   
   const handlePopularSearch = (term: string) => {
-    router.push(`/search?q=${encodeURIComponent(term)}`)
+    const searchParams = new URLSearchParams()
+    searchParams.set("q", term)
+    
+    // Add location parameter to popular search queries too
+    const locationToUse = location.trim() || defaultCity
+    searchParams.set("location", locationToUse)
+    
+    router.push(`/search?${searchParams.toString()}`)
   }
   
   return (

@@ -149,14 +149,15 @@ export const getNewlyAddedBusinesses = unstable_cache(
  * Search businesses by query
  * 
  * @param query - Search query
+ * @param location - Location to filter businesses by (city name)
  * @returns Object with success status and data or error details
  */
-export async function searchBusinesses(query: string) {
+export async function searchBusinesses(query: string, location?: string) {
   try {
     const supabase = createClientWithoutCookies()
     
-    // Search businesses by name, description, or address
-    const { data, error } = await supabase
+    // Create the base query
+    let dbQuery = supabase
       .from("businesses")
       .select(`
         id, 
@@ -167,10 +168,22 @@ export async function searchBusinesses(query: string) {
         state, 
         zip, 
         rating, 
-        image
+        image, 
+        category_id, 
+        subcategory_id
       `)
       .eq('is_active', true)
       .or(`name.ilike.%${query}%,description.ilike.%${query}%,address.ilike.%${query}%,city.ilike.%${query}%`)
+    
+    // Apply location filter if provided
+    if (location && location !== 'nearby') {
+      // Convert location string to city name format
+      const cityName = location.charAt(0).toUpperCase() + location.slice(1).toLowerCase()
+      dbQuery = dbQuery.ilike('city', `%${cityName}%`)
+    }
+    
+    // Execute the query
+    const { data, error } = await dbQuery
       .order('rating', { ascending: false })
       .limit(20)
     
