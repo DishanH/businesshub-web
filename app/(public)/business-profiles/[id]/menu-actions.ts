@@ -94,7 +94,7 @@ export async function updateMenuSection(businessId: string, sectionData: {
     
     const { data: business, error: businessError } = await supabase
       .from("businesses")
-      .select("owner_id")
+      .select("user_id")
       .eq("id", businessId)
       .single();
     
@@ -102,7 +102,7 @@ export async function updateMenuSection(businessId: string, sectionData: {
       return { success: false, error: "Business not found" };
     }
     
-    if (business.owner_id !== user.id) {
+    if (business.user_id !== user.id) {
       return { success: false, error: "Not authorized to update this business" };
     }
     
@@ -172,7 +172,7 @@ export async function addMenuCategory(businessId: string, categoryData: {
     
     const { data: business, error: businessError } = await supabase
       .from("businesses")
-      .select("owner_id")
+      .select("user_id")
       .eq("id", businessId)
       .single();
     
@@ -180,7 +180,7 @@ export async function addMenuCategory(businessId: string, categoryData: {
       return { success: false, error: "Business not found" };
     }
     
-    if (business.owner_id !== user.id) {
+    if (business.user_id !== user.id) {
       return { success: false, error: "Not authorized to update this business" };
     }
     
@@ -241,7 +241,7 @@ export async function updateMenuCategory(businessId: string, categoryData: {
     
     const { data: business, error: businessError } = await supabase
       .from("businesses")
-      .select("owner_id")
+      .select("user_id")
       .eq("id", businessId)
       .single();
     
@@ -249,7 +249,7 @@ export async function updateMenuCategory(businessId: string, categoryData: {
       return { success: false, error: "Business not found" };
     }
     
-    if (business.owner_id !== user.id) {
+    if (business.user_id !== user.id) {
       return { success: false, error: "Not authorized to update this business" };
     }
     
@@ -302,7 +302,7 @@ export async function deleteMenuCategory(businessId: string, categoryId: string)
     
     const { data: business, error: businessError } = await supabase
       .from("businesses")
-      .select("owner_id")
+      .select("user_id")
       .eq("id", businessId)
       .single();
     
@@ -310,7 +310,7 @@ export async function deleteMenuCategory(businessId: string, categoryId: string)
       return { success: false, error: "Business not found" };
     }
     
-    if (business.owner_id !== user.id) {
+    if (business.user_id !== user.id) {
       return { success: false, error: "Not authorized to update this business" };
     }
     
@@ -386,7 +386,7 @@ export async function addMenuItem(businessId: string, itemData: {
     
     const { data: business, error: businessError } = await supabase
       .from("businesses")
-      .select("owner_id")
+      .select("user_id")
       .eq("id", businessId)
       .single();
     
@@ -394,7 +394,7 @@ export async function addMenuItem(businessId: string, itemData: {
       return { success: false, error: "Business not found" };
     }
     
-    if (business.owner_id !== user.id) {
+    if (business.user_id !== user.id) {
       return { success: false, error: "Not authorized to update this business" };
     }
     
@@ -471,7 +471,7 @@ export async function updateMenuItem(businessId: string, itemData: {
     
     const { data: business, error: businessError } = await supabase
       .from("businesses")
-      .select("owner_id")
+      .select("user_id")
       .eq("id", businessId)
       .single();
     
@@ -479,7 +479,7 @@ export async function updateMenuItem(businessId: string, itemData: {
       return { success: false, error: "Business not found" };
     }
     
-    if (business.owner_id !== user.id) {
+    if (business.user_id !== user.id) {
       return { success: false, error: "Not authorized to update this business" };
     }
     
@@ -545,7 +545,7 @@ export async function deleteMenuItem(businessId: string, itemId: string) {
     
     const { data: business, error: businessError } = await supabase
       .from("businesses")
-      .select("owner_id")
+      .select("user_id")
       .eq("id", businessId)
       .single();
     
@@ -553,7 +553,7 @@ export async function deleteMenuItem(businessId: string, itemId: string) {
       return { success: false, error: "Business not found" };
     }
     
-    if (business.owner_id !== user.id) {
+    if (business.user_id !== user.id) {
       return { success: false, error: "Not authorized to update this business" };
     }
     

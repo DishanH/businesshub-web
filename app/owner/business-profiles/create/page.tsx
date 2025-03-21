@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -8,7 +8,20 @@ import * as z from "zod"
 import { useToast } from "@/components/ui/use-toast"
 
 // UI Components
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Loader2, 
+  MapPin, 
+  Clock, 
+  FileText,
+  DollarSign,
+  CheckCircle2,
+  AlertCircle,
+  HelpCircle,
+  Store,
+  Info
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -38,6 +51,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Progress } from "@/components/ui/progress"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 // Data and Types
 import { getActiveCategories } from "@/app/(public)/categories/actions"
@@ -85,26 +101,36 @@ const steps = [
   {
     id: "basic",
     name: "Basic Information",
+    description: "Enter your business name, description, and price range",
+    icon: Store,
     fields: ["name", "description", "priceRange"],
   },
   {
     id: "category",
     name: "Category & Attributes",
+    description: "Select your business category and related attributes",
+    icon: FileText,
     fields: ["categoryId", "subcategoryId", "attributes"],
   },
   {
     id: "contact",
     name: "Contact & Location",
+    description: "Add your business address and contact information",
+    icon: MapPin,
     fields: ["address", "city", "state", "zip", "phone", "email", "website"],
   },
   {
     id: "hours",
     name: "Hours & Social",
+    description: "Set your business hours and social media links",
+    icon: Clock,
     fields: ["businessHours", "socialMedia"],
   },
   {
     id: "additional",
     name: "Additional Info",
+    description: "Add images and other important details",
+    icon: Info,
     fields: ["images", "additionalInfo"],
   },
 ]
@@ -236,7 +262,7 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
       try {
         const { success, data, error } = await getActiveCategories();
         
-        if (!success || error) {
+        if (!success || error || !data) {
           console.error("Error fetching categories:", error);
           toast({
             variant: "destructive",
@@ -438,7 +464,9 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
   // Function to validate current step fields
   const validateCurrentStep = async () => {
     const currentFields = steps[currentStep].fields
-    const currentValues = form.getValues()
+    
+    // Trigger validation for current step fields to show inline errors
+    const isStepValid = await form.trigger(currentFields as Array<keyof z.infer<typeof formSchema>>)
     
     if (currentStep === 1 && selectedCategory) {
       const attributeValues = form.getValues("attributes")
@@ -452,33 +480,34 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
         })
 
       if (!hasRequiredAttributes) {
+        // Find required attributes that are missing values
+        selectedCategory.attributes
+          .filter(attr => attr.required)
+          .forEach(attr => {
+            const attrValue = attributeValues.find(a => a.attributeId === attr.id)?.value
+            if (
+              attrValue === undefined || 
+              attrValue === "" || 
+              (Array.isArray(attrValue) && attrValue.length === 0)
+            ) {
+              // Set custom error on the attributes field to show inline
+              form.setError("attributes", {
+                type: "manual",
+                message: `Required attribute "${attr.name}" must be filled in`
+              })
+            }
+          })
+        
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please fill in all required attributes"
+        })
         return false
       }
     }
 
-    // Create a subset of the schema for current step
-    const currentSchema = z.object(
-      Object.fromEntries(
-        currentFields.map(field => [
-          field,
-          formSchema.shape[field as keyof typeof formSchema.shape]
-        ])
-      )
-    )
-
-    try {
-      await currentSchema.parseAsync(
-        Object.fromEntries(
-          currentFields.map(field => [field, currentValues[field as keyof typeof currentValues]])
-        )
-      )
-      return true
-    } catch (error: unknown) {
-      if (error instanceof z.ZodError) {
-        console.error('Validation error:', error.errors)
-      }
-      return false
-    }
+    return isStepValid
   }
 
   // Helper function to update attribute value
@@ -493,109 +522,68 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
     } else {
       form.setValue("attributes", [...currentAttributes, { attributeId, value }])
     }
+    
+    // Clear error on attributes field if value is valid now
+    const isValueValid = value !== undefined && value !== "" && 
+                        !(Array.isArray(value) && value.length === 0)
+    
+    if (isValueValid && form.formState.errors.attributes) {
+      form.clearErrors("attributes")
+    }
   }
 
   const onSubmit = async () => {
     try {
-      if (currentStep < steps.length - 1) {
-        const isValid = await validateCurrentStep()
-        if (isValid) {
-          setCurrentStep(currentStep + 1)
-        } else {
-          // Trigger validation for current step fields
-          const currentFields = steps[currentStep].fields
-          await form.trigger(currentFields as Array<keyof z.infer<typeof formSchema>>)
-        }
-      } else {
-        // Handle final submission
-        const isValid = await validateCurrentStep()
-        if (isValid) {
-          try {
-            setSubmitting(true)
-            // Validate entire form before final submission
-            const isFormValid = await form.trigger()
-            if (!isFormValid) {
-              toast({
-                variant: "destructive",
-                title: "Validation Error",
-                description: "Please check all required fields."
-              })
-              return
-            }
+      setSubmitting(true)
+      // For final step, validate entire form and show inline errors
+      const isValid = await form.trigger()
+      if (!isValid) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please check all required fields."
+        })
+        setSubmitting(false)
+        return
+      }
 
-            // Get form values
-            const formValues = form.getValues()
-            console.log("Submitting form values:", formValues)
-            
-            // Filter out empty social media URLs
-            const filteredSocialMedia = formValues.socialMedia
-              ? formValues.socialMedia.filter(item => item.url && item.url.trim() !== "")
-              : []
-            
-            // Create the final form data
-            const finalFormData = {
-              ...formValues,
-              socialMedia: filteredSocialMedia
-            }
-            
-            let result;
-            if (isEditing && businessData) {
-              result = await updateBusiness(businessData.id, finalFormData);
-            } else {
-              result = await addBusiness(finalFormData);
-            }
-            console.log("Submission result:", result)
-            
-            if (result.success) {
-              toast({
-                title: "Success!",
-                description: isEditing 
-                  ? "Your business has been updated successfully."
-                  : "Your business has been added successfully."
-              })
-              router.push("owner/business-profiles/manage")
-            } else {
-              // Handle validation errors if any
-              if (result.validationErrors) {
-                result.validationErrors.forEach((error) => {
-                  if (typeof error.path[0] === 'string') {
-                    form.setError(error.path[0] as keyof z.infer<typeof formSchema>, {
-                      type: "manual",
-                      message: error.message
-                    })
-                  }
-                })
-                toast({
-                  variant: "destructive",
-                  title: "Validation Error",
-                  description: "Please check the form for errors."
-                })
-              } else {
-                console.error("Error submitting form:", result.error)
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: result.error || "Failed to add business. Please try again."
-                })
-              }
-            }
-          } catch (error: unknown) {
-            console.error("Form submission failed:", error)
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to submit form. Please try again."
-            })
-          } finally {
-            setSubmitting(false)
-          }
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Validation Error",
-            description: "Please check all required fields in this step."
-          })
-        }
+      // Get form values
+      const formValues = form.getValues()
+      console.log("Submitting form values:", formValues)
+      
+      // Filter out empty social media URLs
+      const filteredSocialMedia = formValues.socialMedia
+        ? formValues.socialMedia.filter(item => item.url && item.url.trim() !== "")
+        : []
+      
+      // Create the final form data
+      const finalFormData = {
+        ...formValues,
+        socialMedia: filteredSocialMedia
+      }
+      
+      let result;
+      if (isEditing && businessData) {
+        result = await updateBusiness(businessData.id, finalFormData);
+      } else {
+        result = await addBusiness(finalFormData);
+      }
+      
+      if (result.success) {
+        toast({
+          title: "Success!",
+          description: isEditing 
+            ? "Your business has been updated successfully."
+            : "Your business has been added successfully."
+        })
+        // Redirect to manage businesses page
+        router.push("/owner/business-profiles/manage")
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to save business."
+        })
       }
     } catch (error) {
       console.error("Form error:", error)
@@ -615,13 +603,51 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
         title: "Error",
         description: "An unexpected error occurred. Please try again."
       })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const previousStep = () => {
+    if (currentStep > 0) {
+      // Clear errors from current step before going back
+      form.clearErrors()
+      setCurrentStep(currentStep - 1)
+      window.scrollTo(0, 0)
+    }
+  }
+
+  const nextStep = async () => {
+    if (currentStep < steps.length - 1) {
+      // Validate current step before proceeding
+      const isValid = await validateCurrentStep()
+      if (isValid) {
+        // Clear any errors before moving to next step
+        form.clearErrors()
+        setCurrentStep(currentStep + 1)
+        window.scrollTo(0, 0)
+      } else {
+        // Focus on the first field with an error
+        const currentFields = steps[currentStep].fields
+        const errors = form.formState.errors
+        
+        for (const field of currentFields) {
+          if (errors[field as keyof typeof errors]) {
+            const element = document.querySelector(`[name="${field}"]`)
+            if (element) {
+              (element as HTMLElement).focus()
+              break
+            }
+          }
+        }
+      }
     }
   }
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 max-w-5xl mx-auto">
       <div className="mb-6">
-        <Breadcrumb>
+        <Breadcrumb className="mb-2">
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="/">Home</BreadcrumbLink>
@@ -636,16 +662,29 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
         </Breadcrumb>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{pageTitle}</CardTitle>
-          <CardDescription>
+      <Card className="shadow-md border-muted/40">
+        <CardHeader className="bg-muted/20 pb-4">
+          <div className="flex items-center gap-2">
+            <Store className="h-6 w-6 text-primary" />
+            <CardTitle className="text-2xl">{pageTitle}</CardTitle>
+          </div>
+          <CardDescription className="text-base">
             {isEditing 
               ? "Update your business information below"
               : "Fill out the form below to add your business to our directory"}
           </CardDescription>
+          
+          {/* Progress bar */}
+          <div className="mt-4">
+            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+              <span>Step {currentStep + 1} of {steps.length}</span>
+              <span>{Math.round(((currentStep + 1) / steps.length) * 100)}% Complete</span>
+            </div>
+            <Progress value={((currentStep + 1) / steps.length) * 100} className="h-2" />
+          </div>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="pt-6">
           {loading ? (
             <div className="flex items-center justify-center py-10">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -654,686 +693,816 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
           ) : (
             <Form {...form}>
               <form onSubmit={onSubmit} className="space-y-8">
-                {/* Step indicator */}
-                <div className="flex items-center space-x-2">
-                  {steps.map((step, index) => (
-                    <div key={step.id} className="flex items-center">
-                      <div
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-full border text-xs font-medium",
-                          currentStep === index
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : currentStep > index
-                            ? "border-primary bg-primary/20 text-primary"
-                            : "border-muted-foreground/20 text-muted-foreground"
-                        )}
-                      >
-                        {index + 1}
-                      </div>
-                      {index < steps.length - 1 && (
-                        <div
+                {/* Step navigation tabs */}
+                <div className="hidden md:block">
+                  <div className="flex items-center justify-between mb-8">
+                    {steps.map((step, index) => (
+                      <div key={step.id} className="flex flex-col items-center gap-2">
+                        <div 
                           className={cn(
-                            "h-0.5 w-10",
-                            currentStep > index ? "bg-primary" : "bg-muted-foreground/20"
+                            "flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all duration-200",
+                            currentStep === index
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : currentStep > index
+                              ? "border-primary bg-primary/20 text-primary"
+                              : "border-muted-foreground/20 text-muted-foreground"
                           )}
-                        />
-                      )}
-                    </div>
-                  ))}
+                        >
+                          {React.createElement(step.icon, { 
+                            className: "h-5 w-5",
+                            "aria-hidden": "true" 
+                          })}
+                        </div>
+                        <div className="text-center">
+                          <p 
+                            className={cn(
+                              "text-sm font-medium",
+                              currentStep >= index ? "text-foreground" : "text-muted-foreground"
+                            )}
+                          >
+                            {step.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground hidden lg:block">
+                            {step.description}
+                          </p>
+                        </div>
+                        {index < steps.length - 1 && (
+                          <div
+                            className={cn(
+                              "absolute h-0.5 w-[calc(100%-120px)] left-[60px] hidden md:block",
+                              "top-[88px] -z-10",
+                              currentStep > index ? "bg-primary" : "bg-muted-foreground/20"
+                            )}
+                            style={{ 
+                              left: `calc(50% + 60px)`, 
+                              width: `calc((100% / ${steps.length - 1}) - 120px)`,
+                              transform: `translateX(calc(-50% + ${index * (100 / (steps.length - 1))}%))`
+                            }}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {currentStep === 0 && (
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Business Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your business name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Describe your business..."
-                              className="min-h-[100px]"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Provide a detailed description of your business and services
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="priceRange"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Price Range</FormLabel>
-                          <FormControl>
-                            <Select
-                              value={field.value.toString()}
-                              onValueChange={(value) => field.onChange(parseInt(value))}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select price range" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="1">$</SelectItem>
-                                <SelectItem value="2">$$</SelectItem>
-                                <SelectItem value="3">$$$</SelectItem>
-                                <SelectItem value="4">$$$$</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormDescription>
-                            Select a price range for your business
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                {/* Mobile step indicator */}
+                <div className="flex items-center md:hidden">
+                  <div className="flex items-center justify-center gap-2 w-full">
+                    <div className="flex-shrink-0">
+                      {React.createElement(steps[currentStep].icon, { 
+                        className: "h-6 w-6 text-primary",
+                        "aria-hidden": "true" 
+                      })}
+                    </div>
+                    <div className="flex-grow">
+                      <h3 className="text-sm font-medium">{steps[currentStep].name}</h3>
+                      <p className="text-xs text-muted-foreground">{steps[currentStep].description}</p>
+                    </div>
                   </div>
-                )}
+                </div>
 
-                {currentStep === 1 && (
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="categoryId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category</FormLabel>
-                          <FormControl>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map((category) => (
-                                  <SelectItem key={category.id} value={category.id}>
-                                    {category.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {selectedCategory && (
-                      <>
-                        <FormField
-                          control={form.control}
-                          name="subcategoryId"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Subcategory</FormLabel>
-                              <FormControl>
-                                <Select
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a subcategory" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {selectedCategory.subcategories.map((subcategory) => (
-                                      <SelectItem key={subcategory.id} value={subcategory.id}>
-                                        {subcategory.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        {selectedCategory.attributes.map((attribute) => (
-                          <FormItem key={attribute.id}>
-                            <FormLabel>{attribute.name}</FormLabel>
-                            <FormControl>
-                              <>
-                              {attribute.type === "text" && (
-                                <Input
-                                  type="text"
-                                  placeholder={`Enter ${attribute.name.toLowerCase()}`}
-                                  value={form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as string || ""}
-                                  onChange={(e) => {
-                                    updateAttributeValue(attribute.id, e.target.value)
-                                    form.trigger("attributes")
-                                  }}
-                                />
-                              )}
-                              {attribute.type === "number" && (
-                                <Input
-                                  type="number"
-                                  placeholder={`Enter ${attribute.name.toLowerCase()}`}
-                                  value={form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as number || ""}
-                                  onChange={(e) => {
-                                    updateAttributeValue(attribute.id, e.target.value ? parseFloat(e.target.value) : 0)
-                                    form.trigger("attributes")
-                                  }}
-                                />
-                              )}
-                              {attribute.type === "boolean" && (
-                                <div className="flex items-center space-x-2">
-                                  <Checkbox
-                                    checked={form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as boolean || false}
-                                    onCheckedChange={(checked) => {
-                                      updateAttributeValue(attribute.id, checked || false)
-                                      form.trigger("attributes")
-                                    }}
-                                  />
-                                  <label className="text-sm text-muted-foreground">Yes</label>
-                                </div>
-                              )}
-                              {(attribute.type === "select" || attribute.type === "multiselect") && attribute.options && (
-                                <div className="space-y-2">
-                                  {attribute.options.map((option) => (
-                                    <div key={option} className="flex items-center space-x-2">
-                                      <Checkbox
-                                        checked={
-                                          attribute.type === "select"
-                                            ? form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value === option
-                                            : (form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as string[] || []).includes(option)
-                                        }
-                                        onCheckedChange={(checked) => {
-                                          if (attribute.type === "select") {
-                                            updateAttributeValue(attribute.id, checked ? option : "")
-                                          } else {
-                                            const currentValues = (form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as string[]) || []
-                                            const newValues = checked
-                                              ? [...currentValues, option]
-                                              : currentValues.filter((v) => v !== option)
-                                            updateAttributeValue(attribute.id, newValues)
-                                          }
-                                          form.trigger("attributes")
-                                        }}
-                                      />
-                                      <label className="text-sm text-muted-foreground">{option}</label>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                              </> 
-                            </FormControl>
-                            {attribute.required && (
-                              <FormDescription className="text-destructive">
-                                This field is required
-                              </FormDescription>
-                            )}
-                            {attribute.description && (
-                              <FormDescription>
-                                {attribute.description}
-                              </FormDescription>
-                            )}
-                          </FormItem>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                )}
+                {/* Form content box with slight styling */}
+                <div className="bg-card p-6 rounded-lg border border-border/60 shadow-sm">
+                  <Alert className="mb-6">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Form Step {currentStep + 1}</AlertTitle>
+                    <AlertDescription>
+                      {steps[currentStep].description}
+                    </AlertDescription>
+                  </Alert>
 
-                {currentStep === 2 && (
-                  <>
-                    <Script
-                      src={`https://maps.googleapis.com/maps/api/js?key=AIzaSyCwxqsBze-6BFAf9jfR_8US5jU6ELEhSoE&libraries=places`}
-                      strategy="lazyOnload"
-                      async
-                      onLoad={() => setScriptLoaded(true)}
-                      onError={(e) => {
-                        console.error("Error loading Google Maps script:", e)
-                        toast({
-                          variant: "destructive",
-                          title: "Error",
-                          description: "Failed to load address autocomplete. Please try entering your address manually."
-                        })
-                      }}
-                    />
-                    <div className="space-y-4">
+                  {/* Form content - existing form fields remain unchanged */}
+                  {currentStep === 0 && (
+                    <div className="space-y-6">
                       <FormField
                         control={form.control}
-                        name="address"
+                        name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Business Address</FormLabel>
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <FormLabel className="text-base">Business Name</FormLabel>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="right" className="max-w-80">
+                                    <p>Enter the official name of your business as it should appear in the directory.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
                             <FormControl>
-                              <Input 
-                                id="address-input"
-                                placeholder="Start typing your business address..." 
-                                {...field}
-                                className="w-full"
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                  }
-                                }}
-                                onChange={(e) => {
-                                  field.onChange(e.target.value);
-                                  // Clear city, state, zip when user starts typing new address
-                                  if (e.target.value !== field.value) {
-                                    form.setValue('city', '');
-                                    form.setValue('state', '');
-                                    form.setValue('zip', '');
-                                    setAddressComponents({
-                                      street_address: '',
-                                      city: '',
-                                      state: '',
-                                      zip: ''
-                                    });
-                                  }
-                                }}
-                              />
+                              <div className="relative">
+                                <Store className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                <Input placeholder="Enter your business name" className="pl-10" {...field} />
+                              </div>
                             </FormControl>
-                            <FormDescription>
-                              Start typing and select your address from the dropdown. You must select an address to proceed.
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <FormLabel className="text-base">Description</FormLabel>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-80">
+                                    <p>A compelling description helps customers understand what makes your business unique. Include your main products, services, and value proposition.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <FormControl>
+                              <div className="relative">
+                                <FileText className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                                <Textarea
+                                  placeholder="Describe your business..."
+                                  className="min-h-[120px] pl-10 pt-2"
+                                  {...field}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormDescription className="mt-2">
+                              Provide a detailed description of your business and services (min. 10 characters)
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                      
-                      {/* Hidden fields for city, state, and zip */}
                       <FormField
                         control={form.control}
-                        name="city"
-                        render={({ field }) => (
-                          <FormItem className="hidden">
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="state"
-                        render={({ field }) => (
-                          <FormItem className="hidden">
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="zip"
-                        render={({ field }) => (
-                          <FormItem className="hidden">
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* Display extracted address components */}
-                      {addressComponents.street_address && (
-                        <div className="text-sm space-y-1">
-                          <p><strong>Street:</strong> {addressComponents.street_address}</p>
-                          <p><strong>City:</strong> {addressComponents.city}</p>
-                          <p><strong>State:</strong> {addressComponents.state}</p>
-                          <p><strong>ZIP:</strong> {addressComponents.zip}</p>
-                        </div>
-                      )}
-
-                      {/* Rest of the contact form fields */}
-                      <FormField
-                        control={form.control}
-                        name="phone"
+                        name="priceRange"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone</FormLabel>
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <FormLabel className="text-base">Price Range</FormLabel>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-80">
+                                    <p>Indicate the typical price range for your products or services.</p>
+                                    <ul className="mt-2 ml-4 list-disc">
+                                      <li>$ - Budget friendly</li>
+                                      <li>$$ - Moderate pricing</li>
+                                      <li>$$$ - High-end</li>
+                                      <li>$$$$ - Premium/Luxury</li>
+                                    </ul>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
                             <FormControl>
-                              <Input type="tel" placeholder="Enter business phone" {...field} />
+                              <div className="relative">
+                                <DollarSign className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                <Select
+                                  value={field.value.toString()}
+                                  onValueChange={(value) => field.onChange(parseInt(value))}
+                                >
+                                  <SelectTrigger className="pl-10">
+                                    <SelectValue placeholder="Select price range" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="1">$ - Budget friendly</SelectItem>
+                                    <SelectItem value="2">$$ - Moderate pricing</SelectItem>
+                                    <SelectItem value="3">$$$ - High-end</SelectItem>
+                                    <SelectItem value="4">$$$$ - Premium/Luxury</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="Enter business email" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="website"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Website (Optional)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="url" 
-                                placeholder="Enter business website (optional)" 
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormDescription>Enter your business website URL if you have one</FormDescription>
+                            <FormDescription className="mt-2">
+                              Select a price range that best represents your business
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     </div>
-                  </>
-                )}
+                  )}
 
-                {currentStep === 3 && (
-                  <div className="space-y-4">
-                    <div>
-                      <FormLabel>Business Hours</FormLabel>
-                      <div className="space-y-4 mt-2">
-                        {DAYS_OF_WEEK.map((day, index) => (
+                  {currentStep === 1 && (
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="categoryId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Category</FormLabel>
+                            <FormControl>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categories.map((category) => (
+                                    <SelectItem key={category.id} value={category.id}>
+                                      {category.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {selectedCategory && (
+                        <>
                           <FormField
-                            key={day}
                             control={form.control}
-                            name={`businessHours.${index}`}
+                            name="subcategoryId"
                             render={({ field }) => (
                               <FormItem>
-                                <div className="flex items-center gap-4">
-                                  <div className="w-24">
-                                    <FormLabel>{day}</FormLabel>
-                                  </div>
-                                  <FormControl>
-                                    <div className="flex items-center gap-4">
-                                      <Checkbox
-                                        checked={field.value.closed}
-                                        onCheckedChange={(checked) => {
-                                          field.onChange({
-                                            ...field.value,
-                                            closed: checked,
-                                          })
-                                        }}
-                                      />
-                                      <label>Closed</label>
-                                      {!field.value.closed && (
-                                        <>
-                                          <Input
-                                            type="time"
-                                            value={field.value.open}
-                                            onChange={(e) => {
-                                              field.onChange({
-                                                ...field.value,
-                                                open: e.target.value,
-                                              })
-                                            }}
-                                            className="w-32"
-                                          />
-                                          <span>to</span>
-                                          <Input
-                                            type="time"
-                                            value={field.value.close}
-                                            onChange={(e) => {
-                                              field.onChange({
-                                                ...field.value,
-                                                close: e.target.value,
-                                              })
-                                            }}
-                                            className="w-32"
-                                          />
-                                        </>
-                                      )}
-                                    </div>
-                                  </FormControl>
-                                </div>
+                                <FormLabel>Subcategory</FormLabel>
+                                <FormControl>
+                                  <Select
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a subcategory" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {selectedCategory.subcategories.map((subcategory) => (
+                                        <SelectItem key={subcategory.id} value={subcategory.id}>
+                                          {subcategory.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
                               </FormItem>
                             )}
                           />
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <FormLabel>Social Media (Optional)</FormLabel>
-                      <FormDescription className="mt-1 mb-3">
-                        Add your business social media profiles (all fields are optional)
-                      </FormDescription>
-                      <div className="space-y-4">
-                        {SOCIAL_MEDIA_PLATFORMS.map((platform, index) => (
-                          <div key={platform} className="flex items-center gap-4">
-                            <div className="w-24">
-                              <FormLabel className="text-muted-foreground">{platform}</FormLabel>
-                            </div>
-                            <Input
-                              type="url"
-                              placeholder={`Enter ${platform} URL (optional)`}
-                              value={form.getValues(`socialMedia.${index}.url`) || ""}
-                              onChange={(e) => {
-                                const value = e.target.value.trim();
-                                form.setValue(`socialMedia.${index}`, {
-                                  platform,
-                                  url: value
-                                });
-                              }}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {currentStep === 4 && (
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="images"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Business Images</FormLabel>
-                          <FormControl>
-                            <div className="flex items-center gap-4">
-                              <Input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={(e) => {
-                                  const files = e.target.files
-                                  if (files) {
-                                    // Limit to 5 images total
-                                    const remainingSlots = 5 - field.value.length;
-                                    if (remainingSlots <= 0) {
-                                      toast({
-                                        variant: "destructive",
-                                        title: "Maximum images reached",
-                                        description: "You can upload a maximum of 5 images."
-                                      });
-                                      return;
-                                    }
-                                    
-                                    const fileArray = Array.from(files).slice(0, remainingSlots);
-                                    
-                                    // Show loading state
-                                    setSubmitting(true);
-                                    
-                                    // Convert files to data URLs with compression
-                                    const filePromises = fileArray.map(file => {
-                                      return new Promise<string>((resolve, reject) => {
-                                        // Check file size (max 5MB)
-                                        if (file.size > 5 * 1024 * 1024) {
-                                          toast({
-                                            variant: "destructive",
-                                            title: "File too large",
-                                            description: `${file.name} exceeds the 5MB limit.`
-                                          });
-                                          reject(new Error("File too large"));
-                                          return;
-                                        }
-                                        
-                                        const reader = new FileReader();
-                                        reader.onload = (e) => {
-                                          if (e.target?.result) {
-                                            // Create an image for compression
-                                            const img = new Image();
-                                            img.onload = () => {
-                                              // Create canvas for compression
-                                              const canvas = document.createElement('canvas');
-                                              let width = img.width;
-                                              let height = img.height;
-                                              
-                                              // Resize if too large (max dimension 1200px)
-                                              const MAX_DIMENSION = 1200;
-                                              if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-                                                if (width > height) {
-                                                  height = Math.round(height * (MAX_DIMENSION / width));
-                                                  width = MAX_DIMENSION;
-                                                } else {
-                                                  width = Math.round(width * (MAX_DIMENSION / height));
-                                                  height = MAX_DIMENSION;
-                                                }
-                                              }
-                                              
-                                              canvas.width = width;
-                                              canvas.height = height;
-                                              
-                                              // Draw and compress
-                                              const ctx = canvas.getContext('2d');
-                                              ctx?.drawImage(img, 0, 0, width, height);
-                                              
-                                              // Convert to JPEG with quality 0.8
-                                              const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                                              resolve(compressedDataUrl);
-                                            };
-                                            img.onerror = () => {
-                                              reject(new Error("Failed to load image for compression"));
-                                            };
-                                            img.src = e.target.result as string;
-                                          } else {
-                                            reject(new Error("Failed to read file"));
+                          {selectedCategory.attributes.map((attribute) => (
+                            <FormItem key={attribute.id}>
+                              <FormLabel>{attribute.name}</FormLabel>
+                              <FormControl>
+                                <>
+                                {attribute.type === "text" && (
+                                  <Input
+                                    type="text"
+                                    placeholder={`Enter ${attribute.name.toLowerCase()}`}
+                                    value={form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as string || ""}
+                                    onChange={(e) => {
+                                      updateAttributeValue(attribute.id, e.target.value)
+                                      form.trigger("attributes")
+                                    }}
+                                  />
+                                )}
+                                {attribute.type === "number" && (
+                                  <Input
+                                    type="number"
+                                    placeholder={`Enter ${attribute.name.toLowerCase()}`}
+                                    value={form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as number || ""}
+                                    onChange={(e) => {
+                                      updateAttributeValue(attribute.id, e.target.value ? parseFloat(e.target.value) : 0)
+                                      form.trigger("attributes")
+                                    }}
+                                  />
+                                )}
+                                {attribute.type === "boolean" && (
+                                  <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                      checked={form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as boolean || false}
+                                      onCheckedChange={(checked) => {
+                                        updateAttributeValue(attribute.id, checked || false)
+                                        form.trigger("attributes")
+                                      }}
+                                    />
+                                    <label className="text-sm text-muted-foreground">Yes</label>
+                                  </div>
+                                )}
+                                {(attribute.type === "select" || attribute.type === "multiselect") && attribute.options && (
+                                  <div className="space-y-2">
+                                    {attribute.options.map((option) => (
+                                      <div key={option} className="flex items-center space-x-2">
+                                        <Checkbox
+                                          checked={
+                                            attribute.type === "select"
+                                              ? form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value === option
+                                              : (form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as string[] || []).includes(option)
                                           }
-                                        };
-                                        reader.onerror = () => reject(reader.error);
-                                        reader.readAsDataURL(file);
+                                          onCheckedChange={(checked) => {
+                                            if (attribute.type === "select") {
+                                              updateAttributeValue(attribute.id, checked ? option : "")
+                                            } else {
+                                              const currentValues = (form.getValues("attributes").find(attr => attr.attributeId === attribute.id)?.value as string[]) || []
+                                              const newValues = checked
+                                                ? [...currentValues, option]
+                                                : currentValues.filter((v) => v !== option)
+                                              updateAttributeValue(attribute.id, newValues)
+                                            }
+                                            form.trigger("attributes")
+                                          }}
+                                        />
+                                        <label className="text-sm text-muted-foreground">{option}</label>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                </> 
+                              </FormControl>
+                              {attribute.required && (
+                                <FormDescription className="text-destructive">
+                                  This field is required
+                                </FormDescription>
+                              )}
+                              {attribute.description && (
+                                <FormDescription>
+                                  {attribute.description}
+                                </FormDescription>
+                              )}
+                              {/* Show validation errors */}
+                              {attribute.required && form.formState.errors.attributes && (
+                                <FormMessage>
+                                  {form.formState.errors.attributes.message}
+                                </FormMessage>
+                              )}
+                            </FormItem>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {currentStep === 2 && (
+                    <>
+                      <Script
+                        src={`https://maps.googleapis.com/maps/api/js?key=AIzaSyCwxqsBze-6BFAf9jfR_8US5jU6ELEhSoE&libraries=places`}
+                        strategy="lazyOnload"
+                        async
+                        onLoad={() => setScriptLoaded(true)}
+                        onError={(e) => {
+                          console.error("Error loading Google Maps script:", e)
+                          toast({
+                            variant: "destructive",
+                            title: "Error",
+                            description: "Failed to load address autocomplete. Please try entering your address manually."
+                          })
+                        }}
+                      />
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="address"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Business Address</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  id="address-input"
+                                  placeholder="Start typing your business address..." 
+                                  {...field}
+                                  className="w-full"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  onChange={(e) => {
+                                    field.onChange(e.target.value);
+                                    // Clear city, state, zip when user starts typing new address
+                                    if (e.target.value !== field.value) {
+                                      form.setValue('city', '');
+                                      form.setValue('state', '');
+                                      form.setValue('zip', '');
+                                      setAddressComponents({
+                                        street_address: '',
+                                        city: '',
+                                        state: '',
+                                        zip: ''
                                       });
-                                    });
-                                    
-                                    // When all files are converted to data URLs
-                                    Promise.all(filePromises)
-                                      .then(dataUrls => {
-                                        field.onChange([...field.value, ...dataUrls]);
-                                        setSubmitting(false);
-                                      })
-                                      .catch(error => {
-                                        console.error("Error processing images:", error);
-                                        setSubmitting(false);
-                                      });
-                                  }
+                                    }
+                                  }}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Start typing and select your address from the dropdown. You must select an address to proceed.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        {/* Hidden fields for city, state, and zip */}
+                        <FormField
+                          control={form.control}
+                          name="city"
+                          render={({ field }) => (
+                            <FormItem className="hidden">
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="state"
+                          render={({ field }) => (
+                            <FormItem className="hidden">
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="zip"
+                          render={({ field }) => (
+                            <FormItem className="hidden">
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Display extracted address components */}
+                        {addressComponents.street_address && (
+                          <div className="text-sm space-y-1">
+                            <p><strong>Street:</strong> {addressComponents.street_address}</p>
+                            <p><strong>City:</strong> {addressComponents.city}</p>
+                            <p><strong>State:</strong> {addressComponents.state}</p>
+                            <p><strong>ZIP:</strong> {addressComponents.zip}</p>
+                          </div>
+                        )}
+
+                        {/* Rest of the contact form fields */}
+                        <FormField
+                          control={form.control}
+                          name="phone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phone</FormLabel>
+                              <FormControl>
+                                <Input type="tel" placeholder="Enter business phone" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <Input type="email" placeholder="Enter business email" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="website"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Website (Optional)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="url" 
+                                  placeholder="Enter business website (optional)" 
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormDescription>Enter your business website URL if you have one</FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {currentStep === 3 && (
+                    <div className="space-y-4">
+                      <div>
+                        <FormLabel>Business Hours</FormLabel>
+                        <div className="space-y-4 mt-2">
+                          {DAYS_OF_WEEK.map((day, index) => (
+                            <FormField
+                              key={day}
+                              control={form.control}
+                              name={`businessHours.${index}`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <div className="flex items-center gap-4">
+                                    <div className="w-24">
+                                      <FormLabel>{day}</FormLabel>
+                                    </div>
+                                    <FormControl>
+                                      <div className="flex items-center gap-4">
+                                        <Checkbox
+                                          checked={field.value.closed}
+                                          onCheckedChange={(checked) => {
+                                            field.onChange({
+                                              ...field.value,
+                                              closed: checked,
+                                            })
+                                          }}
+                                        />
+                                        <label>Closed</label>
+                                        {!field.value.closed && (
+                                          <>
+                                            <Input
+                                              type="time"
+                                              value={field.value.open}
+                                              onChange={(e) => {
+                                                field.onChange({
+                                                  ...field.value,
+                                                  open: e.target.value,
+                                                })
+                                              }}
+                                              className="w-32"
+                                            />
+                                            <span>to</span>
+                                            <Input
+                                              type="time"
+                                              value={field.value.close}
+                                              onChange={(e) => {
+                                                field.onChange({
+                                                  ...field.value,
+                                                  close: e.target.value,
+                                                })
+                                              }}
+                                              className="w-32"
+                                            />
+                                          </>
+                                        )}
+                                      </div>
+                                    </FormControl>
+                                  </div>
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <FormLabel>Social Media (Optional)</FormLabel>
+                        <FormDescription className="mt-1 mb-3">
+                          Add your business social media profiles (all fields are optional)
+                        </FormDescription>
+                        <div className="space-y-4">
+                          {SOCIAL_MEDIA_PLATFORMS.map((platform, index) => (
+                            <div key={platform} className="flex items-center gap-4">
+                              <div className="w-24">
+                                <FormLabel className="text-muted-foreground">{platform}</FormLabel>
+                              </div>
+                              <Input
+                                type="url"
+                                placeholder={`Enter ${platform} URL (optional)`}
+                                value={form.getValues(`socialMedia.${index}.url`) || ""}
+                                onChange={(e) => {
+                                  const value = e.target.value.trim();
+                                  form.setValue(`socialMedia.${index}`, {
+                                    platform,
+                                    url: value
+                                  });
                                 }}
                               />
                             </div>
-                          </FormControl>
-                          <FormDescription>
-                            Upload images of your business (max 5 images)
-                          </FormDescription>
-                          <div className="grid grid-cols-5 gap-4 mt-4">
-                            {field.value.map((url, index) => (
-                              <div key={index} className="relative aspect-square">
-                                <img
-                                  src={url}
-                                  alt={`Business image ${index + 1}`}
-                                  className="w-full h-full object-cover rounded-lg"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="icon"
-                                  className="absolute top-1 right-1"
-                                  onClick={() => {
-                                    field.onChange(field.value.filter((_, i) => i !== index))
-                                  }}
-                                >
-                                  ×
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="additionalInfo"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Additional Information</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Any additional information about your business..."
-                              className="min-h-[100px]"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Include any other relevant information about your business
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                <div className="flex justify-between mt-8">
-                  {currentStep > 0 && (
+                  {currentStep === 4 && (
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="images"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Images</FormLabel>
+                            <FormControl>
+                              <div className="flex items-center gap-4">
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  onChange={(e) => {
+                                    const files = e.target.files
+                                    if (files) {
+                                      // Limit to 5 images total
+                                      const remainingSlots = 5 - field.value.length;
+                                      if (remainingSlots <= 0) {
+                                        toast({
+                                          variant: "destructive",
+                                          title: "Maximum images reached",
+                                          description: "You can upload a maximum of 5 images."
+                                        });
+                                        return;
+                                      }
+                                      
+                                      const fileArray = Array.from(files).slice(0, remainingSlots);
+                                      
+                                      // Show loading state
+                                      setSubmitting(true);
+                                      
+                                      // Convert files to data URLs with compression
+                                      const filePromises = fileArray.map(file => {
+                                        return new Promise<string>((resolve, reject) => {
+                                          // Check file size (max 5MB)
+                                          if (file.size > 5 * 1024 * 1024) {
+                                            toast({
+                                              variant: "destructive",
+                                              title: "File too large",
+                                              description: `${file.name} exceeds the 5MB limit.`
+                                            });
+                                            reject(new Error("File too large"));
+                                            return;
+                                          }
+                                          
+                                          const reader = new FileReader();
+                                          reader.onload = (e) => {
+                                            if (e.target?.result) {
+                                              // Create an image for compression
+                                              const img = new Image();
+                                              img.onload = () => {
+                                                // Create canvas for compression
+                                                const canvas = document.createElement('canvas');
+                                                let width = img.width;
+                                                let height = img.height;
+                                                
+                                                // Resize if too large (max dimension 1200px)
+                                                const MAX_DIMENSION = 1200;
+                                                if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+                                                  if (width > height) {
+                                                    height = Math.round(height * (MAX_DIMENSION / width));
+                                                    width = MAX_DIMENSION;
+                                                  } else {
+                                                    width = Math.round(width * (MAX_DIMENSION / height));
+                                                    height = MAX_DIMENSION;
+                                                  }
+                                                }
+                                                
+                                                canvas.width = width;
+                                                canvas.height = height;
+                                                
+                                                // Draw and compress
+                                                const ctx = canvas.getContext('2d');
+                                                ctx?.drawImage(img, 0, 0, width, height);
+                                                
+                                                // Convert to JPEG with quality 0.8
+                                                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                                                resolve(compressedDataUrl);
+                                              };
+                                              img.onerror = () => {
+                                                reject(new Error("Failed to load image for compression"));
+                                              };
+                                              img.src = e.target.result as string;
+                                            } else {
+                                              reject(new Error("Failed to read file"));
+                                            }
+                                          };
+                                          reader.onerror = () => reject(reader.error);
+                                          reader.readAsDataURL(file);
+                                        });
+                                      });
+                                      
+                                      // When all files are converted to data URLs
+                                      Promise.all(filePromises)
+                                        .then(dataUrls => {
+                                          field.onChange([...field.value, ...dataUrls]);
+                                          setSubmitting(false);
+                                        })
+                                        .catch(error => {
+                                          console.error("Error processing images:", error);
+                                          setSubmitting(false);
+                                        });
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormDescription>
+                              Upload images of your business (max 5 images)
+                            </FormDescription>
+                            <div className="grid grid-cols-5 gap-4 mt-4">
+                              {field.value.map((url, index) => (
+                                <div key={index} className="relative aspect-square">
+                                  <img
+                                    src={url}
+                                    alt={`Business image ${index + 1}`}
+                                    className="w-full h-full object-cover rounded-lg"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute top-1 right-1"
+                                    onClick={() => {
+                                      field.onChange(field.value.filter((_, i) => i !== index))
+                                    }}
+                                  >
+                                    ×
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="additionalInfo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Additional Information</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Any additional information about your business..."
+                                className="min-h-[100px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Include any other relevant information about your business
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {/* Navigation buttons */}
+                  <div className="flex justify-between items-center mt-8 pt-4 border-t border-border">
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setCurrentStep(currentStep - 1)}
+                      onClick={previousStep}
+                      disabled={currentStep === 0}
+                      className="gap-2"
                     >
-                      <ChevronLeft className="mr-2 h-4 w-4" />
-                      Back
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
                     </Button>
-                  )}
-                  <Button 
-                    type="button"
-                    className="ml-auto"
-                    disabled={submitting}
-                    onClick={onSubmit}
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {currentStep === steps.length - 1 ? "Submitting..." : "Next"}
-                      </>
-                    ) : (
-                      <>
-                        {currentStep === steps.length - 1 ? submitButtonText : "Next"}
-                        {currentStep < steps.length - 1 && <ChevronRight className="ml-2 h-4 w-4" />}
-                      </>
-                    )}
-                  </Button>
+                    
+                    <div className="flex gap-3">
+                      {currentStep < steps.length - 1 ? (
+                        <Button
+                          type="button"
+                          onClick={nextStep}
+                          className="gap-2"
+                        >
+                          Next
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          onClick={onSubmit}
+                          disabled={submitting}
+                          className="gap-2"
+                        >
+                          {submitting ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Submitting...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="h-4 w-4" />
+                              {submitButtonText}
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </form>
             </Form>

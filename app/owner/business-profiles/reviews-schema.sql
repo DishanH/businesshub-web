@@ -67,7 +67,7 @@ CREATE POLICY "Users can delete their own reviews"
     auth.uid() = user_id OR 
     EXISTS (
       SELECT 1 FROM businesses 
-      WHERE id = business_id AND owner_id = auth.uid()
+      WHERE id = business_id AND user_id = auth.uid()
     ) OR
     EXISTS (
       SELECT 1 FROM user_roles 
@@ -102,7 +102,7 @@ CREATE POLICY "Users can delete their own replies"
     EXISTS (
       SELECT 1 FROM business_reviews br
       JOIN businesses b ON br.business_id = b.id
-      WHERE br.id = review_id AND b.owner_id = auth.uid()
+      WHERE br.id = review_id AND b.user_id = auth.uid()
     ) OR
     EXISTS (
       SELECT 1 FROM user_roles 

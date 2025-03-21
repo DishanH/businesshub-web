@@ -383,7 +383,7 @@ export async function deleteBusinessReview(
     // Check if user is the business owner
     const { data: business, error: businessError } = await supabase
       .from("businesses")
-      .select("owner_id")
+      .select("user_id")
       .eq("id", businessId)
       .single()
     
@@ -391,7 +391,7 @@ export async function deleteBusinessReview(
       console.error("Error checking business ownership:", businessError)
     }
     
-    const isOwner = business && business.owner_id === user.id
+    const isOwner = business && business.user_id === user.id
     
     // Check if user is an admin
     const { data: userRole } = await supabase
@@ -458,7 +458,7 @@ export async function addReviewReply(
     // Check if user is the business owner
     const { data: business, error: businessError } = await supabase
       .from("businesses")
-      .select("owner_id")
+      .select("user_id")
       .eq("id", businessId)
       .single()
     
@@ -466,7 +466,7 @@ export async function addReviewReply(
       return { success: false, error: "Business not found" }
     }
     
-    if (business.owner_id !== user.id) {
+    if (business.user_id !== user.id) {
       return { success: false, error: "Only the business owner can reply to reviews" }
     }
     

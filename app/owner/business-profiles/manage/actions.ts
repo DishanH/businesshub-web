@@ -30,7 +30,7 @@ export async function getUserBusinesses() {
         category:category_id(name),
         images:business_images(url, alt_text, is_primary)
       `)
-      .eq("owner_id", user.id)
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
     
     if (error) {

@@ -295,7 +295,7 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   // Ensure isOwner is always a boolean
-  const isOwner = Boolean(user && business.owner_id === user.id);
+  const isOwner = Boolean(user && business.user_id === user.id);
   
   // Format business hours for display
   const formatBusinessHours = () => {
