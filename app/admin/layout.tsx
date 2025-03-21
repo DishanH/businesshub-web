@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { Shield, LayoutDashboard, Layers, Users, FileText, Briefcase } from "lucide-react"
+import { Shield, LayoutDashboard, Layers, Users, FileText, Briefcase, MessageSquareQuote, UserIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -9,6 +9,8 @@ const navItems = [
   { href: "/admin/users", icon: Users, label: "Users" },
   { href: "/admin/business-posts", icon: FileText, label: "Business Posts" },
   { href: "/admin/business-owners", icon: Briefcase, label: "Business Owners" },
+  { href: "/admin/testimonials", icon: MessageSquareQuote, label: "Testimonials" },
+  { href: "/admin/roles", icon: UserIcon, label: "User Roles" },
 ]
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

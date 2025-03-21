@@ -5,14 +5,76 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Metadata } from "next";
+import { getTestimonials } from "@/app/actions/testimonials";
+import { TestimonialDialog } from "@/components/testimonial-dialog";
 
 export const metadata: Metadata = {
   title: "Testimonials | BusinessHub",
   description: "What our users say about BusinessHub - read testimonials from business owners and customers",
 };
 
-// Testimonial data
-const testimonials = [
+// Testimonial type definition
+type Testimonial = {
+  id: string;
+  name: string;
+  role: string;
+  business: string | null;
+  text: string;
+  image: string;
+  rating: number;
+  date: string;
+  category: 'business-owner' | 'customer';
+  featured: boolean;
+};
+
+// Testimonial Card Component
+function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
+  return (
+    <div className="bg-card p-6 rounded-xl shadow-sm border border-border/30 hover:shadow-md transition-all duration-200 h-full flex flex-col relative overflow-hidden">
+      {testimonial.featured && (
+        <Badge className="absolute top-4 right-4 bg-primary/15 text-primary hover:bg-primary/25 border-0 font-medium">
+          <Sparkles className="h-3.5 w-3.5 mr-1" />
+          Featured
+        </Badge>
+      )}
+      <div className="flex items-center gap-4 mb-5">
+        <Avatar className="h-12 w-12 border border-primary/10 shadow-sm">
+          <AvatarImage src={testimonial.image} />
+          <AvatarFallback className="bg-primary/5 text-primary font-medium">{testimonial.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div>
+          <p className="font-semibold text-foreground">{testimonial.name}</p>
+          <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+          {testimonial.business && (
+            <p className="text-sm text-primary font-medium">{testimonial.business}</p>
+          )}
+        </div>
+      </div>
+      
+      <div className="mt-1 mb-4 flex">
+        {Array(testimonial.rating).fill(0).map((_, i) => (
+          <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+        ))}
+        {Array(5 - testimonial.rating).fill(0).map((_, i) => (
+          <Star key={i} className="h-4 w-4 text-muted" />
+        ))}
+        <span className="text-xs text-muted-foreground ml-auto">
+          {new Date(testimonial.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+        </span>
+      </div>
+      
+      <div className="relative flex-grow">
+        <Quote className="h-8 w-8 text-primary/10 absolute -top-1 -left-1 opacity-70" />
+        <p className="text-muted-foreground relative z-10 pl-3 text-sm leading-relaxed">
+          &ldquo;{testimonial.text}&rdquo;
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Fallback testimonials in case of database issues
+const fallbackTestimonials = [
   {
     id: "1",
     name: "Sarah Johnson",
@@ -113,60 +175,31 @@ const testimonials = [
   }
 ];
 
-// Testimonial Card Component
-function TestimonialCard({ testimonial }: { testimonial: typeof testimonials[0] }) {
-  return (
-    <div className="bg-card p-6 rounded-lg shadow-sm border border-border/40 hover:shadow-md transition-shadow h-full flex flex-col">
-      {testimonial.featured && (
-        <Badge className="self-start mb-3 bg-primary/10 text-primary hover:bg-primary/20 border-0">
-          <Sparkles className="h-3.5 w-3.5 mr-1" />
-          Featured
-        </Badge>
-      )}
-      <div className="flex items-center gap-4 mb-4">
-        <Avatar className="h-14 w-14 border-2 border-primary/20">
-          <AvatarImage src={testimonial.image} />
-          <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div>
-          <p className="font-medium">{testimonial.name}</p>
-          <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-          {testimonial.business && (
-            <p className="text-sm text-primary font-medium">{testimonial.business}</p>
-          )}
-        </div>
-      </div>
-      <div className="relative flex-grow">
-        <Quote className="h-8 w-8 text-primary/10 absolute -top-2 -left-2" />
-        <p className="text-muted-foreground relative z-10 pl-2 mb-4">
-          {testimonial.text}
-        </p>
-      </div>
-      <div className="flex items-center mt-auto">
-        <div className="flex">
-          {Array(testimonial.rating).fill(0).map((_, i) => (
-            <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-          ))}
-          {Array(5 - testimonial.rating).fill(0).map((_, i) => (
-            <Star key={i} className="h-4 w-4 text-muted" />
-          ))}
-        </div>
-        <span className="text-xs text-muted-foreground ml-auto">
-          {new Date(testimonial.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-        </span>
-      </div>
-    </div>
-  );
-}
+type PageProps = {
+  searchParams: {
+    category?: string;
+  };
+};
 
-export default function TestimonialsPage() {
-  const businessOwnerTestimonials = testimonials.filter(t => t.category === "business-owner");
-  const customerTestimonials = testimonials.filter(t => t.category === "customer");
+export default async function TestimonialsPage({ searchParams }: PageProps) {
+  // Parse search params
+  const currentCategory = searchParams?.category || null;
+  
+  // Fetch testimonials data from Supabase
+  const { success, testimonials } = await getTestimonials(currentCategory);
+  
+  // Use data from Supabase if successful, otherwise use fallback data
+  const testimonialsData: Testimonial[] = success && testimonials ? testimonials : fallbackTestimonials;
+  
+  // Determine which tab to display as active
+  let activeTab = "all";
+  if (currentCategory === "business-owner") activeTab = "business-owners";
+  if (currentCategory === "customer") activeTab = "customers";
   
   return (
-    <div className="container py-8 max-w-7xl">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" size="sm" className="mr-4" asChild>
+    <div className="container py-10 max-w-6xl mx-auto">
+      <div className="flex items-center justify-between mb-2">
+        <Button variant="ghost" size="sm" className="mr-4 -ml-2 text-muted-foreground hover:text-foreground" asChild>
           <Link href="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
@@ -174,56 +207,54 @@ export default function TestimonialsPage() {
         </Button>
       </div>
       
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 flex items-center">
-          <Star className="h-6 w-6 text-primary mr-2" />
+      <div className="mb-10 text-center max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold mb-4 flex items-center justify-center">
+          <Star className="h-6 w-6 text-primary mr-2 fill-primary" />
           Customer Testimonials
         </h1>
-        <p className="text-muted-foreground max-w-3xl">
+        <p className="text-muted-foreground">
           Discover what business owners and customers have to say about their experience with BusinessHub. 
           Read authentic testimonials from our community members.
         </p>
       </div>
       
-      <Tabs defaultValue="all" className="mb-8">
-        <TabsList>
-          <TabsTrigger value="all">All Testimonials</TabsTrigger>
-          <TabsTrigger value="business-owners">Business Owners</TabsTrigger>
-          <TabsTrigger value="customers">Customers</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue={activeTab} className="mb-12">
+        <div className="flex justify-center mb-6">
+          <TabsList className="bg-muted/50">
+            <TabsTrigger value="all" asChild>
+              <Link href="/testimonials" className="px-3 py-1.5">All Testimonials</Link>
+            </TabsTrigger>
+            <TabsTrigger value="business-owners" asChild>
+              <Link href="/testimonials?category=business-owner" className="px-3 py-1.5">Business Owners</Link>
+            </TabsTrigger>
+            <TabsTrigger value="customers" asChild>
+              <Link href="/testimonials?category=customer" className="px-3 py-1.5">Customers</Link>
+            </TabsTrigger>
+          </TabsList>
+        </div>
         
-        <TabsContent value="all" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="business-owners" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {businessOwnerTestimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="customers" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {customerTestimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
-            ))}
+        <TabsContent value={activeTab} className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonialsData.length > 0 ? (
+              testimonialsData.map((testimonial) => (
+                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12">
+                <p className="text-muted-foreground">No testimonials found.</p>
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>
       
-      <div className="bg-muted/30 p-6 rounded-lg">
-        <h2 className="text-xl font-medium mb-4">Share Your Experience</h2>
-        <p className="text-muted-foreground mb-4">
+      <div className="bg-muted/30 p-8 rounded-xl max-w-3xl mx-auto text-center shadow-sm border border-border/30">
+        <h2 className="text-xl font-semibold mb-4">Share Your Experience</h2>
+        <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
           We&apos;d love to hear about your experience with BusinessHub. Your feedback helps us improve our platform
           and inspires other businesses and customers.
         </p>
-        <Button className="font-medium">Submit Your Testimonial</Button>
+        <TestimonialDialog />
       </div>
     </div>
   );
