@@ -37,7 +37,7 @@ import SpecialsSection from './specials-section';
 import MenuSection from "./menu-section";
 import ReviewsSection from "./reviews-section";
 import { getBusinessMenuDataForProfile } from "./menu-actions";
-import { SearchWrapper } from "@/components/search-wrapper";
+// import { SearchWrapper } from "@/components/search-wrapper";
 
 interface BusinessProfilePageProps {
   params: {
@@ -389,14 +389,14 @@ export default async function BusinessProfilePage({ params }: BusinessProfilePag
         </Breadcrumb>
         
         {/* Search component */}
-        <div className="mt-4 mb-2">
+        {/* <div className="mt-4 mb-2">
           <SearchWrapper 
             placeholder="Find similar businesses..."
             popularSearches={["Restaurants", "Plumbers", "Electricians", "Dentists", "Gyms"]}
             searchType="business"
             redirectPath="/search"
           />
-        </div>
+        </div> */}
       </div>
 
       {/* Hero Banner */}

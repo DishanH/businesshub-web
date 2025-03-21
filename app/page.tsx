@@ -23,6 +23,7 @@ import {
   FeaturedBusinessesClient,
   NewlyAddedBusinessesClient,
 } from "@/components/featured-businesses";
+import { PopularCategories } from "@/components/popular-categories";
 
 // Popular searches for the search component
 const popularSearches = [
@@ -446,7 +447,7 @@ export default function Home() {
 
       <div className="container mx-auto px-4">
         {/* Search section with glass morphism effect */}
-        <section className="relative -mt-16 z-10 mb-16">
+        <section className="relative -mt-16 z-10 mb-8">
           <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-border/10">
             <div className="max-w-4xl mx-auto space-y-6">
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
@@ -465,62 +466,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Popular categories quick access - new section */}
-        <section className="mb-16">
-          <SectionHeading
-            icon={<Grid className="h-5 w-5 text-primary" />}
-            title="Popular Categories"
-            href="/categories"
-          />
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-            {[
-              {
-                name: "Restaurants",
-                icon: "🍽️",
-                slug: "restaurants",
-              },
-              {
-                name: "Services",
-                icon: "🔧",
-                slug: "services",
-              },
-              {
-                name: "Shopping",
-                icon: "🛍️",
-                slug: "shopping",
-              },
-              {
-                name: "Health",
-                icon: "❤️",
-                slug: "health-wellness",
-              },
-              {
-                name: "Technology",
-                icon: "💻",
-                slug: "technology",
-              },
-              {
-                name: "Home",
-                icon: "🏠",
-                slug: "home-services",
-              },
-            ].map((category) => (
-              <Link
-                key={category.name}
-                href={`/categories/${category.slug}`}
-                className="group relative overflow-hidden rounded-lg shadow-sm transition-all hover:shadow-md bg-card hover:bg-card/90 border border-border/40"
-              >
-                <div className="relative flex flex-col items-center p-6">
-                  <span className="text-3xl mb-2 transform group-hover:scale-110 transition-transform duration-200">
-                    {category.icon}
-                  </span>
-                  <span className="font-medium text-center group-hover:text-primary transition-colors">
-                    {category.name}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+        {/* Popular categories */}
+        <section className="mb-12">
+          <PopularCategories useEmoji={true} />
         </section>
 
         {/* Featured businesses section with card glow effect */}
