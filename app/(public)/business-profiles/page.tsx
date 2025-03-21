@@ -46,15 +46,21 @@ export default async function BusinessProfilesPage() {
       <div className="container py-8 space-y-12">
         {/* Featured Businesses Section */}
         <section>
-          <div className="flex items-center gap-2 mb-6">
-            <div className="p-1.5 rounded-full bg-primary/10">
-              <Award className="h-4 w-4 text-primary" />
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-full bg-primary/10 flex items-center justify-center">
+                <Award className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-lg font-medium tracking-tight text-foreground/90">Featured Businesses</h2>
             </div>
-            <h2 className="text-2xl font-bold">Featured Businesses</h2>
-            <div className="flex-1 border-t border-border/40 ml-3"></div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
-              <Link href="/business-profiles/featured">
-                View All <ArrowRight className="h-4 w-4" />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              asChild
+              className="text-sm font-medium text-primary hover:text-primary/80 hover:bg-transparent px-2 py-1"
+            >
+              <Link href="/business-profiles/featured" className="flex items-center gap-1">
+                View All <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </Button>
           </div>
@@ -122,15 +128,21 @@ export default async function BusinessProfilesPage() {
 
         {/* Newly Added Businesses Section */}
         <section>
-          <div className="flex items-center gap-2 mb-6">
-            <div className="p-1.5 rounded-full bg-primary/10">
-              <Clock className="h-4 w-4 text-primary" />
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-full bg-primary/10 flex items-center justify-center">
+                <Clock className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-lg font-medium tracking-tight text-foreground/90">Newly Added</h2>
             </div>
-            <h2 className="text-2xl font-bold">Newly Added</h2>
-            <div className="flex-1 border-t border-border/40 ml-3"></div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
-              <Link href="/business-profiles/new">
-                View All <ArrowRight className="h-4 w-4" />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              asChild
+              className="text-sm font-medium text-primary hover:text-primary/80 hover:bg-transparent px-2 py-1"
+            >
+              <Link href="/business-profiles/new" className="flex items-center gap-1">
+                View All <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </Button>
           </div>
@@ -187,15 +199,21 @@ export default async function BusinessProfilesPage() {
 
         {/* Categories Section with improved styling */}
         <section className="pt-4 pb-8">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="p-1.5 rounded-full bg-primary/10">
-              <TrendingUp className="h-4 w-4 text-primary" />
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-full bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-lg font-medium tracking-tight text-foreground/90">Explore by Category</h2>
             </div>
-            <h2 className="text-2xl font-bold">Explore by Category</h2>
-            <div className="flex-1 border-t border-border/40 ml-3"></div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
-              <Link href="/categories">
-                View All <ArrowRight className="h-4 w-4" />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              asChild
+              className="text-sm font-medium text-primary hover:text-primary/80 hover:bg-transparent px-2 py-1"
+            >
+              <Link href="/categories" className="flex items-center gap-1">
+                View All <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </Button>
           </div>

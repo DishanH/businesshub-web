@@ -108,10 +108,10 @@ function ViewAllButton({ href }: { href: string }) {
       variant="ghost"
       size="sm"
       asChild
-      className="gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
+      className="text-sm font-medium text-primary hover:text-primary/80 hover:bg-transparent px-2 py-1"
     >
-      <Link href={href}>
-        View All <ArrowRight className="h-4 w-4" />
+      <Link href={href} className="flex items-center gap-1">
+        View All <ArrowRight className="h-3.5 w-3.5" />
       </Link>
     </Button>
   );
@@ -128,12 +128,13 @@ function SectionHeading({
   href: string;
 }) {
   return (
-    <div className="flex items-center gap-3 mb-6">
-      <div className="p-2 rounded-full bg-primary/10 flex items-center justify-center">
-        {icon}
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-2">
+        <div className="p-1.5 rounded-full bg-primary/10 flex items-center justify-center">
+          {icon}
+        </div>
+        <h2 className="text-lg font-medium tracking-tight text-foreground/90">{title}</h2>
       </div>
-      <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-      <div className="flex-1 border-t border-border/40 ml-3"></div>
       <ViewAllButton href={href} />
     </div>
   );
@@ -544,7 +545,7 @@ export default function Home() {
             title="Browse All Categories"
             href="/categories"
           />
-          <div className="bg-muted/30 py-8 px-6 rounded-lg">
+          <div className="bg-muted/20 py-6 px-6 rounded-lg">
             <Suspense fallback={<CategoriesLoading />}>
               <CategoriesSection />
             </Suspense>
