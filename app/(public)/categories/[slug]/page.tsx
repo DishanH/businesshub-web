@@ -108,11 +108,12 @@ async function CategoryView({
   const businessesResult = await getBusinessesByCategory(category.id);
   const businesses = businessesResult.success ? businessesResult.data : [];
 
+  const { sort, subcategory } = await searchParams;
   // Get sorting option from URL
-  const sortOption = searchParams.sort;
+  const sortOption = sort;
 
   // Get subcategory filter from URL
-  const subcategoryFilter = searchParams.subcategory;
+  const subcategoryFilter = subcategory;
 
   // Map of icon names to emoji fallbacks
   const iconToEmoji: Record<string, string> = {

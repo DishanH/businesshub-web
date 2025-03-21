@@ -209,7 +209,9 @@ function formatDate(dateString: string) {
 }
 
 export async function generateMetadata({ params }: { params: { postId: string } }) {
-  const post = SAMPLE_POSTS.find(post => post.id === params.postId);
+
+  const { postId } = await params;
+  const post = SAMPLE_POSTS.find(post => post.id === postId);
   
   if (!post) {
     return {
@@ -224,7 +226,7 @@ export async function generateMetadata({ params }: { params: { postId: string } 
   };
 }
 
-export default function PostPage({ 
+export default await function PostPage({ 
   params, 
   searchParams 
 }: { 

@@ -20,9 +20,12 @@ export const metadata = {
   description: "News, tips, and stories about local businesses and community events.",
 };
 
-export default function CommunityPage({ searchParams }: { searchParams: { location?: string } }) {
+export default async function CommunityPage({ searchParams }: { searchParams: { location?: string } }) {
   // Get the location from URL params or default to toronto
-  const locationId = searchParams.location || "toronto";
+
+  const { location : locationParam } = await searchParams;
+
+  const locationId = locationParam || "toronto";
   const location = findLocationById(locationId) || getDefaultLocation();
   
   return (
