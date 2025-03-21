@@ -443,7 +443,7 @@ async function CategoriesSection() {
 // Community Highlights section with location
 async function CommunityHighlightsWithLocation() {
   // Get the location from cookies
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const locationId = cookieStore.get("selectedLocation")?.value || "toronto";
   
   return <CommunityHighlightsSection locationId={locationId} />;

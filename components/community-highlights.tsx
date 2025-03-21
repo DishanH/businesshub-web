@@ -137,43 +137,46 @@ export function CommunityHighlights({ locationId = "toronto", category }: Commun
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {filteredPosts.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12 bg-muted/30 rounded-lg">
           <p className="text-muted-foreground">No posts available for this selection.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredPosts.map((post) => (
-            <Card key={post.id} className="overflow-hidden hover:shadow-md transition-all duration-300 hover:translate-y-[-4px] border-0 shadow-sm">
-              <div className="relative h-48 w-full">
+            <Card key={post.id} className="overflow-hidden group hover:shadow-md transition-all duration-300 hover:translate-y-[-2px] border border-border/50">
+              <div className="relative h-52 w-full overflow-hidden">
                 <Image
                   src={post.image}
                   alt={post.title}
                   fill
-                  className="object-cover"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <Badge className="absolute top-3 right-3 bg-primary hover:bg-primary/90">
+                <Badge variant="secondary" className="absolute top-3 right-3 bg-primary text-primary-foreground hover:bg-primary/90">
                   {post.category}
                 </Badge>
               </div>
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                  <CalendarIcon className="h-4 w-4" />
+              <CardHeader className="pb-2 pt-4">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                  <CalendarIcon className="h-3.5 w-3.5" />
                   <span>{formatDate(post.date)}</span>
                 </div>
-                <CardTitle className="text-lg line-clamp-2 hover:text-primary transition-colors">
-                  <Link href={`/community/${post.id}?location=${post.locationId}`}>
+                <CardTitle className="text-base line-clamp-2">
+                  <Link 
+                    href={`/community/${post.id}?location=${post.locationId}`}
+                    className="hover:text-primary transition-colors"
+                  >
                     {post.title}
                   </Link>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <CardDescription className="line-clamp-3">
+              <CardContent className="pb-2">
+                <CardDescription className="line-clamp-2 text-xs">
                   {post.excerpt}
                 </CardDescription>
               </CardContent>
-              <CardFooter className="flex justify-between">
+              <CardFooter className="flex justify-between pt-0 pb-4">
                 <div className="flex items-center gap-2">
                   <div className="relative h-6 w-6 rounded-full overflow-hidden">
                     <Image
@@ -200,15 +203,15 @@ export function CommunityHighlights({ locationId = "toronto", category }: Commun
         </div>
       )}
       
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-center mt-8">
         <Button
           variant="outline"
-          className="border-primary/20 hover:bg-primary/5"
+          className="border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
           asChild
         >
-          <Link href={locationId ? `/community?location=${locationId}` : "/community"} className="flex items-center gap-1">
+          <Link href={locationId ? `/community?location=${locationId}` : "/community"} className="flex items-center gap-1.5">
             View All Community Posts
-            <ArrowRight className="h-3.5 w-3.5 ml-1" />
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </Button>
       </div>

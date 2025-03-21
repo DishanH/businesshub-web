@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Bell, Baby, Heart, LogOut, LogIn, Newspaper } from "lucide-react"
+import { Bell, Heart, LogOut, LogIn, Newspaper, Home, Menu, Baby, Search } from "lucide-react"
 import { createBrowserClient } from "@supabase/ssr"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { AdminButton } from "@/components/AdminButton"
@@ -61,48 +69,108 @@ export default function Header() {
   }
 
   return (
-    <header className="border-b">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-6">
-          <Link href="/" className="text-2xl font-bold">
-            Local Business Hub
+    <header className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Logo and desktop navigation */}
+        <div className="flex items-center gap-8">
+          <Link href="/" className="text-2xl font-bold flex items-center">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r  from-pink-500/90 to-blue-600">LocalHub</span>
           </Link>
+          
           <div className="hidden md:block">
             <HeaderLocationSelector />
           </div>
-          <nav className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" asChild>
-              <Link href="/nannies" className="flex items-center">
-                <Baby className="h-4 w-4 mr-2" />
-                Nannies
+          
+          <nav className="hidden md:flex items-center space-x-2">
+            {/* <Button variant="ghost" size="sm" asChild className="h-9 px-3">
+              <Link href="/" className="flex items-center gap-1.5">
+                <Home className="h-4 w-4" />
+                <span>Home</span>
               </Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link href={`/community?location=${location.id}`} className="flex items-center">
-                <Newspaper className="h-4 w-4 mr-2" />
-                Community
-              </Link>
-            </Button>
+            </Button> */}
           </nav>
         </div>
-        <div className="flex items-center space-x-4">
+        
+        {/* Right side actions */}
+        <div className="flex items-center gap-1 md:gap-2">
+          <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
+            <Link href="/search">
+              <Search className="h-4 w-4" />
+            </Link>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            asChild 
+            className="hidden md:flex h-10 items-center px-4 rounded-full border-primary/30 bg-primary/5 hover:bg-primary/10 hover:text-primary transition-colors"
+          >
+            <Link href={`/community?location=${location.id}`} className="flex items-center gap-1.5">
+              <Newspaper className="h-4 w-4" />
+              <span>Community</span>
+            </Link>
+          </Button>
+          
           <AdminButton />
+          
           <ThemeToggle />
+          
+          {/* Mobile menu button - visible on mobile only */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9 md:hidden">
+                <Menu className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[350px]">
+              <SheetHeader className="mb-6">
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-6">
+                <HeaderLocationSelector />
+                <div className="grid gap-2">
+                  <Button variant="outline" size="sm" asChild className="justify-start">
+                    <Link href="/" className="flex items-center gap-2">
+                      <Home className="h-4 w-4" />
+                      Home
+                    </Link>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    asChild 
+                    className="justify-start rounded-md border-primary/30 bg-primary/5 hover:bg-primary/10 hover:text-primary transition-colors"
+                  >
+                    <Link href={`/community?location=${location.id}`} className="flex items-center gap-2">
+                      <Newspaper className="h-4 w-4" />
+                      Community
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild className="justify-start">
+                    <Link href="/nannies" className="flex items-center gap-2">
+                      <Baby className="h-4 w-4" />
+                      Nannies
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+          
           {user ? (
             <>
-              <Button variant="ghost" size="icon" asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
                 <Link href="/user/saved-posts">
-                  <Button variant="ghost" size="icon">
-                    <Heart className="h-5 w-5" />
-                  </Button>
+                  <Heart className="h-4 w-4" />
                 </Link>
               </Button>
+              
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
+                  <Button variant="ghost" size="icon" className="relative h-9 w-9">
+                    <Bell className="h-4 w-4" />
                     {notificationCount > 0 && (
-                      <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-red-500 text-xs text-white flex items-center justify-center">
+                      <span className="absolute top-0 right-0 h-3.5 w-3.5 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center">
                         {notificationCount}
                       </span>
                     )}
@@ -115,10 +183,11 @@ export default function Header() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Avatar>
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <Avatar className="h-7 w-7">
                       <AvatarImage src={user.user_metadata?.avatar_url || "/placeholder.svg"} alt={user.user_metadata?.name || user.email || ''} />
                       <AvatarFallback>
                         {(user.user_metadata?.name?.[0] || user.email?.[0] || '?').toUpperCase()}
@@ -136,27 +205,29 @@ export default function Header() {
                     </span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Link href="/user/account">Account Settings</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/owner/business-profiles/manage">Business Dashboard</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/owner/business-profiles/analytics">Analytics & Performance</Link>
-                  </DropdownMenuItem>
-                  {/* <DropdownMenuItem>
-                    <Link href="/user/account/ads">Manage Ads</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/user/account/pages">Customize Pages</Link>
-                  </DropdownMenuItem> */}
-                  <DropdownMenuItem>
-                    <Link href="/site/privacy">Privacy</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/site/contact">Contact Us</Link>
-                  </DropdownMenuItem>
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <Link href="/user/account">Account Settings</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/owner/business-profiles/manage">Business Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/owner/business-profiles/analytics">Analytics & Performance</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <Link href="/nannies">Nannies</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/site/privacy">Privacy</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/site/contact">Contact Us</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -169,7 +240,7 @@ export default function Header() {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="flex items-center gap-1.5 text-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors"
+              className="h-9 flex items-center gap-1.5 text-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors"
               onClick={() => router.push('/auth/sign-in')}
             >
               <LogIn className="h-4 w-4" />
@@ -178,27 +249,7 @@ export default function Header() {
           )}
         </div>
       </div>
-      {/* Mobile location selector and navigation */}
-      <div className="md:hidden border-t py-2 px-4">
-        <div className="space-y-2">
-          <HeaderLocationSelector />
-          <div className="flex overflow-x-auto py-1 gap-2">
-            <Button variant="outline" size="sm" asChild className="flex-shrink-0">
-              <Link href="/nannies" className="flex items-center gap-1.5">
-                <Baby className="h-3.5 w-3.5" />
-                Nannies
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild className="flex-shrink-0">
-              <Link href={`/community?location=${location.id}`} className="flex items-center gap-1.5">
-                <Newspaper className="h-3.5 w-3.5" />
-                Community
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
     </header>
-  )
+  );
 }
 
