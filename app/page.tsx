@@ -24,6 +24,8 @@ import {
   NewlyAddedBusinessesClient,
 } from "@/components/featured-businesses";
 import { PopularCategories } from "@/components/popular-categories";
+import { CommunityHighlightsSection } from "@/components/community-highlights-section";
+import { cookies } from "next/headers";
 
 // Popular searches for the search component
 const popularSearches = [
@@ -133,7 +135,9 @@ function SectionHeading({
         <div className="p-1.5 rounded-full bg-primary/10 flex items-center justify-center">
           {icon}
         </div>
-        <h2 className="text-lg font-medium tracking-tight text-foreground/90">{title}</h2>
+        <h2 className="text-lg font-medium tracking-tight text-foreground/90">
+          {title}
+        </h2>
       </div>
       <ViewAllButton href={href} />
     </div>
@@ -436,6 +440,15 @@ async function CategoriesSection() {
   return <CategorySection categories={result.data} />;
 }
 
+// Community Highlights section with location
+async function CommunityHighlightsWithLocation() {
+  // Get the location from cookies
+  const cookieStore = await cookies();
+  const locationId = cookieStore.get("selectedLocation")?.value || "toronto";
+  
+  return <CommunityHighlightsSection locationId={locationId} />;
+}
+
 // Main page component
 export default function Home() {
   // For Next.js server component - no client-side hooks allowed
@@ -467,10 +480,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Popular categories */}
-        <section className="mb-12">
-          <PopularCategories useEmoji={true} />
-        </section>
+        {/* All categories section - smaller and more compact at the bottom */}
 
         {/* Featured businesses section with card glow effect */}
         <section className="mb-16">
@@ -478,7 +488,24 @@ export default function Home() {
             <FeaturedBusinessesSection />
           </Suspense>
         </section>
-
+        <section className="mb-16">
+          <SectionHeading
+            icon={<Grid className="h-5 w-5 text-primary" />}
+            title="Browse All Categories"
+            href="/categories"
+          />
+          <div className="bg-muted/20 py-6 px-6 rounded-lg">
+            <Suspense fallback={<CategoriesLoading />}>
+              <CategoriesSection />
+            </Suspense>
+          </div>
+        </section>
+        {/* Newly added businesses section */}
+        <section className="mb-16">
+          <Suspense fallback={<MoreBusinessesLoading />}>
+            <NewlyAddedBusinessesSection />
+          </Suspense>
+        </section>
         {/* Call to action section - moved up for better visibility */}
         <section className="mb-16 relative overflow-hidden">
           <div className="bg-gradient-to-r from-blue-900 to-primary/5 rounded-2xl shadow-lg p-8 md:p-12">
@@ -531,29 +558,15 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Newly added businesses section */}
+        {/* Community Highlights section */}
         <section className="mb-16">
-          <Suspense fallback={<MoreBusinessesLoading />}>
-            <NewlyAddedBusinessesSection />
+          <Suspense fallback={<BusinessesLoading />}>
+            <CommunityHighlightsWithLocation />
           </Suspense>
         </section>
 
-        {/* All categories section - smaller and more compact at the bottom */}
-        <section className="mb-16">
-          <SectionHeading
-            icon={<Grid className="h-5 w-5 text-primary" />}
-            title="Browse All Categories"
-            href="/categories"
-          />
-          <div className="bg-muted/20 py-6 px-6 rounded-lg">
-            <Suspense fallback={<CategoriesLoading />}>
-              <CategoriesSection />
-            </Suspense>
-          </div>
-        </section>
-
         {/* Testimonials section with improved cards */}
-        <section className="mb-16">
+        <section className="mb-4">
           <SectionHeading
             icon={<Star className="h-5 w-5 text-primary" />}
             title="What Our Users Say"
@@ -630,6 +643,10 @@ export default function Home() {
               </Button>
             </div>
           </div>
+        </section>
+        {/* Popular categories */}
+        <section className="mb-12">
+          <PopularCategories useEmoji={true} />
         </section>
       </div>
     </>

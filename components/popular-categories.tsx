@@ -167,7 +167,7 @@ export function PopularCategories({
   return (
     <div className={cn("w-full mb-2", className)}>
       <div className="container mx-auto px-4">
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-6xl mx-auto">
           {/* Scroll indicators */}
           <div className="absolute right-0 top-0 bottom-0 w-16 pointer-events-none bg-gradient-to-l from-background to-transparent z-10"></div>
           

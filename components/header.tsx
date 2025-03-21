@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Bell, Baby, Heart, LogOut, LogIn } from "lucide-react"
+import { Bell, Baby, Heart, LogOut, LogIn, Newspaper } from "lucide-react"
 import { createBrowserClient } from "@supabase/ssr"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -18,12 +18,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { AdminButton } from "@/components/AdminButton"
 import { HeaderLocationSelector } from "@/components/header-location-selector"
+import { useLocation } from "@/components/location-context"
 import type { User } from '@supabase/supabase-js'
 
 export default function Header() {
   const [notificationCount, setNotificationCount] = useState(0)
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
+  const { location } = useLocation()
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -73,6 +75,12 @@ export default function Header() {
               <Link href="/nannies" className="flex items-center">
                 <Baby className="h-4 w-4 mr-2" />
                 Nannies
+              </Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link href={`/community?location=${location.id}`} className="flex items-center">
+                <Newspaper className="h-4 w-4 mr-2" />
+                Community
               </Link>
             </Button>
           </nav>
@@ -170,9 +178,25 @@ export default function Header() {
           )}
         </div>
       </div>
-      {/* Mobile location selector */}
+      {/* Mobile location selector and navigation */}
       <div className="md:hidden border-t py-2 px-4">
-        <HeaderLocationSelector />
+        <div className="space-y-2">
+          <HeaderLocationSelector />
+          <div className="flex overflow-x-auto py-1 gap-2">
+            <Button variant="outline" size="sm" asChild className="flex-shrink-0">
+              <Link href="/nannies" className="flex items-center gap-1.5">
+                <Baby className="h-3.5 w-3.5" />
+                Nannies
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild className="flex-shrink-0">
+              <Link href={`/community?location=${location.id}`} className="flex items-center gap-1.5">
+                <Newspaper className="h-3.5 w-3.5" />
+                Community
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </header>
   )
