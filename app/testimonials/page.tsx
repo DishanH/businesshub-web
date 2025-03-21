@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Metadata } from "next";
 import { getTestimonials } from "@/app/actions/testimonials";
-import { TestimonialDialog } from "@/components/testimonial-dialog";
+import { AuthenticatedTestimonialDialog } from "@/components/authenticated-testimonial-dialog";
 
 export const metadata: Metadata = {
   title: "Testimonials | BusinessHub",
@@ -183,8 +183,9 @@ type PageProps = {
 
 export default async function TestimonialsPage({ searchParams }: PageProps) {
   // Parse search params
-  const currentCategory = searchParams?.category || null;
-  
+
+  const { category : currentCategory } = await searchParams;
+
   // Fetch testimonials data from Supabase
   const { success, testimonials } = await getTestimonials(currentCategory);
   
@@ -218,6 +219,10 @@ export default async function TestimonialsPage({ searchParams }: PageProps) {
         </p>
       </div>
       
+      <div className="text-center mb-12">
+        <AuthenticatedTestimonialDialog />
+      </div>
+      
       <Tabs defaultValue={activeTab} className="mb-12">
         <div className="flex justify-center mb-6">
           <TabsList className="bg-muted/50">
@@ -247,15 +252,6 @@ export default async function TestimonialsPage({ searchParams }: PageProps) {
           </div>
         </TabsContent>
       </Tabs>
-      
-      <div className="bg-muted/30 p-8 rounded-xl max-w-3xl mx-auto text-center shadow-sm border border-border/30">
-        <h2 className="text-xl font-semibold mb-4">Share Your Experience</h2>
-        <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-          We&apos;d love to hear about your experience with BusinessHub. Your feedback helps us improve our platform
-          and inspires other businesses and customers.
-        </p>
-        <TestimonialDialog />
-      </div>
     </div>
   );
 } 

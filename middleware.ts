@@ -13,7 +13,10 @@ const protectedRoutes = [
   '/account/pages',
   '/saved-posts',
   '/notifications',
-  '/owner/business-profiles/create'
+  '/owner/business-profiles/create',
+  '/testimonials/submit',
+  '/testimonials/edit',
+  '/api/testimonials'  // Protect the API route for testimonial submissions
 ]
 
 // Define role-based routes
