@@ -661,6 +661,27 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+    {/* Banner with instructions */}
+    <div className="mb-6 p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-lg border-l-4 border-primary shadow-sm">
+      <div className="flex gap-3 items-center">
+        <Store className="h-5 w-5 text-primary shrink-0" />
+        <div>
+          {
+            isEditing ? (
+              <>
+                <h2 className="text-lg font-medium">Edit your business profile</h2>
+                <p className="text-muted-foreground text-sm">Update your business information to ensure it's accurate and up-to-date.</p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-medium">Create your business profile</h2>
+                <p className="text-muted-foreground text-sm">Fill out all sections to showcase your business to potential customers.</p>
+              </>
+            )
+          }
+        </div>
+      </div>
+    </div>
 
       <Card className="shadow-md border-muted/40">
         <CardHeader className="bg-muted/20 pb-4">
@@ -694,7 +715,7 @@ export default function AddBusinessPage({ isEditing = false, businessData = null
             <Form {...form}>
               <form onSubmit={onSubmit} className="space-y-8">
                 {/* Step navigation tabs */}
-                <div className="hidden md:block">
+                <div className="hidden md:block relative">
                   <div className="flex items-center justify-between mb-8">
                     {steps.map((step, index) => (
                       <div key={step.id} className="flex flex-col items-center gap-2">
