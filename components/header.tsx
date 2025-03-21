@@ -74,7 +74,7 @@ export default function Header() {
         {/* Logo and desktop navigation */}
         <div className="flex items-center gap-8">
           <Link href="/" className="text-2xl font-bold flex items-center">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r  from-pink-500/90 to-blue-600">LocalHub</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-blue-600">LocalHub</span>
           </Link>
           
           <div className="hidden md:block">
@@ -103,7 +103,7 @@ export default function Header() {
             variant="outline" 
             size="sm" 
             asChild 
-            className="hidden md:flex h-10 items-center px-4 rounded-full border-primary/30 bg-primary/5 hover:bg-primary/10 hover:text-primary transition-colors"
+            className="hidden md:flex h-10 items-center px-4 rounded-full border-primary/20 bg-gradient-to-r from-primary/10 to-blue-500/10 hover:bg-primary/20 hover:text-primary transition-colors"
           >
             <Link href={`/community?location=${location.id}`} className="flex items-center gap-1.5">
               <Newspaper className="h-4 w-4" />
@@ -139,7 +139,7 @@ export default function Header() {
                     variant="outline" 
                     size="sm" 
                     asChild 
-                    className="justify-start rounded-md border-primary/30 bg-primary/5 hover:bg-primary/10 hover:text-primary transition-colors"
+                    className="justify-start rounded-md border-primary/20 bg-gradient-to-r from-primary/10 to-blue-500/10 hover:bg-primary/20 hover:text-primary transition-colors"
                   >
                     <Link href={`/community?location=${location.id}`} className="flex items-center gap-2">
                       <Newspaper className="h-4 w-4" />

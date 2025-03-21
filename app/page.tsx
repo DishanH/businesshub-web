@@ -443,7 +443,7 @@ async function CategoriesSection() {
 // Community Highlights section with location
 async function CommunityHighlightsWithLocation() {
   // Get the location from cookies
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const locationId = cookieStore.get("selectedLocation")?.value || "toronto";
   
   return <CommunityHighlightsSection locationId={locationId} />;
@@ -462,7 +462,7 @@ export default function Home() {
       <div className="container mx-auto px-4">
         {/* Search section with glass morphism effect */}
         <section className="relative -mt-16 z-10 mb-8">
-          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-border/10">
+          <div className="bg-gradient-to-r from-background/90 via-background/95 to-background/90 dark:from-gray-900/90 dark:via-gray-900/95 dark:to-gray-900/90 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-primary/10">
             <div className="max-w-4xl mx-auto space-y-6">
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
                 Find Local Businesses
